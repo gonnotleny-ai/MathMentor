@@ -1,0 +1,33 @@
+# Base de données (ne jamais versionner)
+app.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Clés et secrets
+.env
+.env.local
+.env.*
+
+# Fichiers uploadés par les utilisateurs
+uploads/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Logs
+*.log

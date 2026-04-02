@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"/Users/gonnotleny/Documents/Projet Lény\" -type f -exec wc -l {} +)",
+      "Bash(wc -l \"/Users/gonnotleny/Documents/Projet Lény/public/modules\"/*.js)",
+      "Bash(wc -l public/modules/*.js)"
+    ]
+  }
+}

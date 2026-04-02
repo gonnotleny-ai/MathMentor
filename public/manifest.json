@@ -1,0 +1,12 @@
+{
+  "name": "MathMentor GCGP",
+  "short_name": "MathMentor",
+  "description": "Application de mathématiques pour BUT Génie Chimique Génie des Procédés",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" }
+  ]
+}

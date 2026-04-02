@@ -1,0 +1,4 @@
+# MathMentor — dépendances Python
+# Migré de SQLite vers PostgreSQL
+psycopg2-binary
+certifi

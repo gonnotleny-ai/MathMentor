@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MathMentor</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+      onload="window.__katexReady=true;document.dispatchEvent(new Event('katex-ready'))"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjs@13/lib/browser/math.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header panel">
+        <div class="brand-mark">MM</div>
+        <div class="brand-copy">
+          <p class="section-label">MathMentor</p>
+          <h1>Assistant IA pour BUT Génie Chimique</h1>
+          <p class="panel-text">Maîtrisez les mathématiques avec l'aide de l'IA.</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="Basculer thème sombre/clair" aria-label="Mode sombre">🌙</button>
+          <button type="button" class="search-open-btn" id="search-open-btn" title="Recherche globale" aria-label="Rechercher">🔍</button>
+          <button type="button" class="notif-bell is-hidden" id="notif-bell" title="Notifications" aria-label="Notifications">
+            🔔<span class="notif-badge is-hidden" id="notif-badge"></span>
+          </button>
+          <div class="notif-dropdown is-hidden" id="notif-dropdown">
+            <div class="notif-dropdown-head">
+              <span>Notifications</span>
+              <button type="button" class="ghost-button" id="notif-mark-read">Tout marquer lu</button>
+            </div>
+            <div id="notif-list"></div>
+          </div>
+        </div>
+      </header>
+
+      <nav class="tab-bar" aria-label="Navigation principale">
+        <button type="button" class="tab-button is-active" data-tab="dashboard">Tableau de bord</button>
+        <button type="button" class="tab-button" data-tab="generator">Générateur</button>
+        <button type="button" class="tab-button" data-tab="qcm-generator">QCM</button>
+        <button type="button" class="tab-button" data-tab="library">Exercices</button>
+        <button type="button" class="tab-button" data-tab="courses">Cours</button>
+        <button type="button" class="tab-button" data-tab="themes">Thèmes</button>
+        <button type="button" class="tab-button" data-tab="stats">Statistiques</button>
+        <button type="button" class="tab-button" data-tab="assistant">Assistant IA</button>
+        <button id="teacher-tab-button" type="button" class="tab-button is-hidden" data-tab="teacher">Espace prof</button>
+        <button type="button" class="tab-button" data-tab="account">Compte</button>
+      </nav>
+
+      <main class="app-main">
+        <section class="tab-panel is-active" data-view="dashboard">
+          <section class="panel dashboard-hero">
+            <div class="dashboard-hero-grid">
+              <div>
+                <p class="section-label">Tableau de bord</p>
+                <h2>Assistant IA pour BUT Génie Chimique</h2>
+                <p class="dashboard-lead">Maîtrisez les mathématiques avec l'aide de l'IA</p>
+                <p class="panel-text">
+                  MathMentor est votre assistant personnel pour réussir en mathématiques.
+                  Posez vos questions, générez des exercices et obtenez des corrections détaillées.
+                </p>
+                <div class="button-row hero-actions">
+                  <button type="button" class="primary-button" data-jump="generator">Commencer maintenant</button>
+                  <button type="button" class="secondary-button" data-jump="library">Voir les exercices</button>
+                </div>
+              </div>
+              <aside class="hero-note">
+                <div class="hero-note-card">
+                  <strong>Mode guidé</strong>
+                  <span>Plus d'indices, plus de méthode, correction très accompagnée.</span>
+                </div>
+                <div class="hero-note-card">
+                  <strong>Mode examen</strong>
+                  <span>Énoncé plus direct, sans aide intermédiaire, correction complète après résolution.</span>
+                </div>
+                <div class="hero-note-card">
+                  <strong>Première année BUT GCGP</strong>
+                  <span>Thèmes ciblés sur les méthodes de résolution attendues en début de cursus.</span>
+                </div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Révision du jour</p>
+                <h2>Par où commencer aujourd'hui ?</h2>
+              </div>
+            </div>
+            <p class="panel-text">
+              MathMentor vous propose un point d'entrée simple pour reprendre un chapitre, rouvrir votre dernier exercice et revenir sur votre dernière question.
+            </p>
+            <div class="revision-grid">
+              <article class="revision-card revision-card-primary">
+                <p class="section-label">Chapitre conseillé</p>
+                <h3 id="dashboard-focus-title">Choix du prochain chapitre</h3>
+                <p id="dashboard-focus-text" class="panel-text">
+                  MathMentor va vous proposer un thème prioritaire en fonction de votre activité récente.
+                </p>
+                <div id="dashboard-focus-tags" class="tag-row"></div>
+                <div class="button-row">
+                  <button id="dashboard-focus-course" type="button" class="primary-button">Voir le cours</button>
+                  <button id="dashboard-focus-generate" type="button" class="secondary-button">S'entraîner sur ce thème</button>
+                </div>
+              </article>
+              <article class="revision-card">
+                <p class="section-label">Dernier exercice</p>
+                <h3 id="dashboard-latest-title">Aucun exercice récent</h3>
+                <p id="dashboard-latest-text" class="panel-text">
+                  Vos derniers exercices apparaîtront ici pour reprendre rapidement votre révision.
+                </p>
+                <button id="dashboard-latest-action" type="button" class="ghost-button">Ouvrir la bibliothèque</button>
+              </article>
+              <article class="revision-card">
+                <p class="section-label">Dernière question</p>
+                <h3 id="dashboard-question-title">Aucune question récente</h3>
+                <p id="dashboard-question-text" class="panel-text">
+                  L'assistant vous aidera à reprendre une notion, une méthode ou un calcul bloquant.
+                </p>
+                <button id="dashboard-question-action" type="button" class="ghost-button">Aller vers l'assistant</button>
+              </article>
+            </div>
+          </section>
+
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Ajouts du professeur</p>
+                <h2>Dernières ressources publiées</h2>
+              </div>
+            </div>
+            <p class="panel-text">
+              Retrouvez ici les derniers cours et exercices ajoutés par les enseignants de votre espace MathMentor.
+            </p>
+            <div class="revision-grid">
+              <article class="revision-card">
+                <p class="section-label">Dernier cours publié</p>
+                <h3 id="teacher-course-title">Aucun cours publié</h3>
+                <p id="teacher-course-text" class="panel-text">
+                  Les prochains compléments de cours ajoutés par un professeur apparaîtront ici.
+                </p>
+                <button id="teacher-course-action" type="button" class="ghost-button">Voir les cours</button>
+              </article>
+              <article class="revision-card">
+                <p class="section-label">Dernier exercice publié</p>
+                <h3 id="teacher-exercise-title">Aucun exercice publié</h3>
+                <p id="teacher-exercise-text" class="panel-text">
+                  Les exercices publiés manuellement par un professeur apparaîtront ici.
+                </p>
+                <button id="teacher-exercise-action" type="button" class="ghost-button">Voir les exercices</button>
+              </article>
+            </div>
+          </section>
+
+          <!-- Stats élève -->
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Progression</p>
+                <h2>Tableau de bord élève</h2>
+              </div>
+            </div>
+            <div class="student-stats-grid">
+              <div class="stat-radar-wrap">
+                <h4>Couverture par thème</h4>
+                <canvas id="dashboard-radar" height="220"></canvas>
+              </div>
+              <div class="stat-levels-wrap">
+                <h4>Résultats par difficulté</h4>
+                <table class="level-stats-table">
+                  <thead>
+                    <tr><th>Niveau</th><th>Total</th><th>✓ Acquis</th><th>~ Difficile</th><th>✗ Échoué</th><th>Non vu</th></tr>
+                  </thead>
+                  <tbody id="dashboard-level-table"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="stat-review-wrap">
+              <h4>À revoir en priorité</h4>
+              <div id="dashboard-review-list"></div>
+            </div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Compétences</p>
+                <h2>Carte des compétences</h2>
+              </div>
+            </div>
+            <p class="panel-text">Niveau de maîtrise par thème, calculé à partir de vos exercices et auto-évaluations.</p>
+            <div id="skills-map-grid" class="skills-map-grid"></div>
+          </section>
+
+          <section class="panel dashboard-section" id="adaptive-suggestion-section">
+            <h2 class="section-title">Parcours adaptatif</h2>
+            <div id="adaptive-suggestion"></div>
+          </section>
+
+          <section class="panel dashboard-section" id="advanced-stats-section">
+            <h2 class="section-title">Statistiques d'apprentissage</h2>
+            <div class="stats-charts-row">
+              <div class="stats-chart-block">
+                <h3 class="stats-chart-title">Maîtrise par thème</h3>
+                <canvas id="radar-chart" width="300" height="300"></canvas>
+              </div>
+              <div class="stats-chart-block">
+                <h3 class="stats-chart-title">Progression dans le temps</h3>
+                <canvas id="progress-chart" width="300" height="300"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel dashboard-section" id="due-exercises-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Répétition espacée</p>
+                <h2>Exercices à réviser aujourd'hui</h2>
+              </div>
+            </div>
+            <p class="panel-text">Exercices planifiés pour révision aujourd'hui selon votre historique d'auto-évaluation.</p>
+            <div id="due-exercises-list"></div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Objectifs</p>
+                <h2>Série & objectifs quotidiens</h2>
+              </div>
+            </div>
+            <div id="streak-display"></div>
+            <h3 style="margin:20px 0 8px;font-size:15px;color:var(--muted)">Cette semaine</h3>
+            <div id="weekly-goals"></div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Activité</p>
+                <h2>Activité des 12 dernières semaines</h2>
+              </div>
+            </div>
+            <div id="activity-heatmap"></div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Récompenses</p>
+                <h2>Badges débloqués</h2>
+              </div>
+            </div>
+            <div id="badges-grid" class="badge-grid"></div>
+          </section>
+
+          <section class="panel dashboard-section" id="devoirs-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">À rendre</p>
+                <h2>Devoirs assignés</h2>
+              </div>
+            </div>
+            <div id="devoirs-list"></div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <h2 class="section-title">📊 Historique des erreurs</h2>
+            <div id="error-history-content"></div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Outils</p>
+                <h2>Tout ce dont vous avez besoin</h2>
+              </div>
+            </div>
+            <p class="panel-text">
+              Des outils puissants pour vous accompagner dans votre apprentissage des mathématiques.
+            </p>
+            <div class="feature-grid">
+              <article class="feature-card">
+                <h3>Chat Intelligent</h3>
+                <p>Posez vos questions de mathématiques et recevez des explications claires et détaillées.</p>
+              </article>
+              <article class="feature-card">
+                <h3>Exercices Personnalisés</h3>
+                <p>Générez des exercices adaptés à votre niveau, en mode guidé ou en mode examen, avec corrections complètes.</p>
+              </article>
+              <article class="feature-card">
+                <h3>Suivi &amp; Historique</h3>
+                <p>Retrouvez vos conversations et exercices passés pour réviser efficacement.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel dashboard-section">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Programme</p>
+                <h2>Thèmes couverts</h2>
+              </div>
+            </div>
+            <p class="panel-text">
+              Programme adapté au niveau BUT Génie Chimique - Génie des Procédés, première année.
+            </p>
+            <div class="theme-grid">
+              <article class="theme-card">
+                <h3>Fonctions à plusieurs variables</h3>
+                <ul class="plain-list">
+                  <li>Dérivées partielles</li>
+                  <li>Intégrales simples et doubles</li>
+                  <li>Équations aux dérivées partielles simples</li>
+                  <li>Lecture et interprétation locale</li>
+                </ul>
+              </article>
+              <article class="theme-card">
+                <h3>Systèmes linéaires</h3>
+                <ul class="plain-list">
+                  <li>Substitution</li>
+                  <li>Pivot de Gauss</li>
+                  <li>Systèmes sans solution</li>
+                  <li>Choix de la bonne méthode</li>
+                </ul>
+              </article>
+              <article class="theme-card">
+                <h3>Polynômes</h3>
+                <ul class="plain-list">
+                  <li>Opérations</li>
+                  <li>Racines</li>
+                  <li>Factorisation</li>
+                  <li>Lecture des solutions</li>
+                </ul>
+              </article>
+              <article class="theme-card">
+                <h3>Fractions rationnelles</h3>
+                <ul class="plain-list">
+                  <li>Division euclidienne</li>
+                  <li>Décomposition en éléments simples</li>
+                  <li>Facteurs simples ou multiples</li>
+                  <li>Vérification finale</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel dashboard-cta">
+            <div>
+              <p class="section-label">Prêt à progresser ?</p>
+              <h2>Prêt à progresser en maths ?</h2>
+              <p class="panel-text">
+                Rejoignez MathMentor et accédez à votre assistant mathématiques personnel.
+              </p>
+            </div>
+            <button type="button" class="primary-button" data-jump="generator">Commencer gratuitement</button>
+          </section>
+        </section>
+
+        <section class="tab-panel" data-view="generator">
+          <div class="panel-grid two-columns">
+            <section class="panel generator-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Exercices Personnalisés</p>
+                  <h2>Générer un exercice</h2>
+                </div>
+                <span id="generator-status" class="chip">Prêt</span>
+              </div>
+              <p class="panel-text">
+                Choisissez un chapitre, un niveau, un type d'exercice et un mode de travail. Vous pouvez maintenant générer soit un exercice de maths pures, soit un exercice contextualisé en procédés.
+              </p>
+              <form id="generator-form" class="form-stack generator-form-shell">
+                <label>
+                  Chapitre
+                  <select id="generator-topic"></select>
+                </label>
+                <div class="form-split">
+                  <label>
+                    Niveau
+                    <select id="generator-level">
+                      <option value="facile">Facile</option>
+                      <option value="intermediaire" selected>Intermédiaire</option>
+                      <option value="avance">Avancé</option>
+                    </select>
+                  </label>
+                  <label>
+                    Type d'exercice
+                    <select id="generator-type">
+                      <option value="pure">Maths pures</option>
+                      <option value="procede">Application procédé</option>
+                    </select>
+                  </label>
+                </div>
+                <label>
+                  Mode pédagogique
+                  <select id="generator-mode">
+                    <option value="guide" selected>Mode guidé</option>
+                    <option value="examen">Mode examen</option>
+                  </select>
+                </label>
+                <p id="generator-mode-text" class="helper-text">
+                  Mode guidé : ajoute des repères de méthode et un accompagnement plus progressif.
+                </p>
+                <label>
+                  Contexte ou objectif visé
+                  <textarea
+                    id="generator-goal"
+                    rows="4"
+                    placeholder="Exemple : demander une vérification finale, insister sur la méthode, ou rester proche d'un exercice de TD"
+                  ></textarea>
+                </label>
+                <div class="button-row">
+                  <button type="submit" class="secondary-button">Générer localement</button>
+                  <button id="generator-ai-button" type="button" class="primary-button">Générer avec l'IA</button>
+                </div>
+                <article class="status-note status-note-info">
+                  L'IA enrichit la génération quand elle est disponible. Si elle est indisponible, MathMentor bascule automatiquement vers un exercice local détaillé.
+                </article>
+                <p id="generator-feedback" class="helper-text">
+                  L'exercice généré apparaîtra dans le panneau de droite et sera ajouté à votre bibliothèque locale.
+                </p>
+              </form>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Sortie</p>
+                  <h2>Exercice généré</h2>
+                </div>
+              </div>
+              <article id="generated-exercise" class="detail-card empty-state">
+                Choisissez vos paramètres puis lancez une génération.
+              </article>
+            </section>
+          </div>
+        </section>
+
+        <!-- QCM Generator section -->
+        <section class="tab-panel" data-view="qcm-generator">
+          <div class="panel-grid two-columns">
+            <section class="panel generator-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">QCM</p>
+                  <h2>Générer un QCM</h2>
+                </div>
+                <span id="qcm-status" class="chip">Prêt</span>
+              </div>
+              <p class="panel-text">Générez des questions à choix multiples sur un thème mathématique. Répondez puis consultez les corrections.</p>
+              <form id="qcm-form" class="form-stack">
+                <label>
+                  Chapitre
+                  <select id="qcm-topic"></select>
+                </label>
+                <label>
+                  Niveau
+                  <select id="qcm-level">
+                    <option value="facile">Facile</option>
+                    <option value="intermediaire" selected>Intermédiaire</option>
+                    <option value="avance">Avancé</option>
+                  </select>
+                </label>
+                <label>
+                  Nombre de questions
+                  <select id="qcm-count">
+                    <option value="3">3 questions</option>
+                    <option value="5" selected>5 questions</option>
+                    <option value="8">8 questions</option>
+                    <option value="10">10 questions</option>
+                  </select>
+                </label>
+                <button type="submit" class="primary-button">Générer le QCM avec l'IA</button>
+                <p id="qcm-feedback" class="helper-text">Le QCM apparaîtra dans le panneau de droite.</p>
+              </form>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">QCM</p>
+                  <h2>Questions générées</h2>
+                </div>
+              </div>
+              <div id="qcm-output" class="qcm-output">
+                <article class="detail-card empty-state">Choisissez un chapitre et lancez la génération.</article>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-view="library">
+          <!-- Hub grid -->
+          <div class="tab-hub-wrap" data-hub="library">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Exercices</p>
+                  <h2>Que souhaitez-vous faire ?</h2>
+                </div>
+              </div>
+              <div class="hub-grid">
+                <article class="hub-card" data-hub-tab="library" data-hub-section="all">
+                  <span class="hub-card-icon">📚</span>
+                  <h3>Tous les exercices</h3>
+                  <p>Parcourez l'ensemble des exercices disponibles, filtrez par chapitre, niveau ou semestre.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="library" data-hub-section="favorites">
+                  <span class="hub-card-icon">⭐</span>
+                  <h3>Mes favoris</h3>
+                  <p>Retrouvez rapidement les exercices que vous avez marqués comme favoris.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="library" data-hub-section="generated">
+                  <span class="hub-card-icon">🤖</span>
+                  <h3>Mes exercices générés</h3>
+                  <p>Retrouvez tous les exercices que vous avez générés avec MathMentor ou l'IA.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" id="exam-hub-card" style="cursor:pointer">
+                  <span class="hub-card-icon">🎯</span>
+                  <h3>Simuler un examen</h3>
+                  <p>Testez-vous en conditions d'examen : minuteur, correction masquée, score final.</p>
+                  <span class="hub-card-action">Démarrer →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="library" data-hub-section="grapher">
+                  <span class="hub-card-icon">📈</span>
+                  <h3>Grapheur de fonctions</h3>
+                  <p>Tracez jusqu'à 3 fonctions : polynômes, sin, cos, exp, sqrt… avec zoom et export PNG.</p>
+                  <span class="hub-card-action">Ouvrir →</span>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <!-- Section : Tous les exercices -->
+          <div class="tab-section" data-section="all" data-hub-parent="library">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
+            </div>
+            <div class="panel-grid two-columns">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Bibliothèque</p>
+                    <h2>Exercices disponibles</h2>
+                  </div>
+                </div>
+                <div class="semester-tabs">
+                  <button type="button" class="semester-tab-btn" data-semester="S1">Semestre 1</button>
+                  <button type="button" class="semester-tab-btn is-active" data-semester="S2">Semestre 2</button>
+                </div>
+                <div class="filter-grid">
+                  <input id="library-search" type="text" placeholder="Rechercher un exercice" />
+                  <select id="library-semester">
+                    <option value="all">Tous les semestres</option>
+                  </select>
+                  <select id="library-topic">
+                    <option value="all">Tous les chapitres</option>
+                  </select>
+                  <select id="library-level">
+                    <option value="all">Tous les niveaux</option>
+                    <option value="facile">Facile</option>
+                    <option value="intermediaire">Intermédiaire</option>
+                    <option value="avance">Avancé</option>
+                  </select>
+                  <select id="library-source">
+                    <option value="all">Toutes les sources</option>
+                    <option value="bibliotheque">Bibliothèque</option>
+                    <option value="ia">Généré par l'IA</option>
+                    <option value="local">Généré localement</option>
+                    <option value="professeur">Publié par un prof</option>
+                  </select>
+                </div>
+                <div class="filter-checkboxes">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="library-unseen" /> Non vus seulement
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="library-failed" /> Mal évalués (❌/⚠️) seulement
+                  </label>
+                  <button type="button" id="revision-mode-btn" class="ghost-button revision-btn">▶ Mode révision</button>
+                </div>
+                <div id="revision-banner" class="revision-banner is-hidden">
+                  <span id="revision-counter">Révision : exercice 1 / 1</span>
+                  <div class="revision-banner-actions">
+                    <button type="button" id="revision-next" class="primary-button">Suivant →</button>
+                    <button type="button" id="revision-stop" class="ghost-button">Arrêter</button>
+                  </div>
+                </div>
+                <div id="exercise-list" class="card-list"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Détail</p>
+                    <h2>Énoncé et correction</h2>
+                  </div>
+                </div>
+                <article id="exercise-detail" class="detail-card empty-state">
+                  Sélectionnez un exercice dans la liste pour afficher le détail.
+                </article>
+              </section>
+            </div>
+          </div>
+
+          <!-- Section : Mes favoris -->
+          <div class="tab-section" data-section="favorites" data-hub-parent="library">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
+            </div>
+            <div class="panel-grid two-columns">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Favoris</p>
+                    <h2>Mes exercices favoris</h2>
+                  </div>
+                </div>
+                <div id="favorites-list" class="card-list"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Détail</p>
+                    <h2>Énoncé et correction</h2>
+                  </div>
+                </div>
+                <article id="favorites-detail" class="detail-card empty-state">
+                  Sélectionnez un exercice favori pour afficher le détail.
+                </article>
+              </section>
+            </div>
+          </div>
+
+          <!-- Section : Mes exercices générés -->
+          <div class="tab-section" data-section="generated" data-hub-parent="library">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
+            </div>
+            <div class="panel-grid two-columns">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Générés</p>
+                    <h2>Mes exercices générés</h2>
+                  </div>
+                </div>
+                <div id="generated-list" class="card-list"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Détail</p>
+                    <h2>Énoncé et correction</h2>
+                  </div>
+                </div>
+                <article id="generated-detail" class="detail-card empty-state">
+                  Sélectionnez un exercice généré pour afficher le détail.
+                </article>
+              </section>
+            </div>
+          </div>
+
+          <!-- Section : Grapheur -->
+          <div class="tab-section" data-section="grapher" data-hub-parent="library">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Grapheur</p>
+                  <h2>Tracer des fonctions</h2>
+                </div>
+                <button type="button" class="ghost-button print-hide" id="grapher-export-btn">Exporter PNG</button>
+              </div>
+              <p class="panel-text">Entrez jusqu'à 3 expressions de x. Utilisez <code>sin(x)</code>, <code>cos(x)</code>, <code>exp(x)</code>, <code>x^2</code>, <code>sqrt(x)</code>, <code>ln(x)</code>…</p>
+              <div class="grapher-inputs">
+                <div class="grapher-input-row">
+                  <span class="grapher-color-dot" style="background:#2563eb"></span>
+                  <input type="text" class="grapher-fn-input" id="grapher-fn1" placeholder="f(x) = x^2 - 2*x + 1" />
+                </div>
+                <div class="grapher-input-row">
+                  <span class="grapher-color-dot" style="background:#10b981"></span>
+                  <input type="text" class="grapher-fn-input" id="grapher-fn2" placeholder="g(x) = sin(x)" />
+                </div>
+                <div class="grapher-input-row">
+                  <span class="grapher-color-dot" style="background:#f59e0b"></span>
+                  <input type="text" class="grapher-fn-input" id="grapher-fn3" placeholder="h(x) = exp(-x)" />
+                </div>
+              </div>
+              <div class="grapher-controls">
+                <button type="button" class="ghost-button" id="grapher-zoom-in">+ Zoom</button>
+                <button type="button" class="ghost-button" id="grapher-zoom-out">− Zoom</button>
+                <button type="button" class="ghost-button" id="grapher-reset-view">Réinitialiser</button>
+                <span style="font-size:13px;color:var(--muted)">x ∈ [<span id="grapher-xmin">-10</span>, <span id="grapher-xmax">10</span>]</span>
+              </div>
+              <canvas id="grapher-canvas" class="grapher-canvas"></canvas>
+              <p class="helper-text" id="grapher-coords" style="margin-top:6px;min-height:18px"></p>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-view="courses">
+          <!-- Hub grid -->
+          <div class="tab-hub-wrap" data-hub="courses">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Cours</p>
+                  <h2>Que souhaitez-vous consulter ?</h2>
+                </div>
+              </div>
+              <div class="hub-grid">
+                <article class="hub-card" data-hub-tab="courses" data-hub-section="official">
+                  <span class="hub-card-icon">📖</span>
+                  <h3>Programme officiel</h3>
+                  <p>Consultez le programme de maths BUT GCGP : objectifs, notions clés et chapitres par semestre.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="courses" data-hub-section="teacher">
+                  <span class="hub-card-icon">👨‍🏫</span>
+                  <h3>Cours des professeurs</h3>
+                  <p>Retrouvez les compléments de cours publiés par vos enseignants, réservés à votre classe.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="courses" data-hub-section="references">
+                  <span class="hub-card-icon">📐</span>
+                  <h3>Formules de référence</h3>
+                  <p>Aide-mémoire condensé : formules clés, cas types et méthodes pour chaque thème BUT GCGP.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="courses" data-hub-section="flashcards">
+                  <span class="hub-card-icon">🃏</span>
+                  <h3>Cartes mémoire</h3>
+                  <p>Révisez les formules clés sous forme de flashcards : retournez la carte et évaluez votre connaissance.</p>
+                  <span class="hub-card-action">Réviser →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="courses" data-hub-section="formulas">
+                  <span class="hub-card-icon">🔢</span>
+                  <h3>Tableau de formules</h3>
+                  <p>Toutes les formules du programme BUT GCGP classées par thème, avec recherche instantanée et export vers la calculatrice.</p>
+                  <span class="hub-card-action">Consulter →</span>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <!-- Section : Programme officiel -->
+          <div class="tab-section" data-section="official" data-hub-parent="courses">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="courses">← Retour</button>
+            </div>
+            <div class="panel">
+              <div class="semester-tabs">
+                <button type="button" class="semester-tab-btn" data-semester="S1">Semestre 1</button>
+                <button type="button" class="semester-tab-btn is-active" data-semester="S2">Semestre 2</button>
+              </div>
+            </div>
+            <div class="panel-grid two-columns">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Cours</p>
+                    <h2>Programme de maths</h2>
+                  </div>
+                </div>
+                <div id="course-list" class="card-list"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Contenu</p>
+                    <h2>Objectifs et notions</h2>
+                  </div>
+                </div>
+                <article id="course-detail" class="detail-card empty-state">
+                  Sélectionnez un module pour voir le détail du contenu.
+                </article>
+              </section>
+            </div>
+          </div>
+
+          <!-- Section : Cours des professeurs -->
+          <div class="tab-section" data-section="teacher" data-hub-parent="courses">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="courses">← Retour</button>
+            </div>
+            <div class="panel-grid two-columns">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Professeurs</p>
+                    <h2>Cours publiés</h2>
+                  </div>
+                </div>
+                <div id="teacher-course-list" class="card-list"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-label">Contenu</p>
+                    <h2>Détail du cours</h2>
+                  </div>
+                </div>
+                <article id="teacher-course-detail" class="detail-card empty-state">
+                  Sélectionnez un cours pour voir le détail.
+                </article>
+              </section>
+            </div>
+          </div>
+
+          <!-- Section : Formules de référence -->
+          <div class="tab-section" data-section="references" data-hub-parent="courses">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="courses">← Retour</button>
+            </div>
+            <div id="references-content"></div>
+          </div>
+
+          <!-- Section : Cartes mémoire -->
+          <div class="tab-section" data-section="flashcards" data-hub-parent="courses">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="courses">← Retour</button>
+            </div>
+            <div id="flashcards-content"></div>
+          </div>
+
+          <!-- Section : Tableau de formules -->
+          <div class="tab-section" data-section="formulas" data-hub-parent="courses">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="courses">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Formules</p>
+                  <h2>Tableau de formules interactif</h2>
+                </div>
+              </div>
+              <p class="panel-text">Retrouvez toutes les formules du programme BUT GCGP, classées par thème. Cliquez sur "📋 Calc" pour injecter une formule directement dans la calculatrice.</p>
+              <div class="formulas-search-bar">
+                <input type="search" id="formulas-search" placeholder="Rechercher une formule, un thème, un tag…" autocomplete="off" />
+              </div>
+              <div id="formulas-content"></div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ── Thèmes ─────────────────────────────────────────────────────── -->
+        <section class="tab-panel" data-view="themes">
+          <div id="themes-hub-wrap">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Thèmes</p>
+                  <h2>Choisir un thème à explorer</h2>
+                </div>
+              </div>
+              <p class="panel-text">Un hub dédié par thème : cours, exercices, flashcards et générateur au même endroit.</p>
+              <div id="themes-hub-content" class="themes-hub-grid"></div>
+            </section>
+          </div>
+
+          <div id="themes-detail-wrap" class="is-hidden">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button" id="theme-detail-back">← Retour aux thèmes</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label" id="theme-detail-subtitle">Thème</p>
+                  <h2 id="theme-detail-title">Nom du thème</h2>
+                </div>
+                <button type="button" class="primary-button" id="theme-quick-gen-btn">⚡ Générer un exercice</button>
+              </div>
+            </section>
+            <div class="panel-grid three-columns">
+              <section class="panel">
+                <div class="panel-head"><div><p class="section-label">Cours</p><h3>Contenu du chapitre</h3></div></div>
+                <div id="theme-course-content"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><div><p class="section-label">Exercices</p><h3>S'entraîner</h3></div></div>
+                <div id="theme-exercises-content"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><div><p class="section-label">Flashcards</p><h3>Mémoriser</h3></div></div>
+                <div id="theme-flashcards-content"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Statistiques ───────────────────────────────────────────────── -->
+        <section class="tab-panel" data-view="stats">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Statistiques</p>
+                <h2>Ma progression détaillée</h2>
+              </div>
+            </div>
+            <div id="stats-overview-cards" class="stats-kpi-grid"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><p class="section-label">Par thème</p><h2>Couverture et résultats</h2></div></div>
+            <div id="stats-topic-cards" class="stats-topic-grid"></div>
+          </section>
+
+          <section class="panel">
+            <div class="stats-charts-row">
+              <div class="stats-chart-block">
+                <h3 class="stats-chart-title">Maîtrise &amp; couverture par thème</h3>
+                <canvas id="stats-radar-chart" width="300" height="300"></canvas>
+              </div>
+              <div class="stats-chart-block">
+                <h3 class="stats-chart-title">Exercices vus par thème</h3>
+                <canvas id="stats-bar-chart" width="300" height="300"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h3 class="stats-chart-title">Progression dans le temps</h3>
+            <canvas id="stats-line-chart" width="600" height="200"></canvas>
+          </section>
+        </section>
+
+        <section class="tab-panel" data-view="assistant">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Assistant IA</p>
+                <h2>Poser une question de maths</h2>
+              </div>
+              <span id="assistant-status" class="chip">Vérification du serveur...</span>
+            </div>
+            <form id="assistant-form" class="form-stack">
+              <label>
+                Question
+                <textarea
+                  id="assistant-question"
+                  rows="6"
+                  placeholder="Exemple : explique-moi pas à pas comment résoudre une équation différentielle du premier ordre dans un contexte de cuve parfaitement agitée"
+                ></textarea>
+              </label>
+              <div class="assistant-mode-row">
+                <span class="mode-label">Mode IA :</span>
+                <button type="button" class="mode-toggle-btn is-active" data-mode="direct" id="mode-btn-direct">Réponse directe</button>
+                <button type="button" class="mode-toggle-btn" data-mode="socratic" id="mode-btn-socratic">Mode Socratique</button>
+              </div>
+              <p class="helper-text" id="mode-hint-text">L'IA répond directement à ta question.</p>
+              <div class="assistant-actions-row">
+                <button type="submit" class="primary-button">Interroger l'IA</button>
+                <button type="button" class="secondary-button" id="assistant-photo-btn" title="Analyser une photo de problème de maths">📷 Photo</button>
+                <input type="file" id="assistant-photo-input" accept="image/*" capture="environment" style="display:none" />
+              </div>
+              <div id="assistant-photo-preview" class="assistant-photo-preview is-hidden"></div>
+            </form>
+            <article id="assistant-answer" class="detail-card empty-state">
+              La réponse de l'assistant s'affichera ici.
+            </article>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Historique</p>
+                <h2>Conversations enregistrées</h2>
+              </div>
+            </div>
+            <div class="chat-history-filter">
+              <input type="text" id="chat-history-search" placeholder="Filtrer les conversations…" />
+              <span id="chat-history-count" class="helper-text"></span>
+            </div>
+            <div id="chat-history-list"></div>
+          </section>
+        </section>
+
+
+        <section class="tab-panel" data-view="teacher">
+          <!-- Hub grid -->
+          <div class="tab-hub-wrap" data-hub="teacher">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Espace professeur</p>
+                  <h2>Que souhaitez-vous faire ?</h2>
+                </div>
+              </div>
+              <div class="hub-grid">
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="classes">
+                  <span class="hub-card-icon">👥</span>
+                  <h3>Mes classes</h3>
+                  <p>Créez et gérez vos classes. Chaque classe reçoit un code à communiquer aux élèves.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="publish-course">
+                  <span class="hub-card-icon">📝</span>
+                  <h3>Publier un cours</h3>
+                  <p>Rédigez et publiez un complément de cours pour une classe spécifique.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="publish-exercise">
+                  <span class="hub-card-icon">✏️</span>
+                  <h3>Publier un exercice</h3>
+                  <p>Créez un exercice personnalisé avec énoncé et correction, réservé à votre classe.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="publish-devoir">
+                  <span class="hub-card-icon">📋</span>
+                  <h3>Publier un devoir</h3>
+                  <p>Assignez des exercices à réviser avant une date limite pour votre classe.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="files">
+                  <span class="hub-card-icon">📁</span>
+                  <h3>Fichiers partagés</h3>
+                  <p>Déposez des fichiers PDF, images ou documents accessibles à vos élèves.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="analytics">
+                  <span class="hub-card-icon">📊</span>
+                  <h3>Suivi des élèves</h3>
+                  <p>Consultez l'activité de chaque élève : exercices vus, générés, questions posées.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="class-analytics">
+                  <span class="hub-card-icon">📈</span>
+                  <h3>Statistiques de classe avancées</h3>
+                  <p>Heatmap par thème, classement des élèves, progression dans le temps et points faibles de la classe.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <!-- Section : Mes classes -->
+          <div class="tab-section" data-section="classes" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel teacher-publications-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Espace professeur</p>
+                  <h2>Classes et groupes</h2>
+                </div>
+              </div>
+              <div class="panel-grid two-columns">
+                <section class="session-card form-stack">
+                  <h3>Créer une classe</h3>
+                  <form id="teacher-class-form" class="form-stack">
+                    <label>
+                      Nom de la classe
+                      <input id="teacher-class-name" type="text" placeholder="Exemple : GCGP1 - Groupe A" required />
+                    </label>
+                    <button type="submit" class="primary-button">Créer la classe</button>
+                  </form>
+                  <p id="teacher-class-feedback" class="helper-text">Chaque classe reçoit un code à communiquer aux élèves.</p>
+                </section>
+                <section>
+                  <h3>Mes classes</h3>
+                  <div id="teacher-class-list" class="card-list"></div>
+                </section>
+              </div>
+            </section>
+            <section class="panel teacher-publications-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Publications</p>
+                  <h2>Contenus publiés</h2>
+                </div>
+              </div>
+              <div class="panel-grid two-columns">
+                <div>
+                  <h3>Mes cours</h3>
+                  <div id="teacher-published-courses" class="card-list"></div>
+                </div>
+                <div>
+                  <h3>Mes exercices</h3>
+                  <div id="teacher-published-exercises" class="card-list"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Section : Publier un cours -->
+          <div class="tab-section" data-section="publish-course" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Espace professeur</p>
+                  <h2>Publier un cours</h2>
+                </div>
+                <span id="teacher-course-status" class="chip">Professeur requis</span>
+              </div>
+              <form id="teacher-course-form" class="form-stack">
+                <label>
+                  Classe destinataire
+                  <select id="teacher-course-class"></select>
+                </label>
+                <label>
+                  Titre du cours
+                  <input id="teacher-course-input-title" type="text" placeholder="Exemple : Méthode du pivot de Gauss sur un système 3 × 3" required />
+                </label>
+                <label>
+                  Chapitre rattaché
+                  <select id="teacher-course-topic"></select>
+                </label>
+                <p class="helper-text">Semestre associé : <strong id="teacher-course-semester">S1</strong></p>
+                <label>
+                  Objectif ou résumé du cours
+                  <textarea id="teacher-course-objective" rows="5" placeholder="Présentez ce que l'étudiant doit comprendre ou savoir refaire après lecture." required></textarea>
+                </label>
+                <label>
+                  Notions clés
+                  <input id="teacher-course-focus" type="text" placeholder="Exemple : pivot, triangulation, substitution arrière" />
+                </label>
+                <label>
+                  Parties du cours
+                  <textarea id="teacher-course-lessons" rows="6" placeholder="Une ligne par partie au format Titre :: Résumé" required></textarea>
+                </label>
+                <div class="button-row teacher-form-actions">
+                  <button id="teacher-course-submit" type="submit" class="primary-button">Publier ce cours</button>
+                  <button id="teacher-course-cancel" type="button" class="ghost-button is-hidden">Annuler la modification</button>
+                </div>
+                <p id="teacher-course-feedback" class="helper-text">Le cours publié sera visible uniquement pour les élèves inscrits dans la classe choisie.</p>
+              </form>
+            </section>
+          </div>
+
+          <!-- Section : Publier un exercice -->
+          <div class="tab-section" data-section="publish-exercise" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Espace professeur</p>
+                  <h2>Publier un exercice</h2>
+                </div>
+                <span id="teacher-exercise-status" class="chip">Professeur requis</span>
+              </div>
+              <form id="teacher-exercise-form" class="form-stack">
+                <label>
+                  Classe destinataire
+                  <select id="teacher-exercise-class"></select>
+                </label>
+                <label>
+                  Titre de l'exercice
+                  <input id="teacher-exercise-input-title" type="text" placeholder="Exemple : Système linéaire avec contradiction" required />
+                </label>
+                <label>
+                  Chapitre rattaché
+                  <select id="teacher-exercise-topic"></select>
+                </label>
+                <p class="helper-text">Semestre associé : <strong id="teacher-exercise-semester">S1</strong></p>
+                <div class="form-split">
+                  <label>
+                    Niveau
+                    <select id="teacher-exercise-level">
+                      <option value="facile">Facile</option>
+                      <option value="intermediaire" selected>Intermédiaire</option>
+                      <option value="avance">Avancé</option>
+                    </select>
+                  </label>
+                  <label>
+                    Durée conseillée
+                    <input id="teacher-exercise-duration" type="text" value="20 min" placeholder="20 min" />
+                  </label>
+                </div>
+                <label>
+                  Énoncé
+                  <textarea id="teacher-exercise-statement" rows="7" placeholder="Rédigez l'énoncé complet tel qu'il doit apparaître aux élèves." required></textarea>
+                </label>
+                <label>
+                  Correction
+                  <textarea id="teacher-exercise-correction" rows="7" placeholder="Un paragraphe par bloc de correction, séparé par une ligne vide." required></textarea>
+                </label>
+                <label>
+                  Mots-clés
+                  <input id="teacher-exercise-keywords" type="text" placeholder="Exemple : pivot de Gauss, contradiction, système incompatible" />
+                </label>
+                <div class="button-row teacher-form-actions">
+                  <button id="teacher-exercise-submit" type="submit" class="primary-button">Publier cet exercice</button>
+                  <button id="teacher-exercise-cancel" type="button" class="ghost-button is-hidden">Annuler la modification</button>
+                </div>
+                <p id="teacher-exercise-feedback" class="helper-text">L'exercice publié sera visible uniquement pour les élèves inscrits dans la classe choisie.</p>
+              </form>
+            </section>
+          </div>
+
+          <!-- Section : Publier un devoir -->
+          <div class="tab-section" data-section="publish-devoir" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Espace professeur</p>
+                  <h2>Publier un devoir</h2>
+                </div>
+              </div>
+              <div id="teacher-devoirs-list" style="margin-bottom:1.5rem"></div>
+              <form id="teacher-devoir-form" class="form-stack">
+                <label>
+                  Classe destinataire
+                  <select id="teacher-devoir-class"></select>
+                </label>
+                <label>
+                  Titre du devoir
+                  <input id="teacher-devoir-title" type="text" placeholder="Exemple : Révisions SYSLIN avant le DS" required />
+                </label>
+                <label>
+                  Description (optionnel)
+                  <input id="teacher-devoir-description" type="text" placeholder="Consignes complémentaires…" />
+                </label>
+                <div class="form-split">
+                  <label>
+                    Chapitre ciblé
+                    <select id="teacher-devoir-topic">
+                      <option value="">Tous les chapitres</option>
+                    </select>
+                  </label>
+                  <label>
+                    Niveau
+                    <select id="teacher-devoir-level">
+                      <option value="all">Tous niveaux</option>
+                      <option value="facile">Facile</option>
+                      <option value="intermediaire">Intermédiaire</option>
+                      <option value="avance">Avancé</option>
+                    </select>
+                  </label>
+                </div>
+                <label>
+                  Date limite
+                  <input id="teacher-devoir-due" type="date" required />
+                </label>
+                <div class="button-row">
+                  <button id="teacher-devoir-submit" type="submit" class="primary-button">Publier ce devoir</button>
+                </div>
+                <p id="teacher-devoir-feedback" class="helper-text">Le devoir sera visible sur le tableau de bord des élèves de la classe.</p>
+              </form>
+            </section>
+          </div>
+
+          <!-- Section : Fichiers partagés -->
+          <div class="tab-section" data-section="files" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Espace professeur</p>
+                  <h2>Fichiers partagés</h2>
+                </div>
+                <span id="teacher-file-status" class="chip">Professeur requis</span>
+              </div>
+              <form id="teacher-file-form" class="form-stack">
+                <label>
+                  Titre du fichier
+                  <input id="teacher-file-title" type="text" placeholder="Exemple : Formulaire d'intégration S1" required />
+                </label>
+                <label>
+                  Classe destinataire
+                  <select id="teacher-file-class"></select>
+                </label>
+                <label>
+                  Fichier
+                  <input id="teacher-file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" required />
+                </label>
+                <button type="submit" class="primary-button">Déposer le fichier</button>
+                <p id="teacher-file-feedback" class="helper-text">Le fichier sera accessible aux élèves de la classe sélectionnée.</p>
+              </form>
+              <div id="teacher-file-list" class="card-list"></div>
+            </section>
+          </div>
+
+          <!-- Section : Suivi des élèves -->
+          <div class="tab-section" data-section="analytics" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel" id="teacher-analytics-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Suivi pédagogique</p>
+                  <h2>Avancement des élèves</h2>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <select id="analytics-class-select" class="analytics-class-select"></select>
+                  <button type="button" class="ghost-button" id="analytics-csv-btn" title="Exporter la liste en CSV">⬇ CSV</button>
+                </div>
+              </div>
+              <p class="panel-text">
+                Vue d'ensemble de l'activité de vos élèves : exercices consultés, générés, questions posées et thèmes travaillés par classe.
+              </p>
+
+              <div id="analytics-loading" class="analytics-loading is-hidden">
+                <span>Chargement des données...</span>
+              </div>
+              <div id="analytics-empty" class="detail-card muted-card is-hidden">
+                Aucun élève dans cette classe pour le moment.
+              </div>
+
+              <div id="analytics-content" class="is-hidden">
+                <div id="analytics-summary-cards" class="analytics-summary-cards"></div>
+                <div id="analytics-inactive-list" class="analytics-inactive-list"></div>
+
+                <div class="analytics-charts-grid">
+                  <div class="analytics-chart-box">
+                    <h3>Activité par élève</h3>
+                    <p class="helper-text">Exercices vus, générés, favoris et questions posées</p>
+                    <div class="analytics-chart-wrap">
+                      <canvas id="chart-activity"></canvas>
+                    </div>
+                  </div>
+                  <div class="analytics-chart-box">
+                    <h3>Thèmes travaillés</h3>
+                    <p class="helper-text">Répartition des exercices consultés par chapitre</p>
+                    <div class="analytics-chart-wrap">
+                      <canvas id="chart-topics"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="analytics-student-detail">
+                  <h3>Détail par élève</h3>
+                  <div id="analytics-student-list" class="analytics-student-list"></div>
+                </div>
+              </div>
+
+              <!-- Profil individuel d'un élève -->
+              <div id="student-profile-panel" class="student-profile-panel is-hidden">
+                <div class="sp-top-bar">
+                  <button type="button" class="ghost-button" id="sp-close">← Retour à la liste</button>
+                </div>
+                <div class="sp-header">
+                  <div class="sp-avatar"></div>
+                  <div class="sp-header-info">
+                    <h3 id="sp-name"></h3>
+                    <p id="sp-email" class="helper-text"></p>
+                    <p id="sp-meta" class="helper-text"></p>
+                  </div>
+                  <div id="sp-level"></div>
+                </div>
+                <div class="sp-body-grid">
+                  <div class="sp-radar-box">
+                    <h4>Thèmes travaillés</h4>
+                    <canvas id="sp-radar" width="260" height="260"></canvas>
+                  </div>
+                  <div class="sp-details">
+                    <h4>Auto-évaluations</h4>
+                    <div id="sp-eval"></div>
+                    <h4 style="margin-top:1.2rem">Exercices échoués</h4>
+                    <div id="sp-fail-list"></div>
+                  </div>
+                </div>
+                <div class="sp-notify">
+                  <h4>Envoyer un message à cet élève</h4>
+                  <p class="helper-text">Le message apparaîtra dans ses notifications.</p>
+                  <div class="sp-notify-row">
+                    <textarea id="sp-notify-message" rows="2" placeholder="Ex : Bravo pour SYSLIN ! Concentre-toi sur FRAT cette semaine."></textarea>
+                    <button type="button" class="primary-button" id="sp-notify-send">Envoyer</button>
+                  </div>
+                  <p id="sp-notify-feedback" class="helper-text"></p>
+                </div>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- Section : Statistiques de classe avancées -->
+          <div class="tab-section" data-section="class-analytics" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel" id="class-analytics-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Statistiques avancées</p>
+                  <h2>Analyse de classe</h2>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <select id="class-analytics-select" class="analytics-class-select"></select>
+                  <button type="button" class="ghost-button" id="class-analytics-csv-btn" title="Exporter en CSV">⬇ CSV</button>
+                </div>
+              </div>
+              <p class="panel-text">Vue avancée : heatmap par thème, progression dans le temps, classement des élèves et points faibles de la classe.</p>
+              <div id="class-analytics-loading" class="analytics-loading is-hidden"><span>Chargement...</span></div>
+              <div id="class-analytics-empty" class="detail-card muted-card is-hidden">Aucune donnée disponible pour cette classe.</div>
+              <div id="class-analytics-content" class="is-hidden">
+                <!-- Weak topics -->
+                <div id="class-analytics-weak" class="class-analytics-weak-block"></div>
+                <!-- Bar chart -->
+                <div class="analytics-chart-box" style="margin-bottom:24px">
+                  <h3>Score moyen par thème</h3>
+                  <div class="analytics-chart-wrap"><canvas id="class-analytics-bar-chart"></canvas></div>
+                </div>
+                <!-- Progress over time -->
+                <div class="analytics-chart-box" style="margin-bottom:24px">
+                  <h3>Progression dans le temps</h3>
+                  <div class="analytics-chart-wrap"><canvas id="class-analytics-line-chart"></canvas></div>
+                </div>
+                <!-- Heatmap -->
+                <div id="class-analytics-heatmap" style="margin-bottom:24px"></div>
+                <!-- Rankings table -->
+                <div id="class-analytics-rankings"></div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Exercise stats panel (inside analytics section) -->
+          <section class="panel" id="teacher-exercise-stats-panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Retour élèves</p>
+                <h2>Stats par exercice</h2>
+              </div>
+              <select id="exercise-stats-class-select" class="analytics-class-select"></select>
+            </div>
+            <p class="panel-text">
+              Auto-évaluations des élèves pour chaque exercice publié : acquis, difficile, échoué.
+            </p>
+            <div id="exercise-stats-empty" class="detail-card muted-card is-hidden">
+              Aucun exercice publié pour cette classe.
+            </div>
+            <div id="exercise-stats-list"></div>
+          </section>
+        </section>
+
+        <section class="tab-panel" data-view="account">
+          <!-- Hub grid -->
+          <div class="tab-hub-wrap" data-hub="account">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Compte</p>
+                  <h2>Que souhaitez-vous faire ?</h2>
+                </div>
+              </div>
+              <div class="hub-grid">
+                <article class="hub-card" data-hub-tab="account" data-hub-section="activity">
+                  <span class="hub-card-icon">📈</span>
+                  <h3>Mon activité</h3>
+                  <p>Consultez vos statistiques : exercices vus, générés, favoris et questions posées.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="account" data-hub-section="auth">
+                  <span class="hub-card-icon">🔑</span>
+                  <h3>Connexion &amp; compte</h3>
+                  <p>Connectez-vous ou créez un compte pour synchroniser votre progression.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="account" data-hub-section="classes">
+                  <span class="hub-card-icon">🏫</span>
+                  <h3>Mes classes</h3>
+                  <p>Rejoignez une classe avec le code fourni par votre professeur pour accéder aux ressources partagées.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <!-- Section : Mon activité -->
+          <div class="tab-section" data-section="activity" data-hub-parent="account">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="account">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Suivi local</p>
+                  <h2>Votre activité</h2>
+                </div>
+                <button id="reset-progress" type="button" class="ghost-button">Réinitialiser</button>
+              </div>
+              <div id="stats-grid" class="stats-grid"></div>
+              <div class="history-block">
+                <h3>Dernières questions</h3>
+                <div id="history-list" class="history-list"></div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Section : Connexion & compte -->
+          <div class="tab-section" data-section="auth" data-hub-parent="account">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="account">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Compte</p>
+                  <h2>Connexion et synchronisation</h2>
+                </div>
+                <span id="account-status" class="chip">Mode local</span>
+              </div>
+              <div class="auth-grid">
+                <form id="register-form" class="auth-card form-stack">
+                  <h3>Créer un compte</h3>
+                  <input id="register-name" type="text" placeholder="Nom complet" />
+                  <input id="register-email" type="email" placeholder="email@exemple.fr" required autocomplete="email" inputmode="email" />
+                  <input id="register-password" type="password" placeholder="Mot de passe" required autocomplete="new-password" />
+                  <label>
+                    Type de compte
+                    <select id="register-role">
+                      <option value="student" selected>Élève</option>
+                      <option value="teacher">Professeur</option>
+                    </select>
+                  </label>
+                  <label id="register-teacher-code-wrap" class="is-hidden">
+                    Code enseignant
+                    <input id="register-teacher-code" type="password" placeholder="Code d'accès professeur" />
+                  </label>
+                  <button type="submit" class="secondary-button">S'inscrire</button>
+                </form>
+                <form id="login-form" class="auth-card form-stack">
+                  <h3>Se connecter</h3>
+                  <input id="login-email" type="email" placeholder="email@exemple.fr" required autocomplete="email" inputmode="email" />
+                  <input id="login-password" type="password" placeholder="Mot de passe" required autocomplete="current-password" />
+                  <button type="submit" class="primary-button">Se connecter</button>
+                </form>
+              </div>
+              <section class="session-card">
+                <h3>Session active</h3>
+                <p id="session-user" class="helper-text">Aucun compte connecté.</p>
+                <button id="logout-button" type="button" class="ghost-button">Se déconnecter</button>
+              </section>
+              <article id="account-feedback" class="detail-card muted-card">
+                La connexion par adresse mail est obligatoire pour accéder à MathMentor. Les comptes professeur peuvent publier des cours et des exercices, les comptes élève peuvent les consulter.
+              </article>
+            </section>
+          </div>
+
+          <!-- Section : Mes classes (élève) -->
+          <div class="tab-section" data-section="classes" data-hub-parent="account">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="account">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Classes</p>
+                  <h2>Mes classes</h2>
+                </div>
+              </div>
+              <section class="session-card form-stack">
+                <h3>Rejoindre une classe</h3>
+                <form id="student-class-form" class="form-stack">
+                  <label>
+                    Code de classe
+                    <input id="student-class-code" type="text" placeholder="Exemple : A7K4PZ" autocomplete="off" />
+                  </label>
+                  <button type="submit" class="secondary-button">Rejoindre</button>
+                </form>
+                <p id="student-class-feedback" class="helper-text">Les élèves rejoignent une classe avec le code fourni par leur professeur.</p>
+                <div id="student-joined-classes" class="card-list"></div>
+              </section>
+              <section class="session-card">
+                <h3>Fichiers partagés par mes professeurs</h3>
+                <div id="student-file-list" class="card-list"></div>
+              </section>
+            </section>
+
+            <!-- Leaderboard de classe -->
+            <section class="panel" id="leaderboard-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Classement</p>
+                  <h2>Leaderboard de classe</h2>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <select id="leaderboard-class-select" style="min-width:150px"></select>
+                  <button type="button" class="ghost-button" id="leaderboard-refresh-btn">Actualiser</button>
+                </div>
+              </div>
+              <p class="panel-text">Classement par activité : exercices vus (+1), générés (+2), questions posées (+1).</p>
+              <div id="leaderboard-section">
+                <p class="helper-text">Sélectionnez une classe pour voir le classement.</p>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="/data.js"></script>
+    <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda5"></script>
+    <script type="module" src="/app.js"></script>
+    <!-- Search modal -->
+    <div id="search-modal" class="search-modal is-hidden" role="dialog" aria-modal="true" aria-label="Recherche globale">
+      <div id="search-modal-overlay" class="search-modal-overlay"></div>
+      <div class="search-modal-inner">
+        <div class="search-modal-head">
+          <input type="text" id="search-modal-input" class="search-modal-input" placeholder="Rechercher un exercice, cours, flashcard…" autocomplete="off" />
+          <button type="button" class="ghost-button" id="search-modal-close">✕</button>
+        </div>
+        <div id="search-modal-results" class="search-modal-results">
+          <p class="helper-text">Tapez pour rechercher dans les exercices, cours et flashcards.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grapheur modal (Feature 7) -->
+    <div id="graph-modal" class="graph-modal is-hidden" role="dialog" aria-modal="true">
+      <div class="graph-modal-inner">
+        <div class="graph-modal-head">
+          <span>Grapheur de fonctions</span>
+          <button type="button" class="ghost-button graph-modal-close">✕ Fermer</button>
+        </div>
+        <div id="graph-calculator" class="graph-calculator-area"></div>
+      </div>
+    </div>
+
+    <!-- Modale 3D Plotly (Fonctionnalité 4) -->
+    <div id="plot3d-modal" class="graph-modal" style="display:none">
+      <div class="graph-modal-inner" style="max-width:700px">
+        <button id="plot3d-close" class="graph-close-btn">✕</button>
+        <h3 id="plot3d-title" style="margin-bottom:12px">Visualisation 3D</h3>
+        <div id="plot3d-container" style="width:100%;height:450px"></div>
+      </div>
+    </div>
+
+    <!-- Modale tableau des méthodes (Fonctionnalité 10) -->
+    <div id="methods-modal" class="graph-modal" style="display:none">
+      <div class="graph-modal-inner" style="max-width:750px;max-height:80vh;overflow-y:auto">
+        <button id="methods-modal-close" class="graph-close-btn">✕</button>
+        <h3 id="methods-modal-title" style="margin-bottom:16px"></h3>
+        <table class="methods-table" id="methods-table"></table>
+      </div>
+    </div>
+
+    <!-- Modal examen simulé -->
+    <div id="exam-modal" class="exam-modal" style="display:none" role="dialog" aria-modal="true">
+      <div class="exam-modal-inner">
+        <!-- Écran de configuration -->
+        <div id="exam-config-screen">
+          <h2 class="exam-modal-title">🎯 Simuler un examen</h2>
+          <p class="panel-text">Testez vos connaissances en conditions d'examen : correction masquée, minuteur actif.</p>
+          <div class="exam-config-form">
+            <label>Chapitre
+              <select id="exam-topic-select">
+                <option value="">Tous les chapitres</option>
+              </select>
+            </label>
+            <label>Nombre de questions
+              <select id="exam-count-select">
+                <option value="3">3 questions</option>
+                <option value="5" selected>5 questions</option>
+                <option value="8">8 questions</option>
+              </select>
+            </label>
+            <label>Durée
+              <select id="exam-duration-select">
+                <option value="20">20 minutes</option>
+                <option value="30" selected>30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">1 heure</option>
+              </select>
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="exam-start-btn" class="primary-button">Démarrer l'examen</button>
+            <button id="exam-cancel-config-btn" class="ghost-button">Annuler</button>
+          </div>
+        </div>
+
+        <!-- Écran d'examen -->
+        <div id="exam-session-screen" style="display:none">
+          <div class="exam-session-header">
+            <div class="exam-progress-info">
+              <span id="exam-progress-label">Question 1/5</span>
+            </div>
+            <div class="exam-timer" id="exam-timer">30:00</div>
+            <button id="exam-stop-btn" class="ghost-button exam-stop-btn">Terminer</button>
+          </div>
+          <div id="exam-question-body" class="exam-question-body"></div>
+          <div class="exam-nav-row">
+            <button id="exam-self-eval-1" class="exam-self-btn exam-btn-fail">❌ Je ne savais pas</button>
+            <button id="exam-self-eval-2" class="exam-self-btn exam-btn-hard">⚠️ J'ai eu du mal</button>
+            <button id="exam-self-eval-3" class="exam-self-btn exam-btn-ok">✅ J'ai réussi</button>
+          </div>
+        </div>
+
+        <!-- Écran de résultats -->
+        <div id="exam-results-screen" style="display:none">
+          <h2 class="exam-modal-title">📊 Résultats de l'examen</h2>
+          <div id="exam-score-display" class="exam-score-display"></div>
+          <div id="exam-results-list" class="exam-results-list"></div>
+          <div class="button-row" style="margin-top:20px">
+            <button id="exam-retry-btn" class="primary-button">Refaire un examen</button>
+            <button id="exam-close-btn" class="ghost-button">Fermer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone d'impression dédiée -->
+    <div id="print-area" style="display:none"></div>
+
+    <!-- Calculatrice flottante -->
+    <button id="calc-fab" class="calc-fab" title="Calculatrice scientifique">🧮</button>
+    <div id="calc-panel" class="calc-panel" style="display:none">
+      <div class="calc-header">
+        <span>Calculatrice scientifique</span>
+        <button id="calc-close" class="calc-close">✕</button>
+      </div>
+      <div class="calc-display-wrap">
+        <div id="calc-expr" class="calc-expr"></div>
+        <div id="calc-display" class="calc-display">0</div>
+      </div>
+      <div class="calc-buttons">
+        <button class="calc-btn calc-fn" data-action="sin">sin</button>
+        <button class="calc-btn calc-fn" data-action="cos">cos</button>
+        <button class="calc-btn calc-fn" data-action="tan">tan</button>
+        <button class="calc-btn calc-fn" data-action="ln">ln</button>
+        <button class="calc-btn calc-fn" data-action="log">log</button>
+        <button class="calc-btn calc-fn" data-action="sqrt">√</button>
+        <button class="calc-btn calc-fn" data-action="pow2">x²</button>
+        <button class="calc-btn calc-fn" data-action="exp">eˣ</button>
+        <button class="calc-btn calc-fn" data-action="pi">π</button>
+        <button class="calc-btn calc-fn" data-action="e">e</button>
+        <button class="calc-btn calc-fn" data-action="abs">|x|</button>
+        <button class="calc-btn calc-op calc-clear" data-action="clear">C</button>
+        <button class="calc-btn" data-action="7">7</button>
+        <button class="calc-btn" data-action="8">8</button>
+        <button class="calc-btn" data-action="9">9</button>
+        <button class="calc-btn calc-op" data-action="/">/</button>
+        <button class="calc-btn" data-action="4">4</button>
+        <button class="calc-btn" data-action="5">5</button>
+        <button class="calc-btn" data-action="6">6</button>
+        <button class="calc-btn calc-op" data-action="*">×</button>
+        <button class="calc-btn" data-action="1">1</button>
+        <button class="calc-btn" data-action="2">2</button>
+        <button class="calc-btn" data-action="3">3</button>
+        <button class="calc-btn calc-op" data-action="-">−</button>
+        <button class="calc-btn" data-action="0">0</button>
+        <button class="calc-btn" data-action=".">.</button>
+        <button class="calc-btn calc-op" data-action="(">(</button>
+        <button class="calc-btn calc-op" data-action="+">+</button>
+        <button class="calc-btn calc-op" data-action=")">)</button>
+        <button class="calc-btn calc-op" data-action="backspace">⌫</button>
+        <button class="calc-btn calc-equals" data-action="=">=</button>
+      </div>
+    </div>
+
+    <div id="pomodoro-fab" class="pomodoro-fab" title="Minuteur Pomodoro">
+      <span id="pomodoro-fab-label">🍅</span>
+    </div>
+    <div id="pomodoro-panel" class="pomodoro-panel is-hidden">
+      <div class="pomodoro-header">
+        <span class="pomodoro-title">Minuteur Pomodoro</span>
+        <button type="button" class="icon-btn" id="pomodoro-close">✕</button>
+      </div>
+      <div class="pomodoro-display" id="pomodoro-display">25:00</div>
+      <div class="pomodoro-mode-row">
+        <button type="button" class="pomodoro-mode-btn is-active" data-pomodoro-mode="work">Travail 25min</button>
+        <button type="button" class="pomodoro-mode-btn" data-pomodoro-mode="short">Pause 5min</button>
+        <button type="button" class="pomodoro-mode-btn" data-pomodoro-mode="long">Pause 15min</button>
+      </div>
+      <div class="pomodoro-controls">
+        <button type="button" class="primary-button" id="pomodoro-start">▶ Démarrer</button>
+        <button type="button" class="ghost-button" id="pomodoro-reset">↺ Reset</button>
+      </div>
+      <div class="pomodoro-sessions">
+        <span id="pomodoro-session-count">0</span> session(s) complétée(s)
+      </div>
+    </div>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>

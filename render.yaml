@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: mathmentor
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python server.py"
+    plan: free
+
+    # Variables d'environnement — à remplir dans le dashboard Render
+    # (ne jamais mettre les vraies clés dans ce fichier)
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: MATHMENTOR_TEACHER_CODE
+        sync: false        # à définir manuellement dans Render
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CEREBRAS_API_KEY
+        sync: false
+      - key: SAMBANOVA_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false        # URL de connexion PostgreSQL (ex: postgres://user:pass@host/db)
