@@ -159,6 +159,17 @@ function bindBackButtons() {
   });
 }
 
+// ── Library inline navigation (lib-nav-btn / lib-view) ───────────────────────
+
+export function openLibView(viewKey) {
+  document.querySelectorAll(".lib-nav-btn").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.libView === viewKey);
+  });
+  document.querySelectorAll(".lib-view").forEach((panel) => {
+    panel.classList.toggle("is-active", panel.dataset.libPanel === viewKey);
+  });
+}
+
 export function init() {
   // Tab bar
   ui.tabButtons.forEach((button) => {
@@ -171,6 +182,11 @@ export function init() {
       const tabName = button.dataset.jump;
       openTab(tabName);
     });
+  });
+
+  // Library inline nav buttons
+  document.querySelectorAll(".lib-nav-btn[data-lib-view]").forEach((btn) => {
+    btn.addEventListener("click", () => openLibView(btn.dataset.libView));
   });
 
   // Hub cards

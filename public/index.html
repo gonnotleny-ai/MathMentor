@@ -496,97 +496,57 @@
         </section>
 
         <section class="tab-panel" data-view="library">
-          <!-- Hub grid -->
-          <div class="tab-hub-wrap" data-hub="library">
-            <section class="panel">
-              <div class="panel-head">
-                <div>
-                  <p class="section-label">Exercices</p>
-                  <h2>Que souhaitez-vous faire ?</h2>
-                </div>
-              </div>
-              <div class="hub-grid">
-                <article class="hub-card" data-hub-tab="library" data-hub-section="all">
-                  <span class="hub-card-icon">📚</span>
-                  <h3>Tous les exercices</h3>
-                  <p>Parcourez l'ensemble des exercices disponibles, filtrez par chapitre, niveau ou semestre.</p>
-                  <span class="hub-card-action">Accéder →</span>
-                </article>
-                <article class="hub-card" data-hub-tab="library" data-hub-section="favorites">
-                  <span class="hub-card-icon">⭐</span>
-                  <h3>Mes favoris</h3>
-                  <p>Retrouvez rapidement les exercices que vous avez marqués comme favoris.</p>
-                  <span class="hub-card-action">Accéder →</span>
-                </article>
-                <article class="hub-card" data-hub-tab="library" data-hub-section="generated">
-                  <span class="hub-card-icon">🤖</span>
-                  <h3>Mes exercices générés</h3>
-                  <p>Retrouvez tous les exercices que vous avez générés avec MathMentor ou l'IA.</p>
-                  <span class="hub-card-action">Accéder →</span>
-                </article>
-                <article class="hub-card" id="exam-hub-card" style="cursor:pointer">
-                  <span class="hub-card-icon">🎯</span>
-                  <h3>Simuler un examen</h3>
-                  <p>Testez-vous en conditions d'examen : minuteur, correction masquée, score final.</p>
-                  <span class="hub-card-action">Démarrer →</span>
-                </article>
-                <article class="hub-card" data-hub-tab="library" data-hub-section="grapher">
-                  <span class="hub-card-icon">📈</span>
-                  <h3>Grapheur de fonctions</h3>
-                  <p>Tracez jusqu'à 3 fonctions : polynômes, sin, cos, exp, sqrt… avec zoom et export PNG.</p>
-                  <span class="hub-card-action">Ouvrir →</span>
-                </article>
-              </div>
-            </section>
+
+          <!-- Barre de navigation interne de la bibliothèque -->
+          <div class="lib-navbar">
+            <button type="button" class="lib-nav-btn is-active" data-lib-view="all">📚 Tous les exercices</button>
+            <button type="button" class="lib-nav-btn" data-lib-view="favorites">⭐ Favoris</button>
+            <button type="button" class="lib-nav-btn" data-lib-view="generated">🤖 Mes exercices IA</button>
+            <button type="button" class="lib-nav-btn" id="exam-hub-card">🎯 Simuler un examen</button>
+            <button type="button" class="lib-nav-btn" data-lib-view="grapher">📈 Grapheur</button>
           </div>
 
-          <!-- Section : Tous les exercices -->
-          <div class="tab-section" data-section="all" data-hub-parent="library">
-            <div class="section-back-bar">
-              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
-            </div>
+          <!-- Vue : Tous les exercices -->
+          <div class="lib-view is-active" data-lib-panel="all">
             <div class="panel-grid two-columns">
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Bibliothèque</p>
-                    <h2>Exercices disponibles</h2>
+              <section class="panel lib-list-panel">
+                <div class="lib-list-header">
+                  <div class="lib-search-wrap">
+                    <span class="lib-search-icon">🔍</span>
+                    <input id="library-search" type="text" class="lib-search-input" placeholder="Rechercher par titre, thème, mot-clé…" />
                   </div>
-                </div>
-                <div class="semester-tabs">
-                  <button type="button" class="semester-tab-btn" data-semester="S1">Semestre 1</button>
-                  <button type="button" class="semester-tab-btn is-active" data-semester="S2">Semestre 2</button>
-                </div>
-                <div class="filter-grid">
-                  <input id="library-search" type="text" placeholder="Rechercher un exercice" />
-                  <select id="library-semester">
-                    <option value="all">Tous les semestres</option>
-                  </select>
-                  <select id="library-topic">
-                    <option value="all">Tous les chapitres</option>
-                  </select>
-                  <select id="library-level">
-                    <option value="all">Tous les niveaux</option>
-                    <option value="facile">Facile</option>
-                    <option value="intermediaire">Intermédiaire</option>
-                    <option value="avance">Avancé</option>
-                  </select>
-                  <select id="library-source">
-                    <option value="all">Toutes les sources</option>
-                    <option value="bibliotheque">Bibliothèque</option>
-                    <option value="ia">Généré par l'IA</option>
-                    <option value="local">Généré localement</option>
-                    <option value="professeur">Publié par un prof</option>
-                  </select>
-                </div>
-                <div class="filter-checkboxes">
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="library-unseen" /> Non vus seulement
-                  </label>
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="library-failed" /> Mal évalués (❌/⚠️) seulement
-                  </label>
-                  <button type="button" id="revision-mode-btn" class="ghost-button revision-btn">▶ Mode révision</button>
+                  <div class="lib-filters-row">
+                    <select id="library-semester" class="lib-filter-select">
+                      <option value="all">Tous les semestres</option>
+                    </select>
+                    <select id="library-topic" class="lib-filter-select">
+                      <option value="all">Tous les chapitres</option>
+                    </select>
+                    <select id="library-level" class="lib-filter-select">
+                      <option value="all">Tous les niveaux</option>
+                      <option value="facile">Facile</option>
+                      <option value="intermediaire">Intermédiaire</option>
+                      <option value="avance">Avancé</option>
+                    </select>
+                    <select id="library-source" class="lib-filter-select">
+                      <option value="all">Toutes les sources</option>
+                      <option value="bibliotheque">Bibliothèque</option>
+                      <option value="ia">Généré IA</option>
+                      <option value="local">Généré local</option>
+                      <option value="professeur">Professeur</option>
+                    </select>
+                  </div>
+                  <div class="lib-filter-chips">
+                    <label class="lib-chip-label">
+                      <input type="checkbox" id="library-unseen" />
+                      <span>Non vus</span>
+                    </label>
+                    <label class="lib-chip-label">
+                      <input type="checkbox" id="library-failed" />
+                      <span>À retravailler</span>
+                    </label>
+                    <button type="button" id="revision-mode-btn" class="lib-revision-btn">▶ Mode révision</button>
+                  </div>
                 </div>
                 <div id="revision-banner" class="revision-banner is-hidden">
                   <span id="revision-counter">Révision : exercice 1 / 1</span>
@@ -595,85 +555,67 @@
                     <button type="button" id="revision-stop" class="ghost-button">Arrêter</button>
                   </div>
                 </div>
-                <div id="exercise-list" class="card-list"></div>
+                <div id="lib-count" class="lib-count"></div>
+                <div id="exercise-list" class="lib-card-list"></div>
               </section>
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Détail</p>
-                    <h2>Énoncé et correction</h2>
-                  </div>
-                </div>
+              <section class="panel lib-detail-panel">
                 <article id="exercise-detail" class="detail-card empty-state">
-                  Sélectionnez un exercice dans la liste pour afficher le détail.
+                  <div class="lib-empty-hint">
+                    <span class="lib-empty-icon">👈</span>
+                    <p>Sélectionnez un exercice pour voir l'énoncé et la correction.</p>
+                  </div>
                 </article>
               </section>
             </div>
           </div>
 
-          <!-- Section : Mes favoris -->
-          <div class="tab-section" data-section="favorites" data-hub-parent="library">
-            <div class="section-back-bar">
-              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
-            </div>
+          <!-- Vue : Favoris -->
+          <div class="lib-view" data-lib-panel="favorites">
             <div class="panel-grid two-columns">
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Favoris</p>
-                    <h2>Mes exercices favoris</h2>
-                  </div>
+              <section class="panel lib-list-panel">
+                <div class="lib-list-header">
+                  <h3 class="lib-view-title">⭐ Mes exercices favoris</h3>
+                  <p class="lib-view-desc">Les exercices que vous avez marqués d'une étoile.</p>
                 </div>
-                <div id="favorites-list" class="card-list"></div>
+                <div id="favorites-list" class="lib-card-list"></div>
               </section>
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Détail</p>
-                    <h2>Énoncé et correction</h2>
-                  </div>
-                </div>
+              <section class="panel lib-detail-panel">
                 <article id="favorites-detail" class="detail-card empty-state">
-                  Sélectionnez un exercice favori pour afficher le détail.
+                  <div class="lib-empty-hint">
+                    <span class="lib-empty-icon">⭐</span>
+                    <p>Sélectionnez un favori pour afficher le détail.</p>
+                  </div>
                 </article>
               </section>
             </div>
           </div>
 
-          <!-- Section : Mes exercices générés -->
-          <div class="tab-section" data-section="generated" data-hub-parent="library">
-            <div class="section-back-bar">
-              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
-            </div>
+          <!-- Vue : Exercices générés -->
+          <div class="lib-view" data-lib-panel="generated">
             <div class="panel-grid two-columns">
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Générés</p>
-                    <h2>Mes exercices générés</h2>
-                  </div>
+              <section class="panel lib-list-panel">
+                <div class="lib-list-header">
+                  <h3 class="lib-view-title">🤖 Mes exercices générés</h3>
+                  <p class="lib-view-desc">Exercices créés par l'IA ou le générateur local.</p>
                 </div>
-                <div id="generated-list" class="card-list"></div>
+                <div id="generated-list" class="lib-card-list"></div>
               </section>
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Détail</p>
-                    <h2>Énoncé et correction</h2>
-                  </div>
-                </div>
+              <section class="panel lib-detail-panel">
                 <article id="generated-detail" class="detail-card empty-state">
-                  Sélectionnez un exercice généré pour afficher le détail.
+                  <div class="lib-empty-hint">
+                    <span class="lib-empty-icon">🤖</span>
+                    <p>Sélectionnez un exercice généré pour afficher le détail.</p>
+                  </div>
                 </article>
               </section>
             </div>
           </div>
+
+          <!-- Vue : Grapheur -->
+          <div class="lib-view" data-lib-panel="grapher">
 
           <!-- Section : Grapheur -->
           <div class="tab-section" data-section="grapher" data-hub-parent="library">
-            <div class="section-back-bar">
-              <button type="button" class="ghost-button back-button" data-back-hub="library">← Retour</button>
-            </div>
             <section class="panel">
               <div class="panel-head">
                 <div>
@@ -707,6 +649,7 @@
               <p class="helper-text" id="grapher-coords" style="margin-top:6px;min-height:18px"></p>
             </section>
           </div>
+
         </section>
 
         <section class="tab-panel" data-view="courses">

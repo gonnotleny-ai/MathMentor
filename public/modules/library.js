@@ -301,24 +301,49 @@ function renderCorrectionSection(section) {
   `;
 }
 
+const LEVEL_ICONS = { facile: '🟢', intermediaire: '🟡', avance: '🔴' };
+const LEVEL_LABELS = { facile: 'Facile', intermediaire: 'Intermédiaire', avance: 'Avancé' };
+
 export function exerciseCardHtml(exercise) {
   const origin = getExerciseOrigin(exercise);
-  const modeLabel = getExerciseModeLabel(exercise);
   const fav = isFavorite(exercise.id);
   const todayStr = new Date().toISOString().slice(0, 10);
-  const schedule = getStudentState().exerciseSchedule || {};
-  const nextReview = schedule[exercise.id];
-  const isDue = nextReview && nextReview <= todayStr;
+  const state = getStudentState();
+  const viewed = (state.viewedExercises || []).includes(exercise.id);
+  const evalRating = (state.selfEvaluations || {})[exercise.id];
+  const isDue = (state.exerciseSchedule || {})[exercise.id] <= todayStr;
+  const levelIcon = LEVEL_ICONS[exercise.level] || '⚪';
+  const levelLabel = LEVEL_LABELS[exercise.level] || exercise.level;
+
+  const statusBadge = evalRating === 3
+    ? '<span class="lib-card-badge badge-ok">✓ Acquis</span>'
+    : evalRating === 2
+    ? '<span class="lib-card-badge badge-mid">~ Difficile</span>'
+    : evalRating === 1
+    ? '<span class="lib-card-badge badge-fail">✗ À revoir</span>'
+    : !viewed
+    ? '<span class="lib-card-badge badge-new">Nouveau</span>'
+    : '';
+
   return `
-    <div class="meta-line">
-      <span class="topic-pill">${escapeHtml(exercise.semester)}</span>
-      <span class="level-pill">${escapeHtml(exercise.level)}</span>
-      <span class="source-pill ${origin.className}">${escapeHtml(origin.label)}</span>
-      ${fav ? '<span class="fav-badge">⭐</span>' : ""}
-      ${isDue ? '<span class="due-badge">🔁 À réviser</span>' : ""}
+    <div class="lib-card-inner">
+      <div class="lib-card-top">
+        <span class="lib-card-topic">${escapeHtml(exercise.topic)}</span>
+        <div class="lib-card-badges">
+          ${isDue ? '<span class="lib-card-badge badge-due">🔁 À réviser</span>' : ''}
+          ${statusBadge}
+          ${fav ? '<span class="lib-card-fav">★</span>' : ''}
+        </div>
+      </div>
+      <strong class="lib-card-title">${escapeHtml(exercise.title)}</strong>
+      <div class="lib-card-meta">
+        <span class="lib-card-level">${levelIcon} ${levelLabel}</span>
+        <span class="lib-card-sep">·</span>
+        <span>${escapeHtml(exercise.duration || 'durée libre')}</span>
+        <span class="lib-card-sep">·</span>
+        <span class="lib-card-source ${origin.className}">${escapeHtml(origin.label)}</span>
+      </div>
     </div>
-    <strong>${escapeHtml(exercise.title)}</strong>
-    <span class="mini-meta">${escapeHtml(exercise.topic)} · ${escapeHtml(exercise.duration || "durée libre")} · ${escapeHtml(modeLabel)}</span>
   `;
 }
 
@@ -509,6 +534,13 @@ export function renderExerciseList() {
   if (!exerciseList) return;
 
   const filteredExercises = getFilteredExercises();
+  const countEl = document.getElementById("lib-count");
+  if (countEl) {
+    const total = getAllExercises().length;
+    countEl.textContent = filteredExercises.length === total
+      ? `${total} exercice${total > 1 ? 's' : ''}`
+      : `${filteredExercises.length} / ${total} exercice${total > 1 ? 's' : ''}`;
+  }
   exerciseList.innerHTML = "";
 
   if (!filteredExercises.length) {
@@ -536,7 +568,7 @@ export function renderExerciseList() {
   visible.forEach((exercise) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `list-card${selected && selected.id === exercise.id ? " is-selected" : ""}`;
+    button.className = `lib-card${selected && selected.id === exercise.id ? " is-selected" : ""}`;
     button.innerHTML = exerciseCardHtml(exercise);
     button.addEventListener("click", () => {
       setSelectedExercise(exercise);
