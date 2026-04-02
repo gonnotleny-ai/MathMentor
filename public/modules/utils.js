@@ -128,10 +128,7 @@ export function mathTextToHtml(text) {
     return placeholder(mathTokens.length - 1);
   });
 
-  // ── Step 2: escape raw HTML chars first (safe: placeholders contain no HTML chars)
-  // then convert markdown to HTML ──
-  protected_ = protected_.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
+  // ── Step 2: convert markdown to HTML, then escape remaining raw HTML chars ──
   // Inline code  `code`
   protected_ = protected_.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
   // Bold+italic ***text***
@@ -167,7 +164,9 @@ export function mathTextToHtml(text) {
       if (!inList) { htmlLines.push('<ul class="ai-list">'); inList = true; }
       const t = li[1].trim();
       const pureMath = isPureMathLine(t);
-      htmlLines.push(`<li>${pureMath ? `\\(${unicodeToLatex(t)}\\)` : inlineUnicodeMath(t)}</li>`);
+      // Escape any raw HTML in list item content (preserve markdown-generated tags)
+      const safeT = pureMath ? t : t.replace(/&(?![#\w]+;)/g, '&amp;');
+      htmlLines.push(`<li>${pureMath ? `\\(${unicodeToLatex(safeT)}\\)` : inlineUnicodeMath(safeT)}</li>`);
       continue;
     }
 
@@ -177,12 +176,14 @@ export function mathTextToHtml(text) {
     // Empty line → paragraph break
     if (trimmed === '') { htmlLines.push('<br>'); continue; }
 
-    // Normal line (already HTML-escaped above) — apply inline unicode math
-    const t = line.trim();
+    // Normal line: escape raw & but preserve markdown-generated HTML tags (<strong>, <em>, <code>)
+    // and LaTeX placeholders. Then apply inline unicode math.
+    const safe = line.replace(/&(?![#\w]+;)/g, '&amp;');
+    const t = safe.trim();
     if (isPureMathLine(t)) {
       htmlLines.push(`\\(${unicodeToLatex(t)}\\)`);
     } else {
-      htmlLines.push(inlineUnicodeMath(line));
+      htmlLines.push(inlineUnicodeMath(safe));
     }
   }
   if (inList) htmlLines.push('</ul>');
