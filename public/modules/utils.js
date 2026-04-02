@@ -203,13 +203,13 @@ export function mathTextInline(text) {
   const mathTokens = [];
   const placeholder = (i) => `\x00MATH${i}\x00`;
   let protected_ = raw.replace(DELIM_RE, (m) => { mathTokens.push(m); return placeholder(mathTokens.length - 1); });
-  // Inline markdown only
+  // Escape raw HTML chars first (placeholders contain no HTML chars, so this is safe)
+  protected_ = protected_.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Then convert markdown (operates on already-escaped text, generates safe HTML tags)
   protected_ = protected_.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
   protected_ = protected_.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
   protected_ = protected_.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Escape remaining HTML chars
-  const escaped = protected_.replace(/&(?![#\w]+;)/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  let result = escaped;
+  let result = protected_;
   mathTokens.forEach((m, i) => { result = result.replace(placeholder(i), m); });
   return result;
 }

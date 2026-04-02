@@ -876,20 +876,25 @@ def _gemini_request(system_prompt, user_prompt, timeout=60):
 
 def parse_ai_json(text):
     """Parse le JSON retourné par une IA, même s'il contient du LaTeX avec des backslashes.
-    Les IA retournent souvent \\frac, \\int, \\alpha etc. sans doubler les backslashes,
-    ce qui rend le JSON invalide. On double tous les \\ qui ne font pas partie
-    d'une séquence d'échappement JSON standard."""
+    Les IA retournent souvent \\frac, \\int, \\begin etc. sans doubler les backslashes.
+    \\b et \\f sont des séquences JSON valides (backspace/form-feed) mais en contexte
+    mathématique ils désignent presque toujours \\begin, \\frac, \\forall, etc.
+    On les pré-échappe avant tout parsing."""
+
+    # Pré-échapper \b et \f suivis d'une lettre ou { (commandes LaTeX)
+    # avant tout appel à json.loads pour éviter la corruption backspace/form-feed
+    text = re.sub(r'(?<!\\)\\([bf])(?=[a-zA-Z{(])', r'\\\\\1', text)
+
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Double les \ suivis d'une lettre SAUF les séquences JSON standards : n r t b
-    # On laisse \\ tel quel (déjà escapé), \" tel quel, \/ tel quel
-    # \f → \\f car \f en LaTeX = \frac etc., très rarement form-feed dans nos réponses
+    # Double les \ suivis d'une lettre SAUF les séquences JSON standards : n r t
+    # \b et \f sont déjà gérés ci-dessus
     def escape_backslash(m):
         char = m.group(1)
-        if char in ('"', '\\', '/', 'n', 'r', 't', 'b'):
+        if char in ('"', '\\', '/', 'n', 'r', 't'):
             return m.group(0)  # séquence JSON valide, on garde
         return '\\\\' + char   # double le backslash
 
