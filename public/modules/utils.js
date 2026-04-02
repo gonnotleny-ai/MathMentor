@@ -128,7 +128,10 @@ export function mathTextToHtml(text) {
     return placeholder(mathTokens.length - 1);
   });
 
-  // ── Step 2: convert markdown to HTML (on the protected text) ──
+  // ── Step 2: escape raw HTML chars first (safe: placeholders contain no HTML chars)
+  // then convert markdown to HTML ──
+  protected_ = protected_.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
   // Inline code  `code`
   protected_ = protected_.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
   // Bold+italic ***text***
@@ -174,13 +177,12 @@ export function mathTextToHtml(text) {
     // Empty line → paragraph break
     if (trimmed === '') { htmlLines.push('<br>'); continue; }
 
-    // Normal line: escape HTML, apply inline unicode math, auto-wrap pure math lines
-    const escaped = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const t = escaped.trim();
+    // Normal line (already HTML-escaped above) — apply inline unicode math
+    const t = line.trim();
     if (isPureMathLine(t)) {
       htmlLines.push(`\\(${unicodeToLatex(t)}\\)`);
     } else {
-      htmlLines.push(inlineUnicodeMath(escaped));
+      htmlLines.push(inlineUnicodeMath(line));
     }
   }
   if (inList) htmlLines.push('</ul>');
