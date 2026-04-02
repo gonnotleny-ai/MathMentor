@@ -3810,3 +3810,21 @@ li + li {
 [data-theme="dark"] .graph-ex-ok { color: #4ade80; }
 [data-theme="dark"] .graph-ex-err { color: #f87171; }
 
+/* ── Blocs de code dans les réponses IA ──────────────────────────────────────── */
+.ai-code-block {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 8px 0;
+  white-space: pre;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+[data-theme="dark"] .ai-code-block {
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+

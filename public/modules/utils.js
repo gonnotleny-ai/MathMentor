@@ -117,80 +117,83 @@ export function textToHtml(text) {
 // in \(...\) so KaTeX can render them.
 export function mathTextToHtml(text) {
   const raw = String(text || "");
+  const tokens = [];
+  const ph = (i) => `\x00TOK${i}\x00`;
 
-  // ── Step 1: extract LaTeX blocks to protect them from markdown processing ──
-  const DELIM_RE = /(\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\)|\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g;
-  const mathTokens = [];
-  const placeholder = (i) => `\x00MATH${i}\x00`;
-
-  let protected_ = raw.replace(DELIM_RE, (m) => {
-    mathTokens.push(m);
-    return placeholder(mathTokens.length - 1);
+  // ── Step 1: extract fenced code blocks ```...``` (protect from all processing) ──
+  let s = raw.replace(/```([a-z]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    tokens.push(`<pre class="ai-code-block"><code${lang ? ` class="language-${lang}"` : ''}>${escaped}</code></pre>`);
+    return ph(tokens.length - 1);
   });
 
-  // ── Step 2: convert markdown to HTML, then escape remaining raw HTML chars ──
-  // Inline code  `code`
-  protected_ = protected_.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
-  // Bold+italic ***text***
-  protected_ = protected_.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-  // Bold **text**
-  protected_ = protected_.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Italic *text* (not in the middle of words to avoid false positives)
-  protected_ = protected_.replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/gm, '$1<em>$2</em>');
+  // ── Step 2: extract LaTeX blocks ──
+  s = s.replace(/(\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\)|\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g, (m) => {
+    tokens.push(m);
+    return ph(tokens.length - 1);
+  });
 
-  // Process line by line for block elements
-  const lines = protected_.split('\n');
-  const htmlLines = [];
+  // ── Step 3: escape raw HTML chars (safe: tokens contain no & < >) ──
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // ── Step 4: inline markdown ──
+  s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/gm, '$1<em>$2</em>');
+
+  // ── Step 5: line-by-line block processing ──
+  const lines = s.split('\n');
+  const out = [];
   let inList = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Headings: ## or ###
-    const h3 = trimmed.match(/^###\s+(.+)/);
-    const h2 = trimmed.match(/^##\s+(.+)/);
-    const h1 = trimmed.match(/^#\s+(.+)/);
-    if (h3) { if (inList) { htmlLines.push('</ul>'); inList = false; } htmlLines.push(`<h4 class="ai-h4">${h3[1]}</h4>`); continue; }
-    if (h2) { if (inList) { htmlLines.push('</ul>'); inList = false; } htmlLines.push(`<h3 class="ai-h3">${h2[1]}</h3>`); continue; }
-    if (h1) { if (inList) { htmlLines.push('</ul>'); inList = false; } htmlLines.push(`<h3 class="ai-h3">${h1[1]}</h3>`); continue; }
-
-    // Horizontal rule ---
-    if (/^---+$/.test(trimmed)) { if (inList) { htmlLines.push('</ul>'); inList = false; } htmlLines.push('<hr>'); continue; }
-
-    // List item: - text or * text or 1. text
-    const li = trimmed.match(/^[-*]\s+(.+)/) || trimmed.match(/^\d+\.\s+(.+)/);
-    if (li) {
-      if (!inList) { htmlLines.push('<ul class="ai-list">'); inList = true; }
-      const t = li[1].trim();
-      const pureMath = isPureMathLine(t);
-      // Escape any raw HTML in list item content (preserve markdown-generated tags)
-      const safeT = pureMath ? t : t.replace(/&(?![#\w]+;)/g, '&amp;');
-      htmlLines.push(`<li>${pureMath ? `\\(${unicodeToLatex(safeT)}\\)` : inlineUnicodeMath(safeT)}</li>`);
+    // Code block token (pre-rendered above) — output as-is
+    if (/^\x00TOK\d+\x00$/.test(trimmed)) {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(trimmed);
       continue;
     }
 
-    // Close list if needed
-    if (inList && trimmed === '') { htmlLines.push('</ul>'); inList = false; }
+    // Headings
+    const h3 = trimmed.match(/^###\s+(.+)/);
+    const h2 = trimmed.match(/^##\s+(.+)/);
+    const h1 = trimmed.match(/^#\s+(.+)/);
+    if (h3) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h4 class="ai-h4">${h3[1]}</h4>`); continue; }
+    if (h2) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h3 class="ai-h3">${h2[1]}</h3>`); continue; }
+    if (h1) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h3 class="ai-h3">${h1[1]}</h3>`); continue; }
 
-    // Empty line → paragraph break
-    if (trimmed === '') { htmlLines.push('<br>'); continue; }
+    // Horizontal rule
+    if (/^---+$/.test(trimmed)) { if (inList) { out.push('</ul>'); inList = false; } out.push('<hr>'); continue; }
 
-    // Normal line: escape raw & but preserve markdown-generated HTML tags (<strong>, <em>, <code>)
-    // and LaTeX placeholders. Then apply inline unicode math.
-    const safe = line.replace(/&(?![#\w]+;)/g, '&amp;');
-    const t = safe.trim();
+    // List item
+    const li = trimmed.match(/^[-*]\s+(.+)/) || trimmed.match(/^\d+\.\s+(.+)/);
+    if (li) {
+      if (!inList) { out.push('<ul class="ai-list">'); inList = true; }
+      const t = li[1].trim();
+      out.push(`<li>${isPureMathLine(t) ? `\\(${unicodeToLatex(t)}\\)` : inlineUnicodeMath(t)}</li>`);
+      continue;
+    }
+
+    if (inList && trimmed === '') { out.push('</ul>'); inList = false; }
+    if (trimmed === '') { out.push('<br>'); continue; }
+
+    // Normal line
+    const t = trimmed;
     if (isPureMathLine(t)) {
-      htmlLines.push(`\\(${unicodeToLatex(t)}\\)`);
+      out.push(`\\(${unicodeToLatex(t)}\\)`);
     } else {
-      htmlLines.push(inlineUnicodeMath(safe));
+      out.push(inlineUnicodeMath(line));
     }
   }
-  if (inList) htmlLines.push('</ul>');
+  if (inList) out.push('</ul>');
 
-  // ── Step 3: restore math tokens ──
-  let result = htmlLines.join('\n');
-  mathTokens.forEach((m, i) => { result = result.replace(placeholder(i), m); });
+  // ── Step 6: restore tokens ──
+  let result = out.join('\n');
+  tokens.forEach((tok, i) => { result = result.replaceAll(ph(i), tok); });
 
   return result;
 }
