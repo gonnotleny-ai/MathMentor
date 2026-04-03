@@ -877,31 +877,71 @@ def _gemini_request(system_prompt, user_prompt, timeout=60):
 
 def parse_ai_json(text):
     """Parse le JSON retourné par une IA, même s'il contient du LaTeX avec des backslashes.
-    Les IA retournent souvent \\frac, \\int, \\begin etc. sans doubler les backslashes.
-    \\b et \\f sont des séquences JSON valides (backspace/form-feed) mais en contexte
-    mathématique ils désignent presque toujours \\begin, \\frac, \\forall, etc.
-    On les pré-échappe avant tout parsing."""
+    Stratégie : essais successifs du plus au moins strict."""
 
-    # Pré-échapper \b et \f suivis d'une lettre ou { (commandes LaTeX)
-    # avant tout appel à json.loads pour éviter la corruption backspace/form-feed
-    text = re.sub(r'(?<!\\)\\([bf])(?=[a-zA-Z{(])', r'\\\\\1', text)
-
+    # Tentative 1 : JSON brut tel quel
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Double les \ suivis d'une lettre SAUF les séquences JSON standards : n r t
-    # \b et \f sont déjà gérés ci-dessus
+    # Pré-traitement : \b et \f suivis d'une lettre/{ sont des commandes LaTeX, pas des ctrl chars
+    text2 = re.sub(r'(?<!\\)\\([bf])(?=[a-zA-Z{(])', r'\\\\\1', text)
+
+    # Tentative 2 : après pré-traitement \b/\f
+    try:
+        return json.loads(text2)
+    except json.JSONDecodeError:
+        pass
+
+    # Tentative 3 : doubler tous les \ non standards (LaTeX), puis corriger les newlines dans strings
     def escape_backslash(m):
         char = m.group(1)
-        if char in ('"', '\\', '/', 'n', 'r', 't'):
-            return m.group(0)  # séquence JSON valide, on garde
-        return '\\\\' + char   # double le backslash
+        if char in ('"', '\\', '/', 'n', 'r', 't', 'b', 'f', 'u'):
+            return m.group(0)
+        return '\\\\' + char
 
-    fixed = re.sub(r'\\(.)', escape_backslash, text)
+    fixed = re.sub(r'\\(.)', escape_backslash, text2)
     try:
         return json.loads(fixed)
+    except json.JSONDecodeError:
+        pass
+
+    # Tentative 4 : corriger aussi les newlines littéraux à l'intérieur des strings JSON
+    # (l'IA écrit parfois des retours à la ligne bruts au lieu de \n)
+    def fix_string_newlines(s):
+        """Remplace les newlines littéraux à l'intérieur des strings JSON par \\n."""
+        result = []
+        in_string = False
+        i = 0
+        while i < len(s):
+            c = s[i]
+            if c == '\\' and in_string:
+                result.append(c)
+                i += 1
+                if i < len(s):
+                    result.append(s[i])
+                    i += 1
+                continue
+            if c == '"':
+                in_string = not in_string
+                result.append(c)
+                i += 1
+                continue
+            if in_string and c == '\n':
+                result.append('\\n')
+                i += 1
+                continue
+            if in_string and c == '\r':
+                i += 1
+                continue
+            result.append(c)
+            i += 1
+        return ''.join(result)
+
+    fixed2 = fix_string_newlines(fixed)
+    try:
+        return json.loads(fixed2)
     except json.JSONDecodeError as e:
         raise json.JSONDecodeError(str(e), text, e.pos)
 
