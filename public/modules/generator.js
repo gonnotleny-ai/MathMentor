@@ -478,7 +478,9 @@ function renderQcmOutput(questions, container) {
       <p class="qcm-question-text"><strong>${i + 1}.</strong> ${mathTextToHtml(q.question)}</p>
       <div class="qcm-options">
         ${["A", "B", "C", "D"].map((letter, j) => {
-          const option = (q.options || [])[j] || "";
+          // options peut être un tableau ["...", "..."] ou un objet {A:"...", B:"..."}
+          const opts = q.options || [];
+          const option = Array.isArray(opts) ? (opts[j] || "") : (opts[letter] || "");
           return `<label class="qcm-option">
             <input type="radio" name="qcm-q${i}" value="${letter}" />
             <span><strong>${letter}.</strong> ${mathTextInline(option)}</span>

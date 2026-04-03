@@ -2885,11 +2885,20 @@ class AppHandler(SimpleHTTPRequestHandler):
             questions = parse_ai_json(json_match.group())
             if not isinstance(questions, list):
                 raise ValueError("La réponse JSON n'est pas un tableau.")
-            # Validate each question
+            # Validate and normalize each question
             validated = []
             for q in questions:
-                if isinstance(q, dict) and all(k in q for k in ("question", "options", "correct", "explanation")):
-                    validated.append(q)
+                if not isinstance(q, dict):
+                    continue
+                if not all(k in q for k in ("question", "options", "correct", "explanation")):
+                    continue
+                # Normalize options: accept dict {A:..., B:..., C:..., D:...} or list
+                opts = q["options"]
+                if isinstance(opts, dict):
+                    q["options"] = [opts.get("A", ""), opts.get("B", ""), opts.get("C", ""), opts.get("D", "")]
+                elif not isinstance(opts, list):
+                    q["options"] = ["", "", "", ""]
+                validated.append(q)
             if not validated:
                 raise ValueError("Aucune question valide retournée.")
             self.send_json(200, {"questions": validated})
