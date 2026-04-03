@@ -1,3 +1,4 @@
+import ast
 import hashlib
 import json
 import logging
@@ -977,8 +978,24 @@ def parse_ai_json(text):
     t5 = _fix_string_newlines(t4)
     try:
         return json.loads(t5)
-    except json.JSONDecodeError as e:
-        raise json.JSONDecodeError(str(e), text, e.pos)
+    except json.JSONDecodeError:
+        pass
+
+    # Tentative 6 : ast.literal_eval (gère les guillemets simples Python-style)
+    try:
+        result = ast.literal_eval(t5)
+        if isinstance(result, (dict, list)):
+            return result
+    except Exception:
+        pass
+
+    # Tentative 7 : remplacer guillemets simples par doubles (naïf mais utile en dernier recours)
+    try:
+        import re as _re
+        single_to_double = _re.sub(r"(?<![\\])'", '"', text)
+        return json.loads(single_to_double)
+    except Exception as e:
+        raise json.JSONDecodeError(str(e), text, 0)
 
 
 def normalize_ai_text(text):
