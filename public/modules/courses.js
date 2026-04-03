@@ -120,7 +120,7 @@ function detailCourseHtml(course) {
         return `
           <article class="history-item">
             <strong>${escapeHtml(lesson.title)}</strong>
-            <p>${mathTextToHtml(lesson.summary)}</p>
+            <div class="lesson-summary">${mathTextToHtml(lesson.summary)}</div>
             <div class="lesson-notes-block">
               <h4 class="lesson-notes-title">📝 Mes notes</h4>
               <textarea class="lesson-notes-textarea" id="lesson-notes-${escapeHtml(courseCode)}-${lessonIndex}"
@@ -167,7 +167,7 @@ function detailCourseHtml(course) {
     </div>
     ${teacherMeta}
     ${progressHtml}
-    <p>${mathTextToHtml(course.objective)}</p>
+    <div class="course-objective">${mathTextToHtml(course.objective)}</div>
     ${buildTagRow(course.focus || [])}
     ${prereqHtml}
     <section class="detail-section">
