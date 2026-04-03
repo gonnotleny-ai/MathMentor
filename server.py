@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+import unicodedata
 import secrets
 import ssl
 import threading
@@ -903,6 +904,32 @@ def parse_ai_json(text):
         return json.loads(fixed)
     except json.JSONDecodeError as e:
         raise json.JSONDecodeError(str(e), text, e.pos)
+
+
+def normalize_ai_text(text):
+    """NFC normalization + fix character-by-character AI output (newlines between each letter)."""
+    if not isinstance(text, str):
+        return text
+    text = unicodedata.normalize("NFC", text)
+    # Detect runs of ≥4 consecutive lines with ≤2 non-space chars and join them
+    lines = text.split("\n")
+    result = []
+    i = 0
+    while i < len(lines):
+        stripped = lines[i].strip()
+        if 0 < len(stripped) <= 2:
+            run = [stripped]
+            j = i + 1
+            while j < len(lines) and 0 < len(lines[j].strip()) <= 2:
+                run.append(lines[j].strip())
+                j += 1
+            if len(run) >= 4:
+                result.append("".join(run))
+                i = j
+                continue
+        result.append(lines[i])
+        i += 1
+    return "\n".join(result)
 
 
 def ai_request(system_prompt, user_prompt):
@@ -2698,6 +2725,10 @@ class AppHandler(SimpleHTTPRequestHandler):
             "Notation LaTeX OBLIGATOIRE : entoure CHAQUE formule ou expression mathématique avec \\(...\\) pour l'inline "
             "et \\[...\\] pour les formules en bloc centré. "
             "Ne jamais écrire de formule en texte brut. Exemples : \\(\\frac{a}{b}\\), \\(\\int_a^b f\\,dx\\), \\(\\partial f/\\partial x\\). "
+            "Écris toujours les caractères accentués directement (é, è, à, ç, ê, î, ô, û, etc.) sans commandes LaTeX d'accent. "
+            "Ne jamais utiliser \\'{e}, \\`{a}, \\^{o} ou équivalents : écrire directement é, à, ô. "
+            "Ne jamais mettre de retour à la ligne à l'intérieur d'un mot ou entre deux mots d'une même phrase courte. "
+            "L'énoncé doit être rédigé en prose continue, avec des espaces normaux entre les mots. "
             "L'énoncé doit être progressif et contextualisé : données numériques explicites, questions numérotées, "
             "lien explicite avec une situation de génie des procédés (bilan matière, thermodynamique, cinétique…). "
             "Si le mode est guide, ajouter une courte aide méthodologique dans l'énoncé. "
@@ -2736,6 +2767,11 @@ class AppHandler(SimpleHTTPRequestHandler):
             required_keys = {"title", "statement", "correction", "keywords", "duration"}
             if not required_keys.issubset(generated.keys()):
                 raise ValueError("Réponse JSON incomplète du modèle.")
+            # Normalize text fields (NFC + fix char-by-char newlines)
+            generated["title"] = normalize_ai_text(generated.get("title", ""))
+            generated["statement"] = normalize_ai_text(generated.get("statement", ""))
+            if isinstance(generated.get("correction"), list):
+                generated["correction"] = [normalize_ai_text(c) for c in generated["correction"]]
             # Validate and sanitize graphData if present
             gd = generated.get("graphData")
             if gd and isinstance(gd, dict):

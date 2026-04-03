@@ -116,7 +116,7 @@ export function textToHtml(text) {
 // Also auto-wraps standalone formula lines (lines that look purely mathematical)
 // in \(...\) so KaTeX can render them.
 export function mathTextToHtml(text) {
-  const raw = String(text || "");
+  const raw = String(text || "").normalize("NFC");
   const tokens = [];
   const ph = (i) => `\x00TOK${i}\x00`;
 
@@ -201,7 +201,7 @@ export function mathTextToHtml(text) {
 // Inline-only version of mathTextToHtml — safe to use inside <label>, <span>, <td>
 // No block elements (ul, h3, etc.) are generated.
 export function mathTextInline(text) {
-  const raw = String(text || "");
+  const raw = String(text || "").normalize("NFC");
   const DELIM_RE = /(\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\)|\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g;
   const mathTokens = [];
   const placeholder = (i) => `\x00MATH${i}\x00`;

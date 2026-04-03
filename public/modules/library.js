@@ -187,7 +187,7 @@ function mergeAdjacentSections(sections) {
 }
 
 function splitStatementSections(statement) {
-  const blocks = String(statement || "")
+  const blocks = String(statement || "").normalize("NFC")
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean);
