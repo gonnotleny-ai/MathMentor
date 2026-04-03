@@ -875,9 +875,21 @@ def _gemini_request(system_prompt, user_prompt, timeout=60):
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
 
+def _clean_ai_text(text):
+    """Nettoyage préliminaire du texte brut retourné par une IA avant parsing JSON."""
+    # Supprimer les blocs <think>...</think> (modèles raisonneurs type Qwen/DeepSeek)
+    text = re.sub(r'<think>[\s\S]*?</think>', '', text, flags=re.IGNORECASE).strip()
+    # Supprimer les balises Markdown entourant le JSON (```json ... ```)
+    text = re.sub(r'^```[a-z]*\s*', '', text.strip())
+    text = re.sub(r'\s*```$', '', text.strip())
+    return text.strip()
+
+
 def parse_ai_json(text):
     """Parse le JSON retourné par une IA, même s'il contient du LaTeX avec des backslashes.
     Stratégie : essais successifs du plus au moins strict."""
+
+    text = _clean_ai_text(text)
 
     # Tentative 1 : JSON brut tel quel
     try:
@@ -2578,7 +2590,7 @@ class AppHandler(SimpleHTTPRequestHandler):
             "Évalue et corrige cette réponse."
         )
         try:
-            raw_text = ai_request(system_prompt, user_prompt)
+            raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
             json_match = re.search(r"\{[\s\S]*\}", raw_text)
             if not json_match:
                 raise ValueError("Réponse IA non JSON.")
@@ -2798,8 +2810,7 @@ class AppHandler(SimpleHTTPRequestHandler):
             + (" Inclure un graphData avec un repère interactif et les points clés de l'exercice." if needs_graph else "")
         )
         try:
-            raw_text = ai_request(system_prompt, user_prompt)
-            # Extrait le JSON même si le modèle entoure la réponse de backticks
+            raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
             json_match = re.search(r"\{[\s\S]*\}", raw_text)
             if not json_match:
                 raise ValueError("Le modèle n'a pas retourné de JSON valide.")
@@ -2867,7 +2878,7 @@ class AppHandler(SimpleHTTPRequestHandler):
         logger.info("Génération QCM IA demandée par user id=%s (topic=%s, level=%s, count=%s)", user["id"], topic, level, count)
 
         try:
-            raw_text = ai_request(system_prompt, user_prompt)
+            raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
             json_match = re.search(r"\[[\s\S]*\]", raw_text)
             if not json_match:
                 raise ValueError("Le modèle n'a pas retourné un tableau JSON valide.")
