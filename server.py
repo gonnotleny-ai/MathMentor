@@ -2680,6 +2680,7 @@ class AppHandler(SimpleHTTPRequestHandler):
                 "Tu valides les étapes correctes et challenges doucement les erreurs par des questions. "
                 "Utilise un langage mathématique rigoureux (symboles ∈, ⟹, ⟺, ∀, ∃) et la notation LaTeX : "
                 "\\(...\\) pour les formules en ligne, \\[...\\] pour les formules centrées. "
+                "Écris les accents directement : é, è, à, ç, ê, î, ô, û — jamais de commandes LaTeX d'accent. "
                 "Réponds toujours en français."
             )
         else:
@@ -2691,6 +2692,7 @@ class AppHandler(SimpleHTTPRequestHandler):
                 "Emploie un langage mathématique précis : utilise les symboles ∈, ⟹, ⟺, ∀, ∃, "
                 "les notations ensemblistes (ℝ, ℂ, ℕ) et les opérateurs ∂, ∫, ∑, ∏ selon le contexte. "
                 "Notation LaTeX standard : \\(...\\) pour les formules en ligne et \\[...\\] pour les formules en display. "
+                "Écris les accents directement : é, è, à, ç, ê, î, ô, û — jamais de commandes LaTeX d'accent. "
                 "Réponds toujours en français."
             )
 
@@ -2699,6 +2701,7 @@ class AppHandler(SimpleHTTPRequestHandler):
                 system_prompt,
                 f"Contexte de l'application:\n{context}\n\nDemande de l'etudiant:\n{prompt}",
             )
+            text = _clean_ai_text(normalize_ai_text(text or ""))
             self.send_json(200, {"text": text or "Aucune reponse textuelle retournee."})
         except Exception as error:
             self.send_json(503, {"error": str(error)})
