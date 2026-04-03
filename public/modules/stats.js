@@ -172,53 +172,59 @@ export function renderStatsTab() {
     });
   }
 
-  // ── Line chart: progression over time ──────────────────────────────────────
+  // ── Line chart: activité quotidienne (30 derniers jours) ───────────────────
   const lineCanvas = document.getElementById("stats-line-chart");
   if (lineCanvas) {
     if (_statsLine) { _statsLine.destroy(); }
 
-    if (!history.length) {
+    const daily = state.dailyActivity || {};
+    // Construire les 30 derniers jours
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      days.push(d.toISOString().slice(0, 10));
+    }
+
+    const exData = days.map(d => (daily[d]?.ex || 0));
+    const hasData = exData.some(v => v > 0);
+
+    if (!hasData) {
       const ctx = lineCanvas.getContext("2d");
       if (ctx) {
         ctx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
         ctx.font = "13px sans-serif";
         ctx.fillStyle = "#94a3b8";
         ctx.textAlign = "center";
-        ctx.fillText(
-          "Commencez des exercices pour voir votre progression",
-          lineCanvas.width / 2,
-          lineCanvas.height / 2,
-        );
+        ctx.fillText("Commencez des exercices pour voir votre courbe d'activité", lineCanvas.width / 2, lineCanvas.height / 2);
       }
     } else {
-      const byDate = {};
-      history.forEach(e => {
-        const d = (e.date || "").slice(0, 10);
-        if (!d) return;
-        if (!byDate[d]) byDate[d] = [];
-        byDate[d].push(e.score || 0);
+      const labels = days.map(d => {
+        const [, m, day] = d.split("-");
+        return `${day}/${m}`;
       });
-      const dates  = Object.keys(byDate).sort();
-      const scores = dates.map(d => Math.round(byDate[d].reduce((s, v) => s + v, 0) / byDate[d].length * 33));
 
       _statsLine = new window.Chart(lineCanvas, {
         type: "line",
         data: {
-          labels: dates,
+          labels,
           datasets: [{
-            label: "Score moyen (%)",
-            data: scores,
+            label: "Exercices / jour",
+            data: exData,
             borderColor: "#2563eb",
-            backgroundColor: "rgba(37,99,235,0.08)",
-            tension: 0.3,
-            pointRadius: 4,
+            backgroundColor: "rgba(37,99,235,0.10)",
+            tension: 0.35,
+            pointRadius: 3,
+            pointHoverRadius: 5,
             fill: true,
           }],
         },
         options: {
           scales: {
-            y: { min: 0, max: 100, ticks: { stepSize: 25 } },
-            x: { ticks: { font: { size: 10 } } },
+            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+            x: { ticks: { font: { size: 10 }, maxTicksLimit: 10 } },
           },
           plugins: { legend: { display: false } },
         },

@@ -165,6 +165,8 @@ def init_db():
                 )
                 """
             )
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS self_evaluations TEXT NOT NULL DEFAULT '{}'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS daily_activity TEXT NOT NULL DEFAULT '{}'")
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS teacher_classes (
@@ -412,12 +414,14 @@ def get_progress(connection, user_id):
             "generatedExercises": [],
             "recentQuestions": [],
             "quizHistory": [],
+            "selfEvaluations": {},
+            "dailyActivity": {},
         }
         with connection.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO progress (user_id, viewed_exercises, favorite_exercises, generated_exercises, recent_questions, quiz_history, updated_at)
-                VALUES (%s, '[]', '[]', '[]', '[]', '[]', %s)
+                INSERT INTO progress (user_id, viewed_exercises, favorite_exercises, generated_exercises, recent_questions, quiz_history, self_evaluations, daily_activity, updated_at)
+                VALUES (%s, '[]', '[]', '[]', '[]', '[]', '{}', '{}', %s)
                 """,
                 (user_id, utc_now()),
             )
@@ -430,6 +434,8 @@ def get_progress(connection, user_id):
         "generatedExercises": json_load(row["generated_exercises"], []),
         "recentQuestions": json_load(row["recent_questions"], []),
         "quizHistory": json_load(row["quiz_history"], []),
+        "selfEvaluations": json_load(row.get("self_evaluations", "{}"), {}),
+        "dailyActivity": json_load(row.get("daily_activity", "{}"), {}),
     }
 
 
@@ -437,14 +443,16 @@ def update_progress(connection, user_id, payload):
     with connection.cursor() as cur:
         cur.execute(
             """
-            INSERT INTO progress (user_id, viewed_exercises, favorite_exercises, generated_exercises, recent_questions, quiz_history, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO progress (user_id, viewed_exercises, favorite_exercises, generated_exercises, recent_questions, quiz_history, self_evaluations, daily_activity, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT(user_id) DO UPDATE SET
                 viewed_exercises = EXCLUDED.viewed_exercises,
                 favorite_exercises = EXCLUDED.favorite_exercises,
                 generated_exercises = EXCLUDED.generated_exercises,
                 recent_questions = EXCLUDED.recent_questions,
                 quiz_history = EXCLUDED.quiz_history,
+                self_evaluations = EXCLUDED.self_evaluations,
+                daily_activity = EXCLUDED.daily_activity,
                 updated_at = EXCLUDED.updated_at
             """,
             (
@@ -454,6 +462,8 @@ def update_progress(connection, user_id, payload):
                 json_dump(payload.get("generatedExercises", [])),
                 json_dump(payload.get("recentQuestions", [])),
                 json_dump(payload.get("quizHistory", [])),
+                json_dump(payload.get("selfEvaluations", {})),
+                json_dump(payload.get("dailyActivity", {})),
                 utc_now(),
             ),
         )
@@ -1123,6 +1133,10 @@ class AppHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        if self.path == "/api/ping":
+            self.send_json(200, {"ok": True})
+            return
+
         if self.path == "/api/ai-status":
             provider = get_ai_provider()
             labels = {

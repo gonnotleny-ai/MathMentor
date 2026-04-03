@@ -484,9 +484,43 @@ function initNotifications() {
   setInterval(loadNotifications, 60_000);
 }
 
+// ── Loader management ─────────────────────────────────────────────────────────
+function hideLoader() {
+  const loader = document.getElementById("app-loader");
+  if (loader) {
+    loader.classList.add("is-hidden");
+    setTimeout(() => { loader.style.display = "none"; }, 450);
+  }
+}
+
+async function bootWithLoader() {
+  const hint = document.getElementById("app-loader-hint");
+
+  // 1. Ping server to wake up Render (cold start can take ~30s)
+  const pingStart = Date.now();
+  const MAX_WAIT = 35_000;
+  let serverReady = false;
+  while (!serverReady && Date.now() - pingStart < MAX_WAIT) {
+    try {
+      const res = await fetch("/api/ping", { cache: "no-store" });
+      if (res.ok) { serverReady = true; break; }
+    } catch (_) {}
+    if (hint) hint.textContent = `Démarrage du serveur… (${Math.round((Date.now() - pingStart) / 1000)}s)`;
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  if (hint) hint.textContent = "Chargement de l'interface…";
+
+  // 2. Init the app
+  await init();
+
+  // 3. Hide loader
+  hideLoader();
+}
+
 // Run after DOM is ready
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("DOMContentLoaded", bootWithLoader);
 } else {
-  init();
+  bootWithLoader();
 }

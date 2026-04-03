@@ -14,6 +14,15 @@
     <meta name="theme-color" content="#4f46e5">
   </head>
   <body>
+    <div id="app-loader">
+      <div class="app-loader-inner">
+        <div class="app-loader-logo">MM</div>
+        <p class="app-loader-title">MathMentor</p>
+        <p class="app-loader-subtitle">Démarrage en cours…</p>
+        <div class="app-loader-bar"><div class="app-loader-bar-fill"></div></div>
+        <p class="app-loader-hint" id="app-loader-hint">Connexion au serveur</p>
+      </div>
+    </div>
     <div class="app-shell">
       <header class="app-header panel">
         <div class="brand-mark">MM</div>
@@ -874,7 +883,7 @@
           </section>
 
           <section class="panel">
-            <h3 class="stats-chart-title">Progression dans le temps</h3>
+            <h3 class="stats-chart-title">Activité quotidienne — 30 derniers jours</h3>
             <canvas id="stats-line-chart" width="600" height="200"></canvas>
           </section>
         </section>

@@ -55,7 +55,7 @@ function getLocalLevelConfig(level, type) {
 
 function pushGeneratedExercise(exercise) {
   const state = getStudentState();
-  state.generatedExercises = [exercise, ...(state.generatedExercises || [])].slice(0, 10);
+  state.generatedExercises = [exercise, ...(state.generatedExercises || [])].slice(0, 50);
   setStudentState(state);
   saveState();
   apiUpdateProgress();
@@ -350,14 +350,11 @@ export async function handleAiGeneration() {
     if (generatorFeedback) generatorFeedback.textContent = `${GENERATION_MODE_LABELS[modeValue]} : l'exercice IA a été ajouté à votre bibliothèque locale.`;
   } catch (error) {
     const reason = describeAiIssue(error.message);
-    const fallbackExercise = buildLocalFallbackExercise();
-    pushGeneratedExercise(fallbackExercise);
-    setSelectedExercise(fallbackExercise);
-    renderGeneratedExercise(fallbackExercise);
-    renderExerciseList();
-    renderDashboard();
-    setChipState(generatorStatus, "Secours local activé", "warning");
-    if (generatorFeedback) generatorFeedback.textContent = `L'IA est indisponible pour le moment : ${reason}. MathMentor a généré automatiquement un exercice local enrichi sur ${course.code}.`;
+    setChipState(generatorStatus, "IA indisponible", "warning");
+    if (generatorFeedback) {
+      generatorFeedback.innerHTML = `L'IA est indisponible : ${reason}. <button type="button" id="generator-retry-btn" class="ghost-button" style="margin-left:8px;font-size:13px">↺ Réessayer</button>`;
+      document.getElementById("generator-retry-btn")?.addEventListener("click", () => handleAiGeneration(), { once: true });
+    }
   } finally {
     if (generatorButton) { generatorButton.disabled = false; generatorButton.textContent = "Générer avec l'IA"; }
   }
