@@ -889,11 +889,45 @@ def _gemini_request(system_prompt, user_prompt, timeout=60):
 def _clean_ai_text(text):
     """Nettoyage préliminaire du texte brut retourné par une IA avant parsing JSON."""
     # Supprimer les blocs <think>...</think> (modèles raisonneurs type Qwen/DeepSeek)
+    # Cas 1 : think fermé — on retire juste le bloc
     text = re.sub(r'<think>[\s\S]*?</think>', '', text, flags=re.IGNORECASE).strip()
+    # Cas 2 : think non fermé (tout le reste du texte est dans le think) — on retire à partir de <think>
+    text = re.sub(r'<think>[\s\S]*$', '', text, flags=re.IGNORECASE).strip()
     # Supprimer les balises Markdown entourant le JSON (```json ... ```)
     text = re.sub(r'^```[a-z]*\s*', '', text.strip())
     text = re.sub(r'\s*```$', '', text.strip())
     return text.strip()
+
+
+def _extract_json_from_text(text, is_array=False):
+    """Extrait le premier objet JSON (ou tableau) valide depuis un texte quelconque."""
+    opener, closer = ('[', ']') if is_array else ('{', '}')
+    # Chercher le premier caractère d'ouverture
+    start = text.find(opener)
+    if start == -1:
+        # Essayer l'autre forme si non trouvée
+        alt_opener, alt_closer = ('{', '}') if is_array else ('[', ']')
+        start = text.find(alt_opener)
+        if start == -1:
+            return None
+        opener, closer = alt_opener, alt_closer
+    # Trouver la fermeture correspondante
+    depth = 0
+    in_string = False
+    for i in range(start, len(text)):
+        c = text[i]
+        if c == '\\' and in_string:
+            continue
+        if c == '"':
+            in_string = not in_string
+        if not in_string:
+            if c == opener:
+                depth += 1
+            elif c == closer:
+                depth -= 1
+                if depth == 0:
+                    return text[start:i+1]
+    return None
 
 
 def _fix_string_newlines(s):
@@ -2635,10 +2669,10 @@ class AppHandler(SimpleHTTPRequestHandler):
         )
         try:
             raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
-            json_match = re.search(r"\{[\s\S]*\}", raw_text)
-            if not json_match:
+            json_str = _extract_json_from_text(raw_text, is_array=False)
+            if not json_str:
                 raise ValueError("Réponse IA non JSON.")
-            result = parse_ai_json(json_match.group(0))
+            result = parse_ai_json(json_str)
             result.setdefault("isCorrect", False)
             result.setdefault("score", 0)
             result.setdefault("feedback", "Correction générée.")
@@ -2739,11 +2773,11 @@ class AppHandler(SimpleHTTPRequestHandler):
             f"Genere exactement {count} flashcards sur les points cles de ce cours."
         )
         try:
-            raw = ai_request(system_prompt, user_prompt)
-            match = re.search(r"\[[\s\S]*\]", raw)
-            if not match:
+            raw = _clean_ai_text(ai_request(system_prompt, user_prompt))
+            json_str = _extract_json_from_text(raw, is_array=True)
+            if not json_str:
                 raise ValueError("Reponse IA non JSON.")
-            cards = parse_ai_json(match.group(0))
+            cards = parse_ai_json(json_str)
             if not isinstance(cards, list):
                 raise ValueError("Format invalide.")
             result = []
@@ -2858,10 +2892,10 @@ class AppHandler(SimpleHTTPRequestHandler):
         )
         try:
             raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
-            json_match = re.search(r"\{[\s\S]*\}", raw_text)
-            if not json_match:
+            json_str = _extract_json_from_text(raw_text, is_array=False)
+            if not json_str:
                 raise ValueError("Le modèle n'a pas retourné de JSON valide.")
-            generated = parse_ai_json(json_match.group())
+            generated = parse_ai_json(json_str)
             required_keys = {"title", "statement", "correction", "keywords", "duration"}
             if not required_keys.issubset(generated.keys()):
                 raise ValueError("Réponse JSON incomplète du modèle.")
@@ -2926,10 +2960,10 @@ class AppHandler(SimpleHTTPRequestHandler):
 
         try:
             raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
-            json_match = re.search(r"\[[\s\S]*\]", raw_text)
-            if not json_match:
+            json_str = _extract_json_from_text(raw_text, is_array=True)
+            if not json_str:
                 raise ValueError("Le modèle n'a pas retourné un tableau JSON valide.")
-            questions = parse_ai_json(json_match.group())
+            questions = parse_ai_json(json_str)
             if not isinstance(questions, list):
                 raise ValueError("La réponse JSON n'est pas un tableau.")
             # Validate and normalize each question
