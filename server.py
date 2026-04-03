@@ -885,75 +885,88 @@ def _clean_ai_text(text):
     return text.strip()
 
 
-def parse_ai_json(text):
-    """Parse le JSON retourné par une IA, même s'il contient du LaTeX avec des backslashes.
-    Stratégie : essais successifs du plus au moins strict."""
+def _fix_string_newlines(s):
+    """Remplace les newlines/tabs littéraux à l'intérieur des strings JSON par leurs séquences d'échappement."""
+    result = []
+    in_string = False
+    i = 0
+    while i < len(s):
+        c = s[i]
+        if c == '\\' and in_string:
+            result.append(c)
+            i += 1
+            if i < len(s):
+                result.append(s[i])
+                i += 1
+            continue
+        if c == '"':
+            in_string = not in_string
+            result.append(c)
+            i += 1
+            continue
+        if in_string:
+            if c == '\n':
+                result.append('\\n')
+                i += 1
+                continue
+            if c == '\r':
+                i += 1
+                continue
+            if c == '\t':
+                result.append('\\t')
+                i += 1
+                continue
+        result.append(c)
+        i += 1
+    return ''.join(result)
 
-    text = _clean_ai_text(text)
 
-    # Tentative 1 : JSON brut tel quel
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        pass
-
-    # Pré-traitement : \b et \f suivis d'une lettre/{ sont des commandes LaTeX, pas des ctrl chars
-    text2 = re.sub(r'(?<!\\)\\([bf])(?=[a-zA-Z{(])', r'\\\\\1', text)
-
-    # Tentative 2 : après pré-traitement \b/\f
-    try:
-        return json.loads(text2)
-    except json.JSONDecodeError:
-        pass
-
-    # Tentative 3 : doubler tous les \ non standards (LaTeX), puis corriger les newlines dans strings
+def _double_unescaped_backslashes(s):
+    """Double les backslashes non standards (LaTeX) pour en faire du JSON valide."""
     def escape_backslash(m):
         char = m.group(1)
         if char in ('"', '\\', '/', 'n', 'r', 't', 'b', 'f', 'u'):
             return m.group(0)
         return '\\\\' + char
+    return re.sub(r'\\(.)', escape_backslash, s)
 
-    fixed = re.sub(r'\\(.)', escape_backslash, text2)
+
+def parse_ai_json(text):
+    """Parse le JSON retourné par une IA, même s'il contient du LaTeX avec des backslashes."""
+
+    text = _clean_ai_text(text)
+
+    # Tentative 1 : JSON brut
     try:
-        return json.loads(fixed)
+        return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Tentative 4 : corriger aussi les newlines littéraux à l'intérieur des strings JSON
-    # (l'IA écrit parfois des retours à la ligne bruts au lieu de \n)
-    def fix_string_newlines(s):
-        """Remplace les newlines littéraux à l'intérieur des strings JSON par \\n."""
-        result = []
-        in_string = False
-        i = 0
-        while i < len(s):
-            c = s[i]
-            if c == '\\' and in_string:
-                result.append(c)
-                i += 1
-                if i < len(s):
-                    result.append(s[i])
-                    i += 1
-                continue
-            if c == '"':
-                in_string = not in_string
-                result.append(c)
-                i += 1
-                continue
-            if in_string and c == '\n':
-                result.append('\\n')
-                i += 1
-                continue
-            if in_string and c == '\r':
-                i += 1
-                continue
-            result.append(c)
-            i += 1
-        return ''.join(result)
-
-    fixed2 = fix_string_newlines(fixed)
+    # Tentative 2 : corriger les newlines littéraux dans les strings (cause la plus fréquente)
+    t2 = _fix_string_newlines(text)
     try:
-        return json.loads(fixed2)
+        return json.loads(t2)
+    except json.JSONDecodeError:
+        pass
+
+    # Tentative 3 : pré-échapper \b \f LaTeX puis corriger les newlines
+    t3 = re.sub(r'(?<!\\)\\([bf])(?=[a-zA-Z{(])', r'\\\\\1', t2)
+    try:
+        return json.loads(t3)
+    except json.JSONDecodeError:
+        pass
+
+    # Tentative 4 : doubler tous les backslashes non standards
+    t4 = _double_unescaped_backslashes(t3)
+    try:
+        return json.loads(t4)
+    except json.JSONDecodeError:
+        pass
+
+    # Tentative 5 : re-appliquer fix_string_newlines après le doublement
+    t5 = _fix_string_newlines(t4)
+    try:
+        return json.loads(t5)
     except json.JSONDecodeError as e:
         raise json.JSONDecodeError(str(e), text, e.pos)
 
