@@ -1036,6 +1036,10 @@ def parse_ai_json(text):
     """Parse le JSON retourné par une IA, même s'il contient du LaTeX avec des backslashes."""
 
     text = _clean_ai_text(text)
+    # Décoder les entités HTML (&amp; → &, &lt; → <, etc.) présentes dans les valeurs LaTeX
+    text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace('&#39;', "'")
+    # Supprimer les caractères invisibles en début/fin (BOM, zero-width spaces, etc.)
+    text = text.strip('\ufeff\u200b\u200c\u200d\u00a0\x00\x01\x02\x03')
 
     # Tentative 1 : JSON brut
     try:
