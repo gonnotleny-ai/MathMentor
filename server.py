@@ -990,7 +990,7 @@ def _fix_string_newlines(s):
 
 def _double_unescaped_backslashes(s):
     """Double les backslashes invalides dans les strings JSON (parseur caractère par caractère).
-    Seuls \\, \", \n, \r, \t, \/, \uXXXX sont valides en JSON — tout le reste est du LaTeX."""
+    Seuls \\\\, \\", \\n, \\r, \\t, \\/, \\uXXXX sont valides en JSON — tout le reste est du LaTeX."""
     result = []
     in_string = False
     i = 0
