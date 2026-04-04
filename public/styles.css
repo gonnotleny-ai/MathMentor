@@ -3608,6 +3608,15 @@ li + li {
   font-size: 0.95rem;
   line-height: 1.65;
 }
+.course-summary-content p,
+.lesson-summary p,
+.ai-math-p {
+  margin: 0.3em 0;
+}
+.course-summary-content p:first-child,
+.lesson-summary p:first-child { margin-top: 0; }
+.course-summary-content p:last-child,
+.lesson-summary p:last-child { margin-bottom: 0; }
 [data-theme="dark"] .course-summary-panel { background: var(--surface); }
 
 /* ── FEATURE 8 : Class analytics ─────────────────────────────────────────────── */

@@ -184,14 +184,14 @@ export function mathTextToHtml(text) {
     }
 
     if (inList && trimmed === '') { out.push('</ul>'); inList = false; }
-    if (trimmed === '') { out.push('<br>'); continue; }
+    if (trimmed === '') { out.push(''); continue; }
 
-    // Normal line
+    // Normal line — wrap in <p> so lines are visually separated
     const t = trimmed;
     if (isPureMathLine(t)) {
-      out.push(`\\(${unicodeToLatex(t)}\\)`);
+      out.push(`<p class="ai-math-p">\\(${unicodeToLatex(t)}\\)</p>`);
     } else {
-      out.push(inlineUnicodeMath(line));
+      out.push(`<p>${inlineUnicodeMath(line)}</p>`);
     }
   }
   if (inList) out.push('</ul>');
