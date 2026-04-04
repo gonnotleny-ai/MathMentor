@@ -899,24 +899,15 @@ def _clean_ai_text(text):
     return text.strip()
 
 
-def _extract_json_from_text(text, is_array=False):
-    """Extrait le premier objet JSON (ou tableau) valide depuis un texte quelconque."""
-    opener, closer = ('[', ']') if is_array else ('{', '}')
-    # Chercher le premier caractère d'ouverture
-    start = text.find(opener)
-    if start == -1:
-        # Essayer l'autre forme si non trouvée
-        alt_opener, alt_closer = ('{', '}') if is_array else ('[', ']')
-        start = text.find(alt_opener)
-        if start == -1:
-            return None
-        opener, closer = alt_opener, alt_closer
-    # Trouver la fermeture correspondante
+def _extract_balanced(text, opener, closer, start):
+    """Extrait la chaîne équilibrée depuis text[start] (doit être opener)."""
     depth = 0
     in_string = False
-    for i in range(start, len(text)):
+    i = start
+    while i < len(text):
         c = text[i]
         if c == '\\' and in_string:
+            i += 2
             continue
         if c == '"':
             in_string = not in_string
@@ -927,7 +918,38 @@ def _extract_json_from_text(text, is_array=False):
                 depth -= 1
                 if depth == 0:
                     return text[start:i+1]
+        i += 1
     return None
+
+
+def _extract_json_from_text(text, is_array=False):
+    """Extrait tous les objets JSON valides et retourne le plus grand (le plus complet)."""
+    opener, closer = ('[', ']') if is_array else ('{', '}')
+    candidates = []
+    i = 0
+    while i < len(text):
+        if text[i] == opener:
+            candidate = _extract_balanced(text, opener, closer, i)
+            if candidate:
+                candidates.append(candidate)
+                i += len(candidate)
+                continue
+        i += 1
+    # Prendre le candidat le plus long (le plus susceptible d'être l'objet principal)
+    if candidates:
+        return max(candidates, key=len)
+    # Fallback : essayer avec l'autre forme
+    alt_opener, alt_closer = ('{', '}') if is_array else ('[', ']')
+    i = 0
+    while i < len(text):
+        if text[i] == alt_opener:
+            candidate = _extract_balanced(text, alt_opener, alt_closer, i)
+            if candidate:
+                candidates.append(candidate)
+                i += len(candidate)
+                continue
+        i += 1
+    return max(candidates, key=len) if candidates else None
 
 
 def _fix_string_newlines(s):
@@ -2845,6 +2867,8 @@ class AppHandler(SimpleHTTPRequestHandler):
         needs_graph = topic in graph_topics
 
         system_prompt = (
+            "IMPORTANT : ta réponse doit commencer DIRECTEMENT par { et se terminer par }. "
+            "Aucun texte, titre, explication ou markdown avant ou après le JSON. "
             "Tu génères uniquement du JSON valide pour une application de soutien en mathématiques du BUT GCGP. "
             "Retourne un objet JSON avec exactement les clés suivantes : title, statement, correction, keywords, duration"
             + (", graphData" if needs_graph else "") + ". "
@@ -2944,6 +2968,8 @@ class AppHandler(SimpleHTTPRequestHandler):
             return
 
         system_prompt = (
+            "IMPORTANT : ta réponse doit commencer DIRECTEMENT par [ et se terminer par ]. "
+            "Aucun texte avant ou après le JSON. "
             "Tu génères uniquement du JSON valide. "
             "Retourne un tableau JSON de questions QCM avec exactement les clés suivantes par question : "
             "question (string), options (tableau de 4 strings étiquetés A/B/C/D), correct (string 'A', 'B', 'C' ou 'D'), explanation (string). "
