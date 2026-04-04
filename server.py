@@ -36,7 +36,7 @@ if _env_path.exists():
                 os.environ.setdefault(_k.strip(), _v.strip())
 PORT = int(os.environ.get("PORT", "3000"))
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
-KNOWN_TOPICS = {"SYSLIN", "POLY", "FONC", "FVAR", "EDO", "FRAT", "COMPLEXES", "STATS"}
+KNOWN_TOPICS = {"SYSLIN", "POLY", "FVAR", "FRAT"}
 KNOWN_LEVELS = {"facile", "intermediaire", "avance"}
 KNOWN_ROLES = {"student", "teacher"}
 DEFAULT_TEACHER_CODE = "MATHMENTOR-PROF"
@@ -2935,7 +2935,7 @@ class AppHandler(SimpleHTTPRequestHandler):
         logger.info("Génération exercice IA demandée par user id=%s (topic=%s, level=%s)", user["id"], topic, level)
 
         # Topics where a graphical component makes sense
-        graph_topics = {"FONC", "FVAR", "EDO", "SYSLIN"}
+        graph_topics = {"FVAR", "SYSLIN"}
         needs_graph = topic in graph_topics
 
         system_prompt = (

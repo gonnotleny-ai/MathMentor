@@ -116,80 +116,6 @@ const FLASHCARDS = [
       "EDP de transport : ∂u/∂t + c·∂u/∂x = 0",
     ],
   },
-  // ── FONC ───────────────────────────────────────────────────────────────────
-  {
-    id: "fc-FONC-0", topic: "FONC", color: "#06b6d4",
-    heading: "Dérivées usuelles",
-    items: [
-      "(xⁿ)' = n·xⁿ⁻¹ · (eˣ)' = eˣ · (ln x)' = 1/x · (sin x)' = cos x · (cos x)' = −sin x.",
-      "Règle du produit : (uv)' = u'v + uv'.",
-      "Règle de la chaîne : [f(g(x))]' = f'(g(x))·g'(x).",
-    ],
-  },
-  {
-    id: "fc-FONC-1", topic: "FONC", color: "#06b6d4",
-    heading: "Primitives et intégrales",
-    items: [
-      "Primitive de xⁿ : xⁿ⁺¹/(n+1) (+C). Primitive de 1/x : ln|x| (+C).",
-      "Théorème fondamental : ∫ₐᵇ f(x)dx = F(b) − F(a).",
-      "ΔH = ∫T₁T₂ Cp(T) dT : calcul clé pour les échangeurs et réacteurs.",
-    ],
-  },
-  {
-    id: "fc-FONC-2", topic: "FONC", color: "#06b6d4",
-    heading: "Intégration par parties",
-    items: [
-      "∫u·v' dx = u·v − ∫u'·v dx.",
-      "Choisir u facile à dériver, v' facile à intégrer.",
-      "Exemple DTS : ∫₀^∞ t·E(t) dt = τ (temps de séjour moyen).",
-    ],
-  },
-  {
-    id: "fc-FONC-3", topic: "FONC", color: "#06b6d4",
-    heading: "Propagation des incertitudes",
-    items: [
-      "Si z = xᵃ·yᵇ : δz/z = |a|·δx/x + |b|·δy/y.",
-      "Pour Q = π·D²·v/4 : δQ/Q = 2·δD/D + δv/v.",
-      "Les exposants amplifi ent l'incertitude relative.",
-    ],
-  },
-  // ── EDO ───────────────────────────────────────────────────────────────────
-  {
-    id: "fc-EDO-0", topic: "EDO", color: "#ef4444",
-    heading: "EDO d'ordre 1 séparable",
-    items: [
-      "dy/dx = g(x)·h(y) → dy/h(y) = g(x) dx → intégrer des deux côtés.",
-      "dC/dt = −kC → C(t) = C₀·e^(−kt). Demi-vie : t₁/₂ = ln(2)/k.",
-      "Toujours vérifier la condition initiale après intégration.",
-    ],
-  },
-  {
-    id: "fc-EDO-1", topic: "EDO", color: "#ef4444",
-    heading: "EDO d'ordre 2 — équation caractéristique",
-    items: [
-      "ay'' + by' + cy = 0 → ar² + br + c = 0.",
-      "Δ > 0 : y = C₁e^(r₁x) + C₂e^(r₂x). Δ = 0 : y = (C₁+C₂x)e^(rx).",
-      "Δ < 0 (r = α ± βi) : y = e^(αx)(C₁cos(βx) + C₂sin(βx)).",
-    ],
-  },
-  {
-    id: "fc-EDO-2", topic: "EDO", color: "#ef4444",
-    heading: "EDO linéaire d'ordre 1",
-    items: [
-      "Forme standard : y' + P(x)y = Q(x).",
-      "Facteur intégrant : μ(x) = e^(∫P(x)dx).",
-      "Solution : y = (1/μ)·∫μ·Q dx + C/μ.",
-    ],
-  },
-  {
-    id: "fc-EDO-3", topic: "EDO", color: "#ef4444",
-    heading: "EDO avec second membre",
-    items: [
-      "Solution complète : y = y_h + y_p (homogène + particulière).",
-      "y_p par coefficients indéterminés : si f(x) = e^(ax), essayer y_p = Ae^(ax).",
-      "Conditions initiales → déterminer les constantes C₁, C₂.",
-    ],
-  },
   // ── FRAT ───────────────────────────────────────────────────────────────────
   {
     id: "fc-FRAT-0", topic: "FRAT", color: "#8b5cf6",
@@ -227,86 +153,11 @@ const FLASHCARDS = [
       "L{sin(ωt)} = ω/(s²+ω²) · Pôles à partie réelle négative → réponse stable.",
     ],
   },
-  // ── COMPLEXES ──────────────────────────────────────────────────────────────
-  {
-    id: "fc-COMPLEXES-0", topic: "COMPLEXES", color: "#0ea5e9",
-    heading: "Formes des complexes",
-    items: [
-      "Algébrique : z = a + bi. Trigonométrique : z = r(cos θ + i·sin θ).",
-      "Exponentielle : z = r·e^(iθ). Module : r = √(a²+b²). Argument : θ = atan2(b,a).",
-      "Conjugué : z̄ = a − bi. Propriété : z·z̄ = |z|² = r².",
-    ],
-  },
-  {
-    id: "fc-COMPLEXES-1", topic: "COMPLEXES", color: "#0ea5e9",
-    heading: "Formule d'Euler",
-    items: [
-      "e^(iθ) = cos θ + i·sin θ. |e^(iθ)| = 1 pour tout θ réel.",
-      "Identité remarquable : e^(iπ) + 1 = 0.",
-      "De Moivre : (e^(iθ))ⁿ = e^(inθ). Racines n-ièmes de l'unité : e^(2ikπ/n).",
-    ],
-  },
-  {
-    id: "fc-COMPLEXES-2", topic: "COMPLEXES", color: "#0ea5e9",
-    heading: "Impédances complexes",
-    items: [
-      "Résistance ZR = R. Condensateur ZC = 1/(jCω) = −j/(Cω). Inductance ZL = jLω.",
-      "Série : Z = Z₁ + Z₂. Parallèle : 1/Z = 1/Z₁ + 1/Z₂.",
-      "Module |Z| → amplitude. Argument φ = arg(Z) → déphasage tension/courant.",
-    ],
-  },
-  {
-    id: "fc-COMPLEXES-3", topic: "COMPLEXES", color: "#0ea5e9",
-    heading: "Analyse fréquentielle",
-    items: [
-      "Pour H(jω) = N(jω)/D(jω) : gain = |H(jω)|, phase = arg(H(jω)).",
-      "Fréquence de coupure ωc : |H(jωc)| = |H(0)|/√2 (−3 dB).",
-      "H(jω) = 1/(1 + jωτ) → ωc = 1/τ.",
-    ],
-  },
-  // ── STATS ──────────────────────────────────────────────────────────────────
-  {
-    id: "fc-STATS-0", topic: "STATS", color: "#84cc16",
-    heading: "Statistiques descriptives",
-    items: [
-      "Moyenne : x̄ = Σxᵢ/n. Variance : s² = Σ(xᵢ−x̄)²/(n−1). Écart-type : s = √s².",
-      "Médiane : valeur centrale. Mode : valeur la plus fréquente.",
-      "Règle 68-95-99.7 : 68% dans [μ±σ], 95% dans [μ±2σ], 99.7% dans [μ±3σ].",
-    ],
-  },
-  {
-    id: "fc-STATS-1", topic: "STATS", color: "#84cc16",
-    heading: "Loi normale et standardisation",
-    items: [
-      "X ~ N(μ, σ²). Standardisation : Z = (X − μ)/σ suit N(0, 1).",
-      "Lire la table : P(Z < z) → probabilité cumulée.",
-      "P(a < X < b) = P((a−μ)/σ < Z < (b−μ)/σ).",
-    ],
-  },
-  {
-    id: "fc-STATS-2", topic: "STATS", color: "#84cc16",
-    heading: "Intervalle de confiance",
-    items: [
-      "IC à 95% sur μ : x̄ ± t(n−1; 0.025) × s/√n.",
-      "t(9; 0.025) ≈ 2.262. t(∞; 0.025) = 1.96 (loi normale).",
-      "Plus n augmente, plus l'IC est étroit → mesures multiples recommandées.",
-    ],
-  },
-  {
-    id: "fc-STATS-3", topic: "STATS", color: "#84cc16",
-    heading: "Régression linéaire",
-    items: [
-      "y = ax + b. Pente : a = Σ(xᵢ−x̄)(yᵢ−ȳ) / Σ(xᵢ−x̄)². Ordonnée : b = ȳ − a·x̄.",
-      "R² ∈ [0,1] : qualité de l'ajustement. R² → 1 = ajustement parfait.",
-      "Résidus : eᵢ = yᵢ − (axᵢ + b). Vérifier l'absence de structure dans les résidus.",
-    ],
-  },
 ];
 
 const TOPIC_LABELS = {
-  SYSLIN: "Syst. linéaires", POLY: "Polynômes", FONC: "Fonctions & calcul",
-  FVAR: "Fonct. plusieurs var.", EDO: "Équa. différentielles",
-  FRAT: "Fractions rat.", COMPLEXES: "Nombres complexes", STATS: "Statistiques",
+  SYSLIN: "Syst. linéaires", POLY: "Polynômes",
+  FVAR: "Fonct. plusieurs var.", FRAT: "Fractions rat.",
 };
 const FC_STORAGE_KEY = "maths-gcgp-flashcards";
 
@@ -445,12 +296,8 @@ function renderAiFlashcardGenerator(container) {
       <select id="fc-gen-topic" class="fc-select">
         <option value="SYSLIN">Syst. linéaires</option>
         <option value="POLY">Polynômes</option>
-        <option value="FONC">Fonctions & calcul</option>
         <option value="FVAR">Fonct. plusieurs var.</option>
-        <option value="EDO">Équa. différentielles</option>
         <option value="FRAT">Fractions rat.</option>
-        <option value="COMPLEXES">Nombres complexes</option>
-        <option value="STATS">Statistiques</option>
       </select>
       <select id="fc-gen-count" class="fc-select">
         <option value="3">3 cartes</option>
@@ -557,12 +404,8 @@ export function renderFlashcards() {
             <option value="all">Tous les thèmes</option>
             <option value="SYSLIN">Syst. linéaires</option>
             <option value="POLY">Polynômes</option>
-            <option value="FONC">Fonctions & calcul</option>
             <option value="FVAR">Fonct. plusieurs var.</option>
-            <option value="EDO">Équa. différentielles</option>
             <option value="FRAT">Fractions rat.</option>
-            <option value="COMPLEXES">Nombres complexes</option>
-            <option value="STATS">Statistiques</option>
           </select>
           <button type="button" class="ghost-button fc-reset-btn">Tout réinitialiser</button>
         </div>
@@ -585,7 +428,7 @@ export function renderFlashcards() {
 function renderGrid(gridEl) {
   if (!gridEl) return;
   const prog = loadFcProgress();
-  const topicGroups = ["SYSLIN", "POLY", "FONC", "FVAR", "EDO", "FRAT", "COMPLEXES", "STATS"];
+  const topicGroups = ["SYSLIN", "POLY", "FVAR", "FRAT"];
   gridEl.innerHTML = topicGroups.map((topic) => {
     const cards = FLASHCARDS.filter((c) => c.topic === topic);
     const color = cards[0]?.color || "#2563eb";

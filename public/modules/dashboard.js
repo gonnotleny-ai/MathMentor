@@ -96,15 +96,14 @@ function getRecommendedCourse() {
   }, curriculum[0] || null);
 }
 
-const TOPICS = ["SYSLIN", "POLY", "FONC", "FVAR", "EDO", "FRAT", "COMPLEXES", "STATS"];
+const TOPICS = ["SYSLIN", "POLY", "FVAR", "FRAT"];
 const TOPIC_LABELS = {
-  SYSLIN: "Syst. linéaires", POLY: "Polynômes", FONC: "Fonctions",
-  FVAR: "Plsrs variables", EDO: "Équa. diff.", FRAT: "Fractions rat.",
-  COMPLEXES: "Complexes", STATS: "Statistiques",
+  SYSLIN: "Syst. linéaires", POLY: "Polynômes",
+  FVAR: "Plsrs variables",   FRAT: "Fractions rat.",
 };
 const TOPIC_COLORS_RADAR = [
-  "rgba(37,99,235,0.5)", "rgba(16,185,129,0.5)", "rgba(6,182,212,0.5)", "rgba(245,158,11,0.5)",
-  "rgba(239,68,68,0.5)", "rgba(139,92,246,0.5)", "rgba(14,165,233,0.5)", "rgba(132,204,22,0.5)",
+  "rgba(37,99,235,0.5)", "rgba(16,185,129,0.5)",
+  "rgba(245,158,11,0.5)", "rgba(139,92,246,0.5)",
 ];
 const TOPIC_BORDERS = ["#2563eb", "#10b981", "#06b6d4", "#f59e0b", "#ef4444", "#8b5cf6", "#0ea5e9", "#84cc16"];
 
@@ -192,8 +191,8 @@ export function renderStudentStats() {
 }
 
 const TOPIC_COLORS_MAP = {
-  SYSLIN: "#2563eb", POLY: "#10b981", FONC: "#06b6d4", FVAR: "#f59e0b",
-  EDO: "#ef4444", FRAT: "#8b5cf6", COMPLEXES: "#0ea5e9", STATS: "#84cc16",
+  SYSLIN: "#2563eb", POLY: "#10b981",
+  FVAR: "#f59e0b",   FRAT: "#8b5cf6",
 };
 
 export function renderSkillsMap() {
@@ -448,7 +447,7 @@ export function renderAdvancedStats() {
 
   // Radar chart: average score per topic
   if (radarCanvas) {
-    const allTopics = ["SYSLIN", "POLY", "FVAR", "FRAT", "FONC", "EDO", "COMPLEXES", "STATS"];
+    const allTopics = ["SYSLIN", "POLY", "FVAR", "FRAT"];
     const scores = allTopics.map((topic) => {
       const topicExercises = allExercises.filter((e) => e.topic === topic);
       const evaledExercises = topicExercises.filter((e) => evals[e.id] !== undefined);

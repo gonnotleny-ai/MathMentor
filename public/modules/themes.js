@@ -6,14 +6,10 @@ import { escapeHtml, mathTextToHtml, renderMath } from './utils.js';
 import { openTab, openHubSection } from './navigation.js';
 
 const TOPICS = [
-  { code: "SYSLIN",    label: "Systèmes linéaires",         icon: "⚖️",  color: "#2563eb", semester: "S2" },
-  { code: "POLY",      label: "Polynômes",                  icon: "📈",  color: "#10b981", semester: "S2" },
-  { code: "FVAR",      label: "Fonctions multivariables",   icon: "🗺",  color: "#f59e0b", semester: "S2" },
-  { code: "FRAT",      label: "Fractions rationnelles",     icon: "➗",  color: "#8b5cf6", semester: "S2" },
-  { code: "FONC",      label: "Fonctions & calcul",         icon: "∫",   color: "#06b6d4", semester: "S1" },
-  { code: "EDO",       label: "Équations différentielles",  icon: "🌀",  color: "#ef4444", semester: "S1" },
-  { code: "COMPLEXES", label: "Nombres complexes",          icon: "ℂ",   color: "#0ea5e9", semester: "S1" },
-  { code: "STATS",     label: "Statistiques",               icon: "📊",  color: "#84cc16", semester: "S1" },
+  { code: "SYSLIN", label: "Systèmes linéaires",       icon: "⚖️", color: "#2563eb", semester: "S2" },
+  { code: "POLY",   label: "Polynômes",                icon: "📈", color: "#10b981", semester: "S2" },
+  { code: "FVAR",   label: "Fonctions multivariables", icon: "🗺", color: "#f59e0b", semester: "S2" },
+  { code: "FRAT",   label: "Fractions rationnelles",   icon: "➗", color: "#8b5cf6", semester: "S2" },
 ];
 
 export function renderThemesHub() {

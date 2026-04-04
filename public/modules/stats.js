@@ -4,15 +4,14 @@ import { getStudentState } from './state.js';
 import { getAllExercises } from './library.js';
 import { escapeHtml } from './utils.js';
 
-const TOPICS = ["SYSLIN", "POLY", "FONC", "FVAR", "EDO", "FRAT", "COMPLEXES", "STATS"];
+const TOPICS = ["SYSLIN", "POLY", "FVAR", "FRAT"];
 const TOPIC_LABELS = {
-  SYSLIN: "Systèmes linéaires", POLY: "Polynômes", FONC: "Fonctions",
-  FVAR: "Plsrs variables",      EDO: "Équa. diff.", FRAT: "Fractions rat.",
-  COMPLEXES: "Complexes",        STATS: "Statistiques",
+  SYSLIN: "Systèmes linéaires", POLY: "Polynômes",
+  FVAR: "Plsrs variables",      FRAT: "Fractions rat.",
 };
 const TOPIC_COLORS = {
-  SYSLIN: "#2563eb", POLY: "#10b981", FONC: "#06b6d4", FVAR: "#f59e0b",
-  EDO: "#ef4444",    FRAT: "#8b5cf6", COMPLEXES: "#0ea5e9", STATS: "#84cc16",
+  SYSLIN: "#2563eb", POLY: "#10b981",
+  FVAR: "#f59e0b",   FRAT: "#8b5cf6",
 };
 
 let _statsRadar = null;

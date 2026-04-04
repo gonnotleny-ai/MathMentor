@@ -218,9 +218,8 @@ function showTopicFailToast(topic, count) {
   if (existing) existing.remove();
 
   const topicLabels = {
-    SYSLIN: "Systèmes linéaires", POLY: "Polynômes", FONC: "Fonctions",
-    FVAR: "Fonctions à plusieurs variables", EDO: "Équations différentielles",
-    FRAT: "Fractions rationnelles", COMPLEXES: "Complexes", STATS: "Statistiques",
+    SYSLIN: "Systèmes linéaires", POLY: "Polynômes",
+    FVAR: "Fonctions à plusieurs variables", FRAT: "Fractions rationnelles",
   };
   const topicLabel = topicLabels[topic] || topic;
 

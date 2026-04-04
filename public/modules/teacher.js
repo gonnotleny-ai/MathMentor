@@ -21,14 +21,12 @@ let chartTopics = null;
 let analyticsStudents = [];
 
 const TOPIC_LABELS = {
-  SYSLIN: "Syst. linéaires", POLY: "Polynômes", FONC: "Fonctions & calcul",
-  FVAR: "Fonct. plusieurs var.", EDO: "Équa. différentielles",
-  FRAT: "Fractions rat.", COMPLEXES: "Nombres complexes", STATS: "Statistiques",
+  SYSLIN: "Syst. linéaires", POLY: "Polynômes",
+  FVAR: "Fonct. plusieurs var.", FRAT: "Fractions rat.",
 };
 const TOPIC_COLORS = {
-  SYSLIN: "#2563eb", POLY: "#10b981", FONC: "#06b6d4",
-  FVAR: "#f59e0b", EDO: "#ef4444", FRAT: "#8b5cf6",
-  COMPLEXES: "#0ea5e9", STATS: "#84cc16",
+  SYSLIN: "#2563eb", POLY: "#10b981",
+  FVAR: "#f59e0b",   FRAT: "#8b5cf6",
 };
 
 // ── Resources loaders ─────────────────────────────────────────────────────────
