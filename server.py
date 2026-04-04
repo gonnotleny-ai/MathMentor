@@ -2954,8 +2954,12 @@ class AppHandler(SimpleHTTPRequestHandler):
             json_str = _extract_json_from_text(raw_text, is_array=False)
             if not json_str:
                 raise ValueError("Le modèle n'a pas retourné de JSON valide.")
-            logger.info("EXTRACTED JSON (first 200 chars): %r", json_str[:200])
-            generated = parse_ai_json(json_str)
+            logger.info("EXTRACTED JSON (first 300 chars): %r", json_str[:300])
+            try:
+                generated = parse_ai_json(json_str)
+            except Exception as parse_err:
+                logger.error("PARSE FAILED on: %r", json_str[:500])
+                raise parse_err
             required_keys = {"title", "statement", "correction", "keywords", "duration"}
             if not required_keys.issubset(generated.keys()):
                 raise ValueError("Réponse JSON incomplète du modèle.")
