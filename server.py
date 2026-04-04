@@ -989,13 +989,47 @@ def _fix_string_newlines(s):
 
 
 def _double_unescaped_backslashes(s):
-    """Double les backslashes non standards (LaTeX) pour en faire du JSON valide."""
-    def escape_backslash(m):
-        char = m.group(1)
-        if char in ('"', '\\', '/', 'n', 'r', 't', 'b', 'f', 'u'):
-            return m.group(0)
-        return '\\\\' + char
-    return re.sub(r'\\(.)', escape_backslash, s)
+    """Double les backslashes invalides dans les strings JSON (parseur caractère par caractère).
+    Seuls \\, \", \n, \r, \t, \/, \uXXXX sont valides en JSON — tout le reste est du LaTeX."""
+    result = []
+    in_string = False
+    i = 0
+    while i < len(s):
+        c = s[i]
+        if not in_string:
+            result.append(c)
+            if c == '"':
+                in_string = True
+            i += 1
+            continue
+        # Inside a JSON string
+        if c == '\\':
+            if i + 1 < len(s):
+                nxt = s[i + 1]
+                if nxt in ('"', '\\', '/', 'n', 'r', 't', 'b', 'f'):
+                    # Valid JSON escape — keep as-is
+                    result.append(c)
+                    result.append(nxt)
+                    i += 2
+                elif nxt == 'u' and i + 5 < len(s) and all(c2 in '0123456789abcdefABCDEF' for c2 in s[i+2:i+6]):
+                    # Valid \uXXXX escape
+                    result.append(s[i:i+6])
+                    i += 6
+                else:
+                    # Invalid escape (LaTeX like \(, \[, \f, \alpha…) — double the backslash
+                    result.append('\\\\')
+                    i += 1
+            else:
+                result.append('\\\\')
+                i += 1
+        elif c == '"':
+            in_string = False
+            result.append(c)
+            i += 1
+        else:
+            result.append(c)
+            i += 1
+    return ''.join(result)
 
 
 def parse_ai_json(text):
