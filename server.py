@@ -1032,13 +1032,63 @@ def _double_unescaped_backslashes(s):
     return ''.join(result)
 
 
+def _repair_json_strings(s):
+    """Répare les strings JSON en une seule passe :
+    - Échappe les newlines/tabs littéraux
+    - Double les backslashes invalides (LaTeX : \\[, \\(, \\begin, etc.)
+    Seuls \\", \\\\, \\/,  \\n, \\r, \\t, \\b, \\f, \\uXXXX sont valides en JSON."""
+    result = []
+    in_string = False
+    i = 0
+    while i < len(s):
+        c = s[i]
+        if not in_string:
+            result.append(c)
+            if c == '"':
+                in_string = True
+            i += 1
+            continue
+        # Inside a JSON string
+        if c == '\\':
+            if i + 1 >= len(s):
+                result.append('\\\\')
+                i += 1
+                continue
+            nxt = s[i + 1]
+            if nxt in ('"', '\\', '/', 'n', 'r', 't', 'b', 'f'):
+                result.append(c)
+                result.append(nxt)
+                i += 2
+            elif nxt == 'u' and i + 5 < len(s) and all(h in '0123456789abcdefABCDEF' for h in s[i+2:i+6]):
+                result.append(s[i:i+6])
+                i += 6
+            else:
+                # Invalid escape (LaTeX) — double the backslash
+                result.append('\\\\')
+                i += 1
+        elif c == '"':
+            in_string = False
+            result.append(c)
+            i += 1
+        elif c == '\n':
+            result.append('\\n')
+            i += 1
+        elif c == '\r':
+            i += 1  # skip bare CR
+        elif c == '\t':
+            result.append('\\t')
+            i += 1
+        else:
+            result.append(c)
+            i += 1
+    return ''.join(result)
+
+
 def parse_ai_json(text):
     """Parse le JSON retourné par une IA, même s'il contient du LaTeX avec des backslashes."""
 
     text = _clean_ai_text(text)
-    # Décoder les entités HTML (&amp; → &, &lt; → <, etc.) présentes dans les valeurs LaTeX
     text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace('&#39;', "'")
-    # Supprimer les caractères invisibles en début/fin (BOM, zero-width spaces, etc.)
     text = text.strip('\ufeff\u200b\u200c\u200d\u00a0\x00\x01\x02\x03')
 
     # Tentative 1 : JSON brut
@@ -1047,49 +1097,30 @@ def parse_ai_json(text):
     except json.JSONDecodeError:
         pass
 
-    # Tentative 2 : corriger les newlines littéraux dans les strings (cause la plus fréquente)
-    t2 = _fix_string_newlines(text)
+    # Tentative 2 : réparation complète en une passe (newlines + backslashes LaTeX)
+    t2 = _repair_json_strings(text)
     try:
         return json.loads(t2)
     except json.JSONDecodeError:
         pass
 
-    # Tentative 3 : pré-échapper \b \f LaTeX puis corriger les newlines
-    t3 = re.sub(r'(?<!\\)\\([bf])(?=[a-zA-Z{(])', r'\\\\\1', t2)
+    # Tentative 3 : ast.literal_eval (guillemets simples Python-style)
     try:
-        return json.loads(t3)
-    except json.JSONDecodeError:
-        pass
-
-    # Tentative 4 : doubler tous les backslashes non standards
-    t4 = _double_unescaped_backslashes(t3)
-    try:
-        return json.loads(t4)
-    except json.JSONDecodeError:
-        pass
-
-    # Tentative 5 : re-appliquer fix_string_newlines après le doublement
-    t5 = _fix_string_newlines(t4)
-    try:
-        return json.loads(t5)
-    except json.JSONDecodeError:
-        pass
-
-    # Tentative 6 : ast.literal_eval (gère les guillemets simples Python-style)
-    try:
-        result = ast.literal_eval(t5)
+        result = ast.literal_eval(t2)
         if isinstance(result, (dict, list)):
             return result
     except Exception:
         pass
 
-    # Tentative 7 : remplacer guillemets simples par doubles (naïf mais utile en dernier recours)
+    # Tentative 4 : réparation sur le texte original puis ast
     try:
-        import re as _re
-        single_to_double = _re.sub(r"(?<![\\])'", '"', text)
-        return json.loads(single_to_double)
-    except Exception as e:
-        raise json.JSONDecodeError(str(e), text, 0)
+        result = ast.literal_eval(text)
+        if isinstance(result, (dict, list)):
+            return result
+    except Exception:
+        pass
+
+    raise json.JSONDecodeError("Impossible de parser la réponse IA", text, 0)
 
 
 def normalize_ai_text(text):
@@ -2833,7 +2864,7 @@ class AppHandler(SimpleHTTPRequestHandler):
             f"Genere exactement {count} flashcards sur les points cles de ce cours."
         )
         try:
-            raw = _clean_ai_text(ai_request(system_prompt, user_prompt))
+            raw = _repair_json_strings(_clean_ai_text(ai_request(system_prompt, user_prompt)))
             json_str = _extract_json_from_text(raw, is_array=True)
             if not json_str:
                 raise ValueError("Reponse IA non JSON.")
@@ -2953,7 +2984,7 @@ class AppHandler(SimpleHTTPRequestHandler):
             + (" Inclure un graphData avec un repère interactif et les points clés de l'exercice." if needs_graph else "")
         )
         try:
-            raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
+            raw_text = _repair_json_strings(_clean_ai_text(ai_request(system_prompt, user_prompt)))
             logger.info("RAW AI RESPONSE (first 400 chars): %r", raw_text[:400])
             json_str = _extract_json_from_text(raw_text, is_array=False)
             if not json_str:
