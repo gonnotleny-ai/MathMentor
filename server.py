@@ -1091,6 +1091,8 @@ def parse_ai_json(text):
     text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace('&#39;', "'")
     text = text.strip('\ufeff\u200b\u200c\u200d\u00a0\x00\x01\x02\x03')
 
+    logger.info("parse_ai_json input (first 100): %r", text[:100])
+
     # Tentative 1 : JSON brut
     try:
         return json.loads(text)
@@ -1099,10 +1101,11 @@ def parse_ai_json(text):
 
     # Tentative 2 : réparation complète en une passe (newlines + backslashes LaTeX)
     t2 = _repair_json_strings(text)
+    logger.info("parse_ai_json after repair (first 100): %r", t2[:100])
     try:
         return json.loads(t2)
-    except json.JSONDecodeError:
-        pass
+    except json.JSONDecodeError as e2:
+        logger.error("After repair failed at char %d: %r", e2.pos, t2[max(0,e2.pos-5):e2.pos+10])
 
     # Tentative 3 : ast.literal_eval (guillemets simples Python-style)
     try:
