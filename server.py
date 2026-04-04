@@ -2892,9 +2892,11 @@ class AppHandler(SimpleHTTPRequestHandler):
         )
         try:
             raw_text = _clean_ai_text(ai_request(system_prompt, user_prompt))
+            logger.info("RAW AI RESPONSE (first 400 chars): %r", raw_text[:400])
             json_str = _extract_json_from_text(raw_text, is_array=False)
             if not json_str:
                 raise ValueError("Le modèle n'a pas retourné de JSON valide.")
+            logger.info("EXTRACTED JSON (first 200 chars): %r", json_str[:200])
             generated = parse_ai_json(json_str)
             required_keys = {"title", "statement", "correction", "keywords", "duration"}
             if not required_keys.issubset(generated.keys()):
