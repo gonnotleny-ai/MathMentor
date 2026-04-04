@@ -2939,11 +2939,6 @@ class AppHandler(SimpleHTTPRequestHandler):
         needs_graph = topic in graph_topics
 
         is_procede = exercise_type == "procede"
-        niveau_structure = {
-            "facile":        "2 questions simples et directes, données numériques immédiates, une seule méthode à appliquer",
-            "intermediaire": "3 questions progressives, données un peu plus complexes, peut nécessiter une étape préalable",
-            "avance":        "4 à 5 questions progressives avec sous-parties, données imbriquées, combinaison de plusieurs méthodes",
-        }.get(level, "3 questions progressives adaptées au niveau")
 
         system_prompt = (
             "IMPORTANT : ta réponse doit commencer DIRECTEMENT par { et se terminer par }. "
@@ -2951,51 +2946,38 @@ class AppHandler(SimpleHTTPRequestHandler):
             "Tu génères uniquement du JSON valide pour une application de soutien en mathématiques du BUT GCGP. "
             "Retourne un objet JSON avec exactement les clés suivantes : title, statement, correction, keywords, duration"
             + (", graphData" if needs_graph else "") + ". "
-            "correction doit être un tableau de exactement 3 chaînes, keywords un tableau de 4 à 6 chaînes, duration une chaîne courte. "
-            "RÈGLES SUR L'ÉNONCÉ (statement) : "
+            "correction doit être un tableau de exactement 3 chaînes, keywords un tableau de chaînes, duration une chaîne courte. "
             + (
-                "L'exercice est de type 'application procédés' : l'énoncé DOIT commencer par une mise en situation industrielle concrète "
-                "(réacteur, colonne de distillation, échangeur, bilan matière, procédé pharmaceutique…) avec des données numériques "
-                "explicitement nommées, leurs valeurs et leurs unités. Les questions découlent naturellement de cette situation. "
+                "Type 'application procédés' : l'énoncé doit s'ancrer dans une situation industrielle concrète "
+                "(réacteur, colonne, échangeur, bilan matière, procédé pharmaceutique…) avec des données chiffrées et leurs unités. "
                 if is_procede else
-                "L'exercice est de type 'maths pures' : l'énoncé est direct, centré sur les calculs et les méthodes, sans mise en situation industrielle. "
-                "Les données sont des expressions mathématiques ou des valeurs numériques posées directement. "
+                "Type 'maths pures' : énoncé direct centré sur les calculs, sans mise en situation industrielle. "
             )
-            + "Le nombre de questions doit respecter le niveau : " + niveau_structure + ". "
-            "Les questions doivent être numérotées (1. 2. 3. …) et progressives : chaque résultat peut servir à la suivante. "
-            "Si le mode est 'guide', ajouter une courte aide méthodologique après chaque question. "
-            "RÈGLES SUR LA CORRECTION (correction) : tableau de 3 blocs. "
-            "Bloc 1 : rappel de la méthode théorique adaptée et justification du choix. "
-            "Bloc 2 : résolution complète de toutes les questions avec calculs détaillés et justification de chaque étape. "
-            "Bloc 3 : vérification numérique"
-            + (" et interprétation physique dans le contexte procédé." if is_procede else ".")
-            + " N'utilise jamais 'Étape 1, Étape 2'. Rédige des paragraphes logiques. "
-            "Emploie un langage mathématique rigoureux : symboles ∈, ⟹, ⟺, ∀, ∃, notations ℝ, ℂ. "
-            "Notation LaTeX OBLIGATOIRE : entoure CHAQUE formule avec \\(...\\) pour l'inline et \\[...\\] pour le bloc. "
-            "Ne jamais écrire de formule en texte brut. "
-            "Écris toujours les caractères accentués directement (é, è, à, ç, ê, î, ô, û, etc.) sans commandes LaTeX d'accent. "
-            "Ne jamais utiliser \\'{e}, \\`{a}, \\^{o} ou équivalents."
+            + "Le niveau de difficulté doit guider librement la complexité : nombre de questions, imbrication des calculs, richesse des données. "
+            "Les questions doivent être numérotées et progressives. "
+            "Si le mode est 'guide', ajouter une courte aide après chaque question. "
+            "La correction (3 blocs) doit : (1) rappeler la méthode, (2) résoudre entièrement avec calculs détaillés et justifiés, "
+            "(3) vérifier le résultat" + (" et l'interpréter dans le contexte procédé." if is_procede else ".") + " "
+            "Rédige des paragraphes logiques, jamais de liste 'Étape 1, Étape 2'. "
+            "Emploie un langage mathématique rigoureux : ∈, ⟹, ⟺, ℝ, ℂ. "
+            "Notation LaTeX OBLIGATOIRE : \\(...\\) pour l'inline, \\[...\\] pour le bloc. Jamais de formule en texte brut. "
+            "Caractères accentués directement (é, è, à, ç…), jamais de commandes LaTeX d'accent."
             + (
-                " graphData est un objet décrivant un repère interactif pour que l'élève place des points. "
-                "Format : {\"axes\":{\"xMin\":number,\"xMax\":number,\"yMin\":number,\"yMax\":number,\"xLabel\":string,\"yLabel\":string},"
-                "\"points\":[{\"id\":string,\"label\":string,\"x\":number,\"y\":number,\"hint\":string}],"
-                "\"curves\":[{\"expr\":string,\"label\":string}]}. "
-                "points contient les points que l'élève doit placer (positions x,y = positions attendues exactes). "
-                "curves contient les courbes à tracer (expr = expression JS en x, ex: 'x*x', '2*x+1', 'Math.sin(x)'). "
-                "Inclure 2 à 4 points pertinents pour l'exercice (intersections, extremums, points remarquables). "
-                "graphData doit être cohérent avec l'énoncé. Si l'exercice ne se prête pas à un repère, mettre graphData:null."
+                " graphData : {\"axes\":{\"xMin\":n,\"xMax\":n,\"yMin\":n,\"yMax\":n,\"xLabel\":str,\"yLabel\":str},"
+                "\"points\":[{\"id\":str,\"label\":str,\"x\":n,\"y\":n,\"hint\":str}],"
+                "\"curves\":[{\"expr\":str,\"label\":str}]}. "
+                "Points = positions attendues exactes. Courbes = expression JS en x. graphData:null si non pertinent."
                 if needs_graph else ""
             )
         )
 
         user_prompt = (
-            f"Theme: {topic}\nSemestre: {semester}\nNiveau: {level}\nType d'exercice: {exercise_type_expectation}\n"
-            f"Mode pedagogique: {mode}\nObjectif: {goal or 'application procede'}\n"
-            f"Cadre methodologique attendu: {method_expectation}\n"
-            f"Structure attendue pour ce niveau ({level}) : {niveau_structure}.\n"
-            "Genere un exercice original et riche, avec une correction tres explicative et detaillee. "
-            "La correction doit traiter chaque question avec les calculs complets, justifies etape par etape."
-            + (" Inclure un graphData avec un repère interactif et les points clés de l'exercice." if needs_graph else "")
+            f"Theme: {topic}\nSemestre: {semester}\nNiveau: {level}\nType: {exercise_type_expectation}\n"
+            f"Mode: {mode}\nObjectif: {goal or 'application procede'}\n"
+            f"Methode attendue: {method_expectation}\n"
+            "Genere un exercice original et varié, adapté au niveau demandé. "
+            "La correction doit être explicative et traiter chaque question avec les calculs complets."
+            + (" Inclure graphData si pertinent." if needs_graph else "")
         )
         try:
             raw_text = _repair_json_strings(_clean_ai_text(ai_request(system_prompt, user_prompt)))
