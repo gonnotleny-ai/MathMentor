@@ -1006,7 +1006,7 @@ def _double_unescaped_backslashes(s):
         if c == '\\':
             if i + 1 < len(s):
                 nxt = s[i + 1]
-                if nxt in ('"', '\\', '/', 'n', 'r', 't', 'b', 'f'):
+                if nxt in ('"', '\\', '/', 'n', 'r', 't'):
                     # Valid JSON escape — keep as-is
                     result.append(c)
                     result.append(nxt)
@@ -1055,7 +1055,7 @@ def _repair_json_strings(s):
                 i += 1
                 continue
             nxt = s[i + 1]
-            if nxt in ('"', '\\', '/', 'n', 'r', 't', 'b', 'f'):
+            if nxt in ('"', '\\', '/', 'n', 'r', 't'):
                 result.append(c)
                 result.append(nxt)
                 i += 2
