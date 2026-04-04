@@ -2938,6 +2938,13 @@ class AppHandler(SimpleHTTPRequestHandler):
         graph_topics = {"FVAR", "SYSLIN"}
         needs_graph = topic in graph_topics
 
+        is_procede = exercise_type == "procede"
+        niveau_structure = {
+            "facile":        "2 questions simples et directes, données numériques immédiates, une seule méthode à appliquer",
+            "intermediaire": "3 questions progressives, données un peu plus complexes, peut nécessiter une étape préalable",
+            "avance":        "4 à 5 questions progressives avec sous-parties, données imbriquées, combinaison de plusieurs méthodes",
+        }.get(level, "3 questions progressives adaptées au niveau")
+
         system_prompt = (
             "IMPORTANT : ta réponse doit commencer DIRECTEMENT par { et se terminer par }. "
             "Aucun texte, titre, explication ou markdown avant ou après le JSON. "
@@ -2945,24 +2952,29 @@ class AppHandler(SimpleHTTPRequestHandler):
             "Retourne un objet JSON avec exactement les clés suivantes : title, statement, correction, keywords, duration"
             + (", graphData" if needs_graph else "") + ". "
             "correction doit être un tableau de exactement 3 chaînes, keywords un tableau de 4 à 6 chaînes, duration une chaîne courte. "
-            "RÈGLE ABSOLUE SUR L'ÉNONCÉ (statement) : "
-            "L'énoncé DOIT être riche, détaillé et structuré. Il doit comporter : "
-            "(a) un paragraphe de mise en situation concrète (contexte industriel, réacteur, colonne de distillation, échangeur, procédé pharmaceutique…) avec 4 à 6 données numériques explicitement nommées et justifiées, "
-            "(b) exactement 4 questions numérotées (1. 2. 3. 4.) progressives, chacune apportant un résultat exploitable par la suivante, "
-            "(c) si le mode est 'guide', une ligne d'aide méthodologique après chaque question (ex : 'Aide : appliquer la méthode de substitution'). "
-            "L'énoncé ne doit JAMAIS être une liste de calculs nus — il doit raconter une situation. "
-            "RÈGLE ABSOLUE SUR LA CORRECTION (correction) : tableau de 3 blocs. "
-            "Bloc 1 : rappel théorique de la méthode et justification du choix de l'approche (au moins 3 phrases). "
-            "Bloc 2 : résolution complète des 4 questions, calculs détaillés pas à pas, chaque résultat intermédiaire expliqué (au moins 6 phrases). "
-            "Bloc 3 : vérification numérique ET interprétation physique du résultat dans le contexte procédé (au moins 3 phrases). "
-            "N'utilise jamais une suite de micro-étapes style 'Étape 1, Étape 2'. Rédige des paragraphes logiques. "
+            "RÈGLES SUR L'ÉNONCÉ (statement) : "
+            + (
+                "L'exercice est de type 'application procédés' : l'énoncé DOIT commencer par une mise en situation industrielle concrète "
+                "(réacteur, colonne de distillation, échangeur, bilan matière, procédé pharmaceutique…) avec des données numériques "
+                "explicitement nommées, leurs valeurs et leurs unités. Les questions découlent naturellement de cette situation. "
+                if is_procede else
+                "L'exercice est de type 'maths pures' : l'énoncé est direct, centré sur les calculs et les méthodes, sans mise en situation industrielle. "
+                "Les données sont des expressions mathématiques ou des valeurs numériques posées directement. "
+            )
+            + "Le nombre de questions doit respecter le niveau : " + niveau_structure + ". "
+            "Les questions doivent être numérotées (1. 2. 3. …) et progressives : chaque résultat peut servir à la suivante. "
+            "Si le mode est 'guide', ajouter une courte aide méthodologique après chaque question. "
+            "RÈGLES SUR LA CORRECTION (correction) : tableau de 3 blocs. "
+            "Bloc 1 : rappel de la méthode théorique adaptée et justification du choix. "
+            "Bloc 2 : résolution complète de toutes les questions avec calculs détaillés et justification de chaque étape. "
+            "Bloc 3 : vérification numérique"
+            + (" et interprétation physique dans le contexte procédé." if is_procede else ".")
+            + " N'utilise jamais 'Étape 1, Étape 2'. Rédige des paragraphes logiques. "
             "Emploie un langage mathématique rigoureux : symboles ∈, ⟹, ⟺, ∀, ∃, notations ℝ, ℂ. "
-            "Notation LaTeX OBLIGATOIRE : entoure CHAQUE formule ou expression mathématique avec \\(...\\) pour l'inline "
-            "et \\[...\\] pour les formules en bloc centré. "
-            "Ne jamais écrire de formule en texte brut. Exemples : \\(\\frac{a}{b}\\), \\(\\int_a^b f\\,dx\\), \\(\\partial f/\\partial x\\). "
+            "Notation LaTeX OBLIGATOIRE : entoure CHAQUE formule avec \\(...\\) pour l'inline et \\[...\\] pour le bloc. "
+            "Ne jamais écrire de formule en texte brut. "
             "Écris toujours les caractères accentués directement (é, è, à, ç, ê, î, ô, û, etc.) sans commandes LaTeX d'accent. "
-            "Ne jamais utiliser \\'{e}, \\`{a}, \\^{o} ou équivalents : écrire directement é, à, ô. "
-            "Ne jamais mettre de retour à la ligne à l'intérieur d'un mot ou entre deux mots d'une même phrase courte."
+            "Ne jamais utiliser \\'{e}, \\`{a}, \\^{o} ou équivalents."
             + (
                 " graphData est un objet décrivant un repère interactif pour que l'élève place des points. "
                 "Format : {\"axes\":{\"xMin\":number,\"xMax\":number,\"yMin\":number,\"yMax\":number,\"xLabel\":string,\"yLabel\":string},"
@@ -2980,11 +2992,9 @@ class AppHandler(SimpleHTTPRequestHandler):
             f"Theme: {topic}\nSemestre: {semester}\nNiveau: {level}\nType d'exercice: {exercise_type_expectation}\n"
             f"Mode pedagogique: {mode}\nObjectif: {goal or 'application procede'}\n"
             f"Cadre methodologique attendu: {method_expectation}\n"
-            "Genere un exercice RICHE et COMPLET, comparable aux exercices de partiels universitaires. "
-            "L'enonce DOIT ancrer les maths dans une situation industrielle concrete (nom du procede, valeurs numeriques realistes, unites). "
-            "Il DOIT comporter exactement 4 questions progressives numerotees. "
-            "La correction DOIT couvrir les 4 questions avec des calculs detailles, justifies et une interpretation finale dans le contexte procede. "
-            "Un exercice trop court ou trop simple sera refuse : vise un enonce d'au moins 8 lignes et une correction d'au moins 12 lignes."
+            f"Structure attendue pour ce niveau ({level}) : {niveau_structure}.\n"
+            "Genere un exercice original et riche, avec une correction tres explicative et detaillee. "
+            "La correction doit traiter chaque question avec les calculs complets, justifies etape par etape."
             + (" Inclure un graphData avec un repère interactif et les points clés de l'exercice." if needs_graph else "")
         )
         try:
