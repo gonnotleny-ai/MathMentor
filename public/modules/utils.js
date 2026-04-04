@@ -138,8 +138,8 @@ export function mathTextToHtml(text) {
 
   // ── Step 4: inline markdown ──
   s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
-  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*\*\*([\s\S]+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/gm, '$1<em>$2</em>');
 
   // ── Step 5: line-by-line block processing ──
