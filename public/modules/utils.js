@@ -116,7 +116,12 @@ export function textToHtml(text) {
 // Also auto-wraps standalone formula lines (lines that look purely mathematical)
 // in \(...\) so KaTeX can render them.
 export function mathTextToHtml(text) {
-  const raw = String(text || "").normalize("NFC").replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  let raw = String(text || "").normalize("NFC").replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  // Convertir les balises HTML brutes retournées par l'IA en markdown (avant l'échappement HTML)
+  raw = raw.replace(/<strong>([\s\S]*?)<\/strong>/gi, '**$1**');
+  raw = raw.replace(/<em>([\s\S]*?)<\/em>/gi, '*$1*');
+  raw = raw.replace(/<b>([\s\S]*?)<\/b>/gi, '**$1**');
+  raw = raw.replace(/<i>([\s\S]*?)<\/i>/gi, '*$1*');
   const tokens = [];
   const ph = (i) => `\x00TOK${i}\x00`;
 
