@@ -3610,13 +3610,26 @@ li + li {
 }
 .course-summary-content p,
 .lesson-summary p,
-.ai-math-p {
-  margin: 0.3em 0;
+.ai-math-p,
+.detail-section p,
+.detail-card p,
+.section-body p,
+.hint-text p,
+.correction-section p,
+.from-pdf-text p,
+.exam-correction-body p,
+.ai-correct-result p,
+.assistant-bubble p {
+  margin: 0.35em 0;
 }
 .course-summary-content p:first-child,
-.lesson-summary p:first-child { margin-top: 0; }
+.lesson-summary p:first-child,
+.detail-section p:first-child,
+.detail-card p:first-child { margin-top: 0; }
 .course-summary-content p:last-child,
-.lesson-summary p:last-child { margin-bottom: 0; }
+.lesson-summary p:last-child,
+.detail-section p:last-child,
+.detail-card p:last-child { margin-bottom: 0; }
 [data-theme="dark"] .course-summary-panel { background: var(--surface); }
 
 /* ── FEATURE 8 : Class analytics ─────────────────────────────────────────────── */
