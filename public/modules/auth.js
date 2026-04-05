@@ -144,7 +144,11 @@ export function handleLogout() {
 }
 
 export async function restoreSession(loadTeacherResourcesFn) {
-  const token = getAuthToken();
+  let token = getAuthToken();
+  if (!token) {
+    token = localStorage.getItem(TOKEN_KEY) || "";
+    if (token) setAuthToken(token);
+  }
 
   if (!token) {
     setTeacherResources({ ...EMPTY_TEACHER_RESOURCES });
