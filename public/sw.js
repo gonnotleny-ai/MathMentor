@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mathmentor-v2';
+const CACHE_NAME = 'mathmentor-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -22,6 +22,12 @@ const STATIC_ASSETS = [
   '/modules/generator.js',
   '/modules/teacher.js',
   '/modules/exam.js',
+  '/modules/grapher.js',
+  '/modules/mathkeyboard.js',
+  '/modules/formulas.js',
+  '/modules/pomodoro.js',
+  '/modules/stats.js',
+  '/modules/themes.js',
 ];
 
 self.addEventListener('install', event => {
@@ -48,6 +54,17 @@ self.addEventListener('fetch', event => {
   }
   event.respondWith(
     caches.match(event.request).then(cached => {
+      // Toujours aller chercher le réseau en premier pour les JS/CSS
+      const isAsset = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+      if (isAsset) {
+        return fetch(event.request).then(response => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        }).catch(() => cached);
+      }
       if (cached) return cached;
       return fetch(event.request).then(response => {
         if (response && response.status === 200 && response.type === 'basic') {
