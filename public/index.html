@@ -663,7 +663,19 @@
                 <span style="font-size:13px;color:var(--muted)">x ∈ [<span id="grapher-xmin">-10</span>, <span id="grapher-xmax">10</span>]</span>
               </div>
               <canvas id="grapher-canvas" class="grapher-canvas"></canvas>
-              <p class="helper-text" id="grapher-coords" style="margin-top:6px;min-height:18px"></p>
+              <p class="helper-text" id="grapher-coords" style="margin-top:6px;min-height:18px;font-variant-numeric:tabular-nums;"></p>
+
+              <!-- Points utilisateur -->
+              <div class="grapher-points-section">
+                <p class="section-label" style="margin-bottom:8px;">Placer des points</p>
+                <div class="grapher-point-inputs">
+                  <input type="number" id="grapher-pt-x" class="grapher-pt-field" placeholder="x" step="any" />
+                  <input type="number" id="grapher-pt-y" class="grapher-pt-field" placeholder="y" step="any" />
+                  <input type="text"   id="grapher-pt-label" class="grapher-pt-field grapher-pt-label-field" placeholder="Nom (optionnel)" />
+                  <button type="button" class="primary-button grapher-pt-add-btn" id="grapher-add-point">Ajouter</button>
+                </div>
+                <div id="grapher-point-list" class="grapher-point-list"></div>
+              </div>
             </section>
           </div>
 
