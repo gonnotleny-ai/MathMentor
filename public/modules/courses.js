@@ -310,16 +310,34 @@ export function renderReferences() {
   renderMath(container);
 }
 
+let _courseSearchQuery = "";
+
 export function renderCourseList() {
   const courseList = document.getElementById("course-list");
   if (!courseList) return;
 
   const allCourses = getAllCourses();
-  const displayedCourses = allCourses.filter((course) => course.semester === _coursesSemesterFilter);
+  let displayedCourses = allCourses.filter((course) => course.semester === _coursesSemesterFilter);
+
+  // Filter by search query
+  if (_courseSearchQuery) {
+    const q = _courseSearchQuery.toLowerCase();
+    displayedCourses = displayedCourses.filter((course) => {
+      const searchable = [
+        course.title || "",
+        course.code || "",
+        course.objective || "",
+        ...(course.focus || []),
+        ...(course.lessons || []).map(l => l.title + " " + (l.summary || "")),
+      ].join(" ").toLowerCase();
+      return searchable.includes(q);
+    });
+  }
+
   courseList.innerHTML = "";
 
   if (!displayedCourses.length) {
-    courseList.innerHTML = '<article class="detail-card muted-card semester-empty-state">Contenu en cours de préparation pour ce semestre.</article>';
+    courseList.innerHTML = `<article class="detail-card muted-card semester-empty-state">${_courseSearchQuery ? "Aucun cours ne correspond à votre recherche." : "Contenu en cours de préparation pour ce semestre."}</article>`;
     setSelectedCourse(null);
     renderCourseDetail();
     return;
@@ -357,6 +375,15 @@ export function initSemesterTabs() {
       renderCourseDetail();
     });
   });
+
+  // Course search
+  const searchInput = document.getElementById("course-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      _courseSearchQuery = searchInput.value.trim();
+      renderCourseList();
+    });
+  }
 }
 
 async function loadCourseSummary(course, forceRegenerate) {

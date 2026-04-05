@@ -3554,18 +3554,68 @@ li + li {
 [data-theme="dark"] .sr-badge.sr-due { background: #451a03; color: #fde68a; border-color: #78350f; }
 
 /* ── Export PDF / Print ───────────────────────────────────────────────────────── */
+.print-doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 0 12px;
+}
+.print-doc-appname {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+}
+.print-doc-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 2px 0 0;
+  color: var(--text);
+}
+.print-doc-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.print-doc-hr {
+  border: none;
+  border-top: 2px solid var(--primary);
+  margin: 0 0 20px;
+}
+
 @media print {
   .app-header, .tab-bar, nav, .chip, .primary-button, .secondary-button,
   .ghost-button, .self-eval-block, .hint-controls, .fav-toggle-btn,
   .back-button, .print-hide, .section-back-bar, .sbs-section,
   .notif-bell, .calc-fab { display: none !important; }
-  body { background: white !important; }
+  body { background: white !important; font-size: 12pt !important; }
   .app-shell { width: 100%; margin: 0; }
-  .panel { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+  .panel { box-shadow: none !important; border: none !important; }
   .tab-panel { display: block !important; }
   .tab-panel:not(.is-active) { display: none !important; }
   .katex, .katex * { color: black !important; }
   .detail-card { border: 1px solid #ccc; padding: 16px; }
+
+  /* Mode impression ciblée */
+  body.is-printing .app-shell { display: none !important; }
+  body.is-printing #print-area {
+    display: block !important;
+    padding: 2cm 2.5cm;
+    max-width: 21cm;
+    margin: 0 auto;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #000;
+    background: #fff;
+  }
+  body.is-printing .print-doc-hr { border-top: 2px solid #2563eb; }
+  body.is-printing .print-doc-appname { color: #2563eb; }
+  body.is-printing .print-doc-title { font-size: 16pt; }
+  body.is-printing .ai-h3 { font-size: 12pt; margin: 8pt 0 4pt; }
+  body.is-printing .ai-list { margin-left: 1.5em; }
+  body.is-printing .hint-item { border-left: 2px solid #2563eb; padding: 4pt 8pt; margin: 4pt 0; }
+  body.is-printing [data-correction-content] { margin-top: 10pt; padding-top: 8pt; border-top: 1px solid #ccc; }
 }
 
 /* ── FEATURE 1 : Tableau de formules ─────────────────────────────────────────── */
@@ -4269,4 +4319,123 @@ li + li {
 }
 .app-loader-hint {
   font-size: 0.8rem; color: #94a3b8; margin: 0;
+}
+
+/* ── Recherche dans les cours ─────────────────────────────────────────────────── */
+.course-search-bar {
+  margin: 10px 0 8px;
+}
+.course-search-bar input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 0.88rem;
+  box-sizing: border-box;
+}
+.course-search-bar input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* ── Apparence / personnalisation ────────────────────────────────────────────── */
+.appearance-block {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.appearance-block:last-child { border-bottom: none; }
+
+.appearance-theme-row {
+  display: flex;
+  gap: 12px;
+}
+.appearance-theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.appearance-theme-btn.is-active {
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+.appearance-theme-preview {
+  width: 56px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.appearance-preview-light {
+  background: linear-gradient(135deg, #eef5ff 50%, #ffffff 50%);
+}
+.appearance-preview-dark {
+  background: linear-gradient(135deg, #0f172a 50%, #1e293b 50%);
+}
+
+.appearance-color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.appearance-color-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.appearance-color-btn:hover { transform: scale(1.12); }
+.appearance-color-btn.is-active {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text);
+}
+.appearance-custom-color {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.appearance-custom-color input[type="color"] {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  padding: 2px;
+  cursor: pointer;
+  background: none;
+}
+
+.appearance-fontsize-row {
+  display: flex;
+  gap: 10px;
+}
+.appearance-fontsize-btn {
+  padding: 8px 20px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.appearance-fontsize-btn.is-active {
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
 }

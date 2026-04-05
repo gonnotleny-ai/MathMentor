@@ -745,6 +745,9 @@
                     <h2>Programme de maths</h2>
                   </div>
                 </div>
+                <div class="course-search-bar">
+                  <input type="search" id="course-search-input" placeholder="Rechercher un cours, une notion…" autocomplete="off" />
+                </div>
                 <div id="course-list" class="card-list"></div>
               </section>
               <section class="panel">
@@ -1493,6 +1496,12 @@
                   <p>Rejoignez une classe avec le code fourni par votre professeur pour accéder aux ressources partagées.</p>
                   <span class="hub-card-action">Accéder →</span>
                 </article>
+                <article class="hub-card" data-hub-tab="account" data-hub-section="appearance">
+                  <span class="hub-card-icon">🎨</span>
+                  <h3>Apparence</h3>
+                  <p>Choisissez un thème de couleur et personnalisez l'interface.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
               </div>
             </section>
           </div>
@@ -1565,6 +1574,58 @@
               <article id="account-feedback" class="detail-card muted-card">
                 La connexion par adresse mail est obligatoire pour accéder à MathMentor. Les comptes professeur peuvent publier des cours et des exercices, les comptes élève peuvent les consulter.
               </article>
+            </section>
+          </div>
+
+          <!-- Section : Apparence -->
+          <div class="tab-section" data-section="appearance" data-hub-parent="account">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="account">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Personnalisation</p>
+                  <h2>Apparence</h2>
+                </div>
+              </div>
+              <div class="appearance-block">
+                <p class="section-label" style="margin-bottom:10px">Thème</p>
+                <div class="appearance-theme-row">
+                  <button type="button" class="appearance-theme-btn is-active" data-appearance-theme="light">
+                    <span class="appearance-theme-preview appearance-preview-light"></span>
+                    Clair
+                  </button>
+                  <button type="button" class="appearance-theme-btn" data-appearance-theme="dark">
+                    <span class="appearance-theme-preview appearance-preview-dark"></span>
+                    Sombre
+                  </button>
+                </div>
+              </div>
+              <div class="appearance-block">
+                <p class="section-label" style="margin-bottom:10px">Couleur principale</p>
+                <div class="appearance-color-row" id="appearance-color-row">
+                  <button type="button" class="appearance-color-btn is-active" data-color="#2563eb" style="background:#2563eb" title="Bleu (défaut)"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#7c3aed" style="background:#7c3aed" title="Violet"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#0891b2" style="background:#0891b2" title="Cyan"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#059669" style="background:#059669" title="Vert"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#dc2626" style="background:#dc2626" title="Rouge"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#ea580c" style="background:#ea580c" title="Orange"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#be185d" style="background:#be185d" title="Rose"></button>
+                  <div class="appearance-custom-color">
+                    <label for="appearance-custom-input">Personnalisée</label>
+                    <input type="color" id="appearance-custom-input" value="#2563eb" />
+                  </div>
+                </div>
+              </div>
+              <div class="appearance-block">
+                <p class="section-label" style="margin-bottom:10px">Taille du texte</p>
+                <div class="appearance-fontsize-row" id="appearance-fontsize-row">
+                  <button type="button" class="appearance-fontsize-btn" data-fontsize="14" style="font-size:13px">Petit</button>
+                  <button type="button" class="appearance-fontsize-btn is-active" data-fontsize="16" style="font-size:15px">Normal</button>
+                  <button type="button" class="appearance-fontsize-btn" data-fontsize="18" style="font-size:17px">Grand</button>
+                </div>
+              </div>
             </section>
           </div>
 

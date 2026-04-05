@@ -723,23 +723,7 @@ export function renderExerciseDetail() {
   // Bind print button
   const printBtn = exerciseDetail.querySelector(".print-btn");
   if (printBtn) {
-    printBtn.addEventListener("click", () => {
-      const printArea = document.getElementById("print-area");
-      if (!printArea) { window.print(); return; }
-      printArea.innerHTML = detailExerciseHtml(exercise);
-      // Show all hints
-      printArea.querySelectorAll(".hint-item").forEach(el => el.classList.remove("is-hidden"));
-      // Remove interactive controls not needed in print
-      printArea.querySelectorAll(
-        ".ai-correct-section, .exercise-timer, .fav-toggle-btn, .detail-head-actions button, .self-eval-wrap, .hint-controls"
-      ).forEach(el => el.remove());
-      document.body.classList.add("is-printing");
-      window.addEventListener("afterprint", () => {
-        document.body.classList.remove("is-printing");
-        printArea.innerHTML = "";
-      }, { once: true });
-      window.print();
-    });
+    printBtn.addEventListener("click", () => triggerPrint(detailExerciseHtml(exercise), exercise.title));
   }
 
   // Bind graph button (Feature 7)
@@ -798,52 +782,7 @@ export function renderExerciseDetail() {
   }
 
   // Bind AI correction button
-  const aiBtn = exerciseDetail.querySelector(".ai-correct-btn");
-  if (aiBtn) {
-    aiBtn.addEventListener("click", async () => {
-      const textarea = exerciseDetail.querySelector(".student-answer-input");
-      const resultEl = exerciseDetail.querySelector(".ai-correction-result");
-      if (!textarea || !resultEl) return;
-      const studentAnswer = textarea.value.trim();
-      if (!studentAnswer) {
-        resultEl.textContent = "Entrez votre réponse avant de la faire corriger.";
-        resultEl.classList.remove("is-hidden");
-        return;
-      }
-      aiBtn.disabled = true;
-      aiBtn.textContent = "Correction en cours…";
-      resultEl.classList.add("is-hidden");
-      try {
-        const { getAuthToken } = await import('./state.js');
-        const token = getAuthToken();
-        if (!token) throw new Error("Connectez-vous pour utiliser la correction IA.");
-        const resp = await fetch("/api/ai/correct", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-          body: JSON.stringify({ statement: exercise.statement, studentAnswer, topic: exercise.topic }),
-        });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.error || "Erreur serveur.");
-        const scoreClass = data.score >= 4 ? "score-good" : data.score >= 2 ? "score-mid" : "score-low";
-        resultEl.innerHTML = `
-          <div class="ai-correction-score ${scoreClass}">Note : ${data.score}/5 ${data.isCorrect ? "✓ Correct" : "✗ À revoir"}</div>
-          <p class="ai-correction-feedback">${mathTextToHtml(data.feedback || "")}</p>
-          <details class="ai-correction-detail">
-            <summary>Voir la correction complète</summary>
-            <div class="ai-correction-body">${mathTextToHtml(data.correction || "")}</div>
-          </details>
-        `;
-        resultEl.classList.remove("is-hidden");
-        renderMath(resultEl);
-      } catch (err) {
-        resultEl.textContent = err.message;
-        resultEl.classList.remove("is-hidden");
-      } finally {
-        aiBtn.disabled = false;
-        aiBtn.textContent = "Corriger avec l'IA →";
-      }
-    });
-  }
+  bindAiCorrection(exercise, exerciseDetail);
 
   // Add self-evaluation block
   renderSelfEvalButtons(exercise.id, exerciseDetail);
@@ -1206,4 +1145,87 @@ export function init() {
       if (e.target === methodsModal) methodsModal.style.display = "none";
     });
   }
+}
+
+// ── Correction IA — réutilisable (library + exercices générés) ────────────────
+
+export function bindAiCorrection(exercise, container) {
+  const aiBtn = container.querySelector(".ai-correct-btn");
+  if (!aiBtn) return;
+  aiBtn.addEventListener("click", async () => {
+    const textarea = container.querySelector(".student-answer-input");
+    const resultEl = container.querySelector(".ai-correction-result");
+    if (!textarea || !resultEl) return;
+    const studentAnswer = textarea.value.trim();
+    if (!studentAnswer) {
+      resultEl.textContent = "Entrez votre réponse avant de la faire corriger.";
+      resultEl.classList.remove("is-hidden");
+      return;
+    }
+    aiBtn.disabled = true;
+    aiBtn.textContent = "Correction en cours…";
+    resultEl.classList.add("is-hidden");
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error("Connectez-vous pour utiliser la correction IA.");
+      const resp = await fetch("/api/ai/correct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ statement: exercise.statement, studentAnswer, topic: exercise.topic }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Erreur serveur.");
+      const scoreClass = data.score >= 4 ? "score-good" : data.score >= 2 ? "score-mid" : "score-low";
+      resultEl.innerHTML = `
+        <div class="ai-correction-score ${scoreClass}">Note : ${data.score}/5 ${data.isCorrect ? "✓ Correct" : "✗ À revoir"}</div>
+        <p class="ai-correction-feedback">${mathTextToHtml(data.feedback || "")}</p>
+        <details class="ai-correction-detail">
+          <summary>Voir la correction complète</summary>
+          <div class="ai-correction-body">${mathTextToHtml(data.correction || "")}</div>
+        </details>
+      `;
+      resultEl.classList.remove("is-hidden");
+      renderMath(resultEl);
+    } catch (err) {
+      resultEl.textContent = err.message;
+      resultEl.classList.remove("is-hidden");
+    } finally {
+      aiBtn.disabled = false;
+      aiBtn.textContent = "Corriger avec l'IA →";
+    }
+  });
+}
+
+// ── Export PDF / impression améliorée ─────────────────────────────────────────
+
+export function triggerPrint(htmlContent, title) {
+  const printArea = document.getElementById("print-area");
+  if (!printArea) { window.print(); return; }
+  const date = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  printArea.innerHTML = `
+    <div class="print-doc-header">
+      <div>
+        <span class="print-doc-appname">Procédix</span>
+        <h2 class="print-doc-title">${escapeHtml(title || "Exercice")}</h2>
+      </div>
+      <div class="print-doc-date">Imprimé le ${date}</div>
+    </div>
+    <hr class="print-doc-hr">
+    ${htmlContent}
+  `;
+  printArea.querySelectorAll(".hint-item").forEach(el => el.classList.remove("is-hidden"));
+  printArea.querySelectorAll("[data-correction-content].is-hidden").forEach(el => {
+    el.classList.remove("is-hidden");
+    const btn = printArea.querySelector("[data-correction-toggle]");
+    if (btn) btn.textContent = "Masquer la correction";
+  });
+  printArea.querySelectorAll(
+    ".ai-correct-section, .exercise-timer, .fav-toggle-btn, .detail-head-actions button, .self-eval-wrap, .hint-controls, .print-btn, .graph-btn, .methods-btn, .sbs-section, .plot3d-btn"
+  ).forEach(el => el.remove());
+  document.body.classList.add("is-printing");
+  window.addEventListener("afterprint", () => {
+    document.body.classList.remove("is-printing");
+    printArea.innerHTML = "";
+  }, { once: true });
+  window.print();
 }

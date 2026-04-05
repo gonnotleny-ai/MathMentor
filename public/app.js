@@ -26,12 +26,33 @@ import { initPomodoro } from './modules/pomodoro.js';
 
 // ── Dark mode ─────────────────────────────────────────────────────────────────
 
-const THEME_KEY = "maths-gcgp-theme";
+const THEME_KEY        = "maths-gcgp-theme";
+const COLOR_KEY        = "maths-gcgp-primary-color";
+const FONTSIZE_KEY     = "maths-gcgp-fontsize";
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   const btn = document.getElementById("theme-toggle-btn");
   if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  // Sync appearance panel buttons
+  document.querySelectorAll(".appearance-theme-btn").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.appearanceTheme === theme);
+  });
+}
+
+function applyPrimaryColor(color) {
+  document.documentElement.style.setProperty("--primary", color);
+  // Derive a darker shade (~20% darker) for --primary-dark
+  document.documentElement.style.setProperty("--primary-dark", color);
+  // Soft background: color with low opacity
+  document.documentElement.style.setProperty("--primary-soft", color + "22");
+  document.documentElement.style.setProperty("--border", color + "44");
+  document.documentElement.style.setProperty("--surface-tint", color + "11");
+  document.documentElement.style.setProperty("--bg", color + "0d");
+}
+
+function applyFontSize(size) {
+  document.documentElement.style.fontSize = size + "px";
 }
 
 function initDarkMode() {
@@ -45,6 +66,67 @@ function initDarkMode() {
       const next = current === "dark" ? "light" : "dark";
       applyTheme(next);
       localStorage.setItem(THEME_KEY, next);
+    });
+  }
+}
+
+// ── Appearance panel ──────────────────────────────────────────────────────────
+
+function initAppearance() {
+  // Restore saved color + fontsize
+  const savedColor = localStorage.getItem(COLOR_KEY);
+  if (savedColor) applyPrimaryColor(savedColor);
+  const savedSize = parseInt(localStorage.getItem(FONTSIZE_KEY) || "16", 10);
+  applyFontSize(savedSize);
+
+  // Theme buttons
+  document.querySelectorAll(".appearance-theme-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const theme = btn.dataset.appearanceTheme;
+      applyTheme(theme);
+      localStorage.setItem(THEME_KEY, theme);
+    });
+  });
+  // Sync initial state
+  applyTheme(localStorage.getItem(THEME_KEY) || "light");
+
+  // Color swatches
+  const colorRow = document.getElementById("appearance-color-row");
+  if (colorRow) {
+    colorRow.querySelectorAll(".appearance-color-btn").forEach(btn => {
+      if (btn.dataset.color === (savedColor || "#2563eb")) btn.classList.add("is-active");
+      btn.addEventListener("click", () => {
+        colorRow.querySelectorAll(".appearance-color-btn").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        applyPrimaryColor(btn.dataset.color);
+        localStorage.setItem(COLOR_KEY, btn.dataset.color);
+        const custom = document.getElementById("appearance-custom-input");
+        if (custom) custom.value = btn.dataset.color;
+      });
+    });
+    const customInput = document.getElementById("appearance-custom-input");
+    if (customInput) {
+      if (savedColor) customInput.value = savedColor;
+      customInput.addEventListener("input", () => {
+        colorRow.querySelectorAll(".appearance-color-btn").forEach(b => b.classList.remove("is-active"));
+        applyPrimaryColor(customInput.value);
+        localStorage.setItem(COLOR_KEY, customInput.value);
+      });
+    }
+  }
+
+  // Font size buttons
+  const fontsizeRow = document.getElementById("appearance-fontsize-row");
+  if (fontsizeRow) {
+    fontsizeRow.querySelectorAll(".appearance-fontsize-btn").forEach(btn => {
+      const size = parseInt(btn.dataset.fontsize, 10);
+      if (size === savedSize) btn.classList.add("is-active");
+      btn.addEventListener("click", () => {
+        fontsizeRow.querySelectorAll(".appearance-fontsize-btn").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        applyFontSize(size);
+        localStorage.setItem(FONTSIZE_KEY, String(size));
+      });
     });
   }
 }
@@ -396,6 +478,9 @@ async function init() {
 
   // 14. Dark mode
   initDarkMode();
+
+  // 14b. Appearance (color theme, font size)
+  initAppearance();
 
   // 15. Global search
   initSearch();

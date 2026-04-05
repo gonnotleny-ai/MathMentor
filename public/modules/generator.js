@@ -6,7 +6,7 @@ import { getStudentState, setStudentState, setSelectedExercise } from './state.j
 import { saveState, apiUpdateProgress } from './progress.js';
 import { normalizeCorrection, setChipState, describeAiIssue, makeSection, renderMath, mathTextToHtml, mathTextInline } from './utils.js';
 import { ensureAuthenticated } from './navigation.js';
-import { renderExerciseList, detailExerciseHtml, bindHintEventsPublic } from './library.js';
+import { renderExerciseList, detailExerciseHtml, bindHintEventsPublic, bindAiCorrection, triggerPrint } from './library.js';
 import { getCourseByCode } from './courses.js';
 import { renderSelfEvalButtons } from './self-eval.js';
 import { renderDashboard } from './dashboard.js';
@@ -260,6 +260,7 @@ export function renderGeneratedExercise(exercise) {
   generatedExercise.classList.remove("empty-state");
   generatedExercise.innerHTML = detailExerciseHtml(exercise, { collapseCorrection: true });
   bindHintEventsPublic(generatedExercise);
+  bindAiCorrection(exercise, generatedExercise);
   renderSelfEvalButtons(exercise.id, generatedExercise);
   if (exercise.graphData) {
     import('./graph-exercise.js').then(({ initGraphExercise }) => initGraphExercise(generatedExercise, exercise));
@@ -582,20 +583,10 @@ export function init() {
       // Print button
       const printBtn = event.target.closest(".print-btn");
       if (printBtn) {
-        const printArea = document.getElementById("print-area");
-        if (!printArea) { window.print(); return; }
-        printArea.innerHTML = generatedExercise.innerHTML;
-        printArea.querySelectorAll(".hint-item").forEach(el => el.classList.remove("is-hidden"));
-        printArea.querySelectorAll("[data-correction-content].is-hidden").forEach(el => el.classList.remove("is-hidden"));
-        printArea.querySelectorAll(
-          ".ai-correct-section, .exercise-timer, .fav-toggle-btn, .detail-head-actions button, .self-eval-wrap, .hint-controls"
-        ).forEach(el => el.remove());
-        document.body.classList.add("is-printing");
-        window.addEventListener("afterprint", () => {
-          document.body.classList.remove("is-printing");
-          printArea.innerHTML = "";
-        }, { once: true });
-        window.print();
+        const state = getStudentState();
+        const exercises = state.generatedExercises || [];
+        const ex = exercises[0] || null;
+        triggerPrint(generatedExercise.innerHTML, ex?.title || "Exercice généré");
       }
     });
   }
