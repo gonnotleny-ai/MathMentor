@@ -7,6 +7,7 @@ import { saveState, apiUpdateProgress } from './progress.js';
 import { normalizeCorrection, setChipState, describeAiIssue, makeSection, renderMath, mathTextToHtml, mathTextInline } from './utils.js';
 import { ensureAuthenticated } from './navigation.js';
 import { renderExerciseList, detailExerciseHtml, bindHintEventsPublic, bindAiCorrection, triggerPrint } from './library.js';
+import { attachMathKeyboard } from './mathkeyboard.js';
 import { getCourseByCode } from './courses.js';
 import { renderSelfEvalButtons } from './self-eval.js';
 import { renderDashboard } from './dashboard.js';
@@ -261,6 +262,8 @@ export function renderGeneratedExercise(exercise) {
   generatedExercise.innerHTML = detailExerciseHtml(exercise, { collapseCorrection: true });
   bindHintEventsPublic(generatedExercise);
   bindAiCorrection(exercise, generatedExercise);
+  const aiSection = generatedExercise.querySelector(".ai-correct-section");
+  if (aiSection) attachMathKeyboard(aiSection);
   renderSelfEvalButtons(exercise.id, generatedExercise);
   if (exercise.graphData) {
     import('./graph-exercise.js').then(({ initGraphExercise }) => initGraphExercise(generatedExercise, exercise));
