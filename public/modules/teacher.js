@@ -1204,7 +1204,7 @@ function renderClassAnalytics(data, className) {
   const emptyEl   = document.getElementById("class-analytics-empty");
   if (!contentEl) return;
   if (loadingEl) loadingEl.classList.add("is-hidden");
-  const { topicStats, progressOverTime, studentRankings, weakTopics } = data;
+  const { topicStats, progressOverTime, studentRankings, weakTopics, atRisk = [], completion = [], totalStudents = 0 } = data;
 
   if (!topicStats.length && !studentRankings.length) {
     if (emptyEl) emptyEl.classList.remove("is-hidden");
@@ -1214,22 +1214,54 @@ function renderClassAnalytics(data, className) {
   if (emptyEl) emptyEl.classList.add("is-hidden");
   contentEl.classList.remove("is-hidden");
 
-  // 1. Weak topics warning
+  // 1. Weak topics + at-risk students + completion
   const weakEl = document.getElementById("class-analytics-weak");
   if (weakEl) {
+    let html = '';
     if (weakTopics.length) {
-      weakEl.innerHTML = `
+      html += `
         <div class="class-weak-block">
           <strong>⚠ Points faibles de la classe</strong>
           <div class="class-weak-pills">
             ${weakTopics.map((t) => `<span class="class-weak-pill">${escapeHtml(t)}</span>`).join('')}
           </div>
-          <p class="helper-text">Ces thèmes ont un score moyen inférieur à 2,0 — nécessitent une attention particulière.</p>
-        </div>
-      `;
-    } else {
-      weakEl.innerHTML = '<p class="helper-text" style="padding:8px 0">Aucun point faible détecté — bonne progression !</p>';
+          <p class="helper-text">Score moyen inférieur à 2,0 sur ces thèmes.</p>
+        </div>`;
     }
+    if (atRisk.length) {
+      html += `
+        <div class="class-weak-block class-atrisk-block">
+          <strong>🚨 Élèves en difficulté (${atRisk.length})</strong>
+          <div class="ca-atrisk-list">
+            ${atRisk.map((s) => `
+              <div class="ca-atrisk-row">
+                <span class="ca-atrisk-name">${escapeHtml(s.username)}</span>
+                <span class="ca-atrisk-reason">${escapeHtml(s.reason)}</span>
+                <span class="ca-atrisk-score" style="background:${scoreColor(s.avgScore).bg};color:${scoreColor(s.avgScore).text}">${s.avgScore.toFixed(1)}</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+    if (completion.length && totalStudents > 0) {
+      html += `
+        <div class="ca-completion-block">
+          <strong>Taux de complétion par chapitre</strong>
+          <div class="ca-completion-bars">
+            ${completion.map((c) => `
+              <div class="ca-completion-row">
+                <span class="ca-completion-topic">${escapeHtml(c.topic)}</span>
+                <div class="ca-completion-track">
+                  <div class="ca-completion-fill" style="width:${c.rate}%;background:${c.rate >= 70 ? '#10b981' : c.rate >= 40 ? '#f59e0b' : '#ef4444'}"></div>
+                </div>
+                <span class="ca-completion-pct">${c.rate}%</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+    if (!html) {
+      html = '<p class="helper-text" style="padding:8px 0">Aucun point faible détecté — bonne progression !</p>';
+    }
+    weakEl.innerHTML = html;
   }
 
   // 2. Bar chart: avg score per topic
@@ -1598,5 +1630,85 @@ export function init() {
     notifyBtn.dataset.bound = "true";
   }
 
+  // From-PDF form
+  const fromPdfBtn = document.getElementById("from-pdf-btn");
+  if (fromPdfBtn && !fromPdfBtn.dataset.bound) {
+    fromPdfBtn.addEventListener("click", handleFromPdf);
+    fromPdfBtn.dataset.bound = "true";
+  }
+
+  // Populate from-pdf topic select from curriculum
+  const fromPdfTopic = document.getElementById("from-pdf-topic");
+  if (fromPdfTopic && !fromPdfTopic.dataset.bound) {
+    const curriculum = window.APP_DATA?.curriculum || [];
+    fromPdfTopic.innerHTML = curriculum.map((c) => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.code + ' · ' + c.title)}</option>`).join('');
+    fromPdfTopic.dataset.bound = "true";
+  }
+
   // loadStudentFiles is exported separately — no window bridge needed
+}
+
+async function handleFromPdf() {
+  const fileInput  = document.getElementById("from-pdf-file");
+  const topicSel   = document.getElementById("from-pdf-topic");
+  const countSel   = document.getElementById("from-pdf-count");
+  const statusEl   = document.getElementById("from-pdf-status");
+  const resultsEl  = document.getElementById("from-pdf-results");
+  const btn        = document.getElementById("from-pdf-btn");
+  if (!fileInput || !fileInput.files[0]) {
+    if (statusEl) statusEl.textContent = "Veuillez sélectionner un fichier PDF.";
+    return;
+  }
+  const file = fileInput.files[0];
+  if (!file.name.endsWith(".pdf") && file.type !== "application/pdf") {
+    if (statusEl) statusEl.textContent = "Format non supporté — sélectionnez un fichier PDF.";
+    return;
+  }
+
+  btn.disabled = true;
+  if (statusEl) statusEl.textContent = "Extraction du PDF et génération en cours… (peut prendre 20-40 s)";
+  if (resultsEl) { resultsEl.classList.add("is-hidden"); resultsEl.innerHTML = ""; }
+
+  try {
+    const formData = new FormData();
+    formData.append("pdf", file);
+    formData.append("topic", topicSel?.value || "");
+    formData.append("count", countSel?.value || "3");
+
+    const token = localStorage.getItem("auth-token") || "";
+    const resp = await fetch("/api/ai/from-pdf", {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || "Erreur serveur");
+
+    const exercises = data.exercises || [];
+    if (!exercises.length) throw new Error("Aucun exercice généré.");
+
+    resultsEl.innerHTML = exercises.map((ex, i) => `
+      <div class="from-pdf-exercise-card">
+        <div class="from-pdf-exercise-head">
+          <span class="from-pdf-exercise-num">Exercice ${i + 1}</span>
+          <strong>${escapeHtml(ex.title || "")}</strong>
+          ${ex.duration ? `<span class="helper-text">${escapeHtml(ex.duration)}</span>` : ""}
+        </div>
+        <div class="from-pdf-exercise-body">
+          <p class="from-pdf-label">Énoncé</p>
+          <div class="from-pdf-text">${escapeHtml(ex.statement || "")}</div>
+          <details class="from-pdf-correction-details">
+            <summary>Voir la correction</summary>
+            ${(Array.isArray(ex.correction) ? ex.correction : [ex.correction]).map((c) => `<div class="from-pdf-text">${escapeHtml(String(c))}</div>`).join('')}
+          </details>
+        </div>
+      </div>
+    `).join('');
+    resultsEl.classList.remove("is-hidden");
+    if (statusEl) statusEl.textContent = `${exercises.length} exercice(s) généré(s) avec succès.`;
+  } catch (err) {
+    if (statusEl) statusEl.textContent = "Erreur : " + err.message;
+  } finally {
+    btn.disabled = false;
+  }
 }

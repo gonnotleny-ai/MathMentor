@@ -1460,6 +1460,9 @@ class AppHandler(SimpleHTTPRequestHandler):
         if route == "/api/teacher/notify-student":
             self.handle_teacher_notify_student()
             return
+        if route == "/api/ai/from-pdf":
+            self.handle_ai_from_pdf()
+            return
 
         self.send_json(404, {"error": "Endpoint not found."})
 
@@ -3247,12 +3250,174 @@ class AppHandler(SimpleHTTPRequestHandler):
             ]
             # Weak topics (avgScore < 2.0)
             weak_topics = [ts["topic"] for ts in topic_stats if ts["avgScore"] < 2.0]
+
+            # Students at risk: avgScore < 1.8 or inactive > 14 days
+            from datetime import timezone as _tz
+            now = datetime.now(timezone.utc)
+            at_risk = []
+            for s in student_rankings:
+                last = s.get("lastActive")
+                days_inactive = (now - last.replace(tzinfo=_tz.utc)).days if last else 999
+                if s["avgScore"] < 1.8 or days_inactive > 14:
+                    at_risk.append({
+                        "username": s["username"],
+                        "avgScore": s["avgScore"],
+                        "daysInactive": days_inactive,
+                        "reason": "score faible" if s["avgScore"] < 1.8 else "inactif depuis %d j" % days_inactive,
+                    })
+
+            # Completion rate per topic: students who viewed ≥1 exercise vs total students
+            with connection.cursor() as cur:
+                cur.execute("SELECT COUNT(*) AS total FROM class_memberships WHERE class_id = %s", (class_id,))
+                total_students = (cur.fetchone() or {}).get("total", 0)
+            completion = []
+            if total_students > 0:
+                for ts in topic_stats:
+                    rate = round(min(ts["studentCount"] / total_students, 1.0) * 100)
+                    completion.append({"topic": ts["topic"], "rate": rate})
+
         self.send_json(200, {
             "topicStats": topic_stats,
             "progressOverTime": progress_over_time,
             "studentRankings": student_rankings,
             "weakTopics": weak_topics,
+            "atRisk": at_risk,
+            "completion": completion,
+            "totalStudents": total_students,
         })
+
+    def handle_ai_from_pdf(self):
+        """Extrait le texte d'un PDF uploadé et génère des exercices IA alignés dessus."""
+        user = self.require_teacher()
+        if not user:
+            return
+        if not check_ai_rate_limit(user["id"]):
+            self.send_json(429, {"error": "Trop de requêtes IA. Veuillez patienter."})
+            return
+
+        content_type = self.headers.get("Content-Type", "")
+        if "multipart/form-data" not in content_type:
+            self.send_json(400, {"error": "multipart/form-data requis."})
+            return
+        boundary = ""
+        for part in content_type.split(";"):
+            part = part.strip()
+            if part.startswith("boundary="):
+                boundary = part[len("boundary="):].strip()
+                break
+        if not boundary:
+            self.send_json(400, {"error": "Boundary manquant."})
+            return
+        content_length = int(self.headers.get("Content-Length", "0"))
+        if content_length > 10 * 1024 * 1024:
+            self.send_json(413, {"error": "PDF trop volumineux (max 10 Mo)."})
+            return
+        raw = self.rfile.read(content_length)
+
+        # Parse multipart
+        sep = f"--{boundary}".encode()
+        pdf_bytes = None
+        topic = ""
+        count = 3
+        for part in raw.split(sep)[1:]:
+            if part.strip() in (b"", b"--", b"--\r\n"):
+                continue
+            header_end = part.find(b"\r\n\r\n")
+            if header_end == -1:
+                continue
+            header_raw = part[:header_end].decode("utf-8", errors="replace")
+            body = part[header_end + 4:]
+            if body.endswith(b"\r\n"):
+                body = body[:-2]
+            name = ""
+            for line in header_raw.splitlines():
+                if "Content-Disposition" in line:
+                    for token in line.split(";"):
+                        token = token.strip()
+                        if token.startswith('name="'):
+                            name = token[6:-1]
+            if name == "pdf":
+                pdf_bytes = body
+            elif name == "topic":
+                topic = body.decode("utf-8", errors="replace").strip()
+            elif name == "count":
+                try:
+                    count = min(int(body.decode()), 5)
+                except Exception:
+                    count = 3
+
+        if not pdf_bytes:
+            self.send_json(400, {"error": "Aucun fichier PDF reçu."})
+            return
+
+        # Extract text from PDF
+        try:
+            import io
+            try:
+                from pypdf import PdfReader
+            except ImportError:
+                from PyPDF2 import PdfReader
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            pages_text = []
+            for page in reader.pages[:20]:  # max 20 pages
+                text = page.extract_text() or ""
+                if text.strip():
+                    pages_text.append(text.strip())
+            pdf_text = "\n\n".join(pages_text)
+            if len(pdf_text) > 8000:
+                pdf_text = pdf_text[:8000] + "…"
+            if not pdf_text.strip():
+                self.send_json(400, {"error": "Impossible d'extraire du texte de ce PDF (PDF scanné non supporté)."})
+                return
+        except Exception as e:
+            logger.error("PDF extraction error: %s", e)
+            self.send_json(500, {"error": "Erreur lors de la lecture du PDF."})
+            return
+
+        logger.info("Génération depuis PDF par user id=%s (topic=%s, count=%d, chars=%d)", user["id"], topic, count, len(pdf_text))
+
+        system_prompt = (
+            "IMPORTANT : ta réponse doit commencer DIRECTEMENT par [ et se terminer par ]. "
+            "Retourne un tableau JSON de " + str(count) + " exercices. "
+            "Chaque exercice est un objet avec les clés : title (string), statement (string), correction (tableau de 3 strings), keywords (tableau de strings), duration (string). "
+            "Les exercices doivent être directement inspirés du contenu du cours fourni : utilise les mêmes notations, définitions et méthodes. "
+            "Les questions doivent être progressives et couvrir différents aspects du cours. "
+            "Notation LaTeX OBLIGATOIRE : \\(...\\) pour l'inline, \\[...\\] pour le bloc. "
+            "Caractères accentués directement (é, è, à, ç…), jamais de commandes LaTeX d'accent."
+        )
+        user_prompt = (
+            f"Thème : {topic or 'mathématiques'}\n\n"
+            f"Voici le contenu du cours :\n\n{pdf_text}\n\n"
+            f"Génère {count} exercices originaux et variés basés sur ce cours, avec des corrections détaillées."
+        )
+
+        try:
+            raw_text = _repair_json_strings(_clean_ai_text(ai_request(system_prompt, user_prompt)))
+            json_str = _extract_json_from_text(raw_text, is_array=True)
+            if not json_str:
+                raise ValueError("Pas de JSON valide retourné.")
+            exercises = parse_ai_json(json_str)
+            if not isinstance(exercises, list):
+                raise ValueError("La réponse n'est pas un tableau.")
+            validated = []
+            for ex in exercises:
+                if not isinstance(ex, dict):
+                    continue
+                if not all(k in ex for k in ("title", "statement", "correction")):
+                    continue
+                ex["title"] = normalize_ai_text(str(ex.get("title", "")))
+                ex["statement"] = normalize_ai_text(str(ex.get("statement", "")))
+                if isinstance(ex.get("correction"), list):
+                    ex["correction"] = [normalize_ai_text(str(c)) for c in ex["correction"]]
+                else:
+                    ex["correction"] = [normalize_ai_text(str(ex.get("correction", "")))]
+                validated.append(ex)
+            if not validated:
+                raise ValueError("Aucun exercice valide généré.")
+            self.send_json(200, {"exercises": validated})
+        except Exception as e:
+            logger.error("Erreur génération depuis PDF: %s", e)
+            self.send_json(500, {"error": "L'IA n'a pas pu générer les exercices. Réessayez."})
 
     def handle_http_error(self, error):
         detail = error.read().decode("utf-8")

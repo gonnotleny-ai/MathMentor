@@ -633,7 +633,7 @@
                 </div>
                 <button type="button" class="ghost-button print-hide" id="grapher-export-btn">Exporter PNG</button>
               </div>
-              <p class="panel-text">Entrez jusqu'à 3 expressions de x. Utilisez <code>sin(x)</code>, <code>cos(x)</code>, <code>exp(x)</code>, <code>x^2</code>, <code>sqrt(x)</code>, <code>ln(x)</code>…</p>
+              <p class="panel-text">Entrez jusqu'à 5 expressions de x. Utilisez <code>sin(x)</code>, <code>cos(x)</code>, <code>exp(x)</code>, <code>x^2</code>, <code>sqrt(x)</code>, <code>ln(x)</code>…</p>
               <div class="grapher-inputs">
                 <div class="grapher-input-row">
                   <span class="grapher-color-dot" style="background:#2563eb"></span>
@@ -646,6 +646,14 @@
                 <div class="grapher-input-row">
                   <span class="grapher-color-dot" style="background:#f59e0b"></span>
                   <input type="text" class="grapher-fn-input" id="grapher-fn3" placeholder="h(x) = exp(-x)" />
+                </div>
+                <div class="grapher-input-row">
+                  <span class="grapher-color-dot" style="background:#ef4444"></span>
+                  <input type="text" class="grapher-fn-input" id="grapher-fn4" placeholder="p(x) = ln(x)" />
+                </div>
+                <div class="grapher-input-row">
+                  <span class="grapher-color-dot" style="background:#8b5cf6"></span>
+                  <input type="text" class="grapher-fn-input" id="grapher-fn5" placeholder="q(x) = 1/x" />
                 </div>
               </div>
               <div class="grapher-controls">
@@ -991,6 +999,12 @@
                   <span class="hub-card-icon">📈</span>
                   <h3>Statistiques de classe avancées</h3>
                   <p>Heatmap par thème, classement des élèves, progression dans le temps et points faibles de la classe.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="from-pdf">
+                  <span class="hub-card-icon">📄</span>
+                  <h3>Générer depuis un PDF</h3>
+                  <p>Importez votre polycopié de cours et laissez l'IA générer des exercices alignés sur votre contenu.</p>
                   <span class="hub-card-action">Accéder →</span>
                 </article>
               </div>
@@ -1376,6 +1390,46 @@
                 <!-- Rankings table -->
                 <div id="class-analytics-rankings"></div>
               </div>
+            </section>
+          </div>
+
+          <!-- Section : Générer depuis un PDF -->
+          <div class="tab-section" data-section="from-pdf" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">IA pédagogique</p>
+                  <h2>Générer des exercices depuis un PDF</h2>
+                </div>
+              </div>
+              <p class="panel-text">Importez votre polycopié ou vos notes de cours (PDF). L'IA génère des exercices directement alignés sur votre contenu.</p>
+              <div class="from-pdf-form">
+                <div class="form-row">
+                  <label for="from-pdf-file">Fichier PDF <span class="helper-text">(max 10 Mo)</span></label>
+                  <input type="file" id="from-pdf-file" accept=".pdf" class="file-input" />
+                </div>
+                <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap">
+                  <div style="flex:1;min-width:160px">
+                    <label for="from-pdf-topic">Chapitre associé</label>
+                    <select id="from-pdf-topic" class="form-select"></select>
+                  </div>
+                  <div style="flex:0 0 120px">
+                    <label for="from-pdf-count">Nb d'exercices</label>
+                    <select id="from-pdf-count" class="form-select">
+                      <option value="2">2</option>
+                      <option value="3" selected>3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="button" class="primary-button" id="from-pdf-btn">Générer les exercices ↗</button>
+                <p id="from-pdf-status" class="helper-text" style="margin-top:8px"></p>
+              </div>
+              <div id="from-pdf-results" class="from-pdf-results is-hidden"></div>
             </section>
           </div>
 

@@ -2,3 +2,4 @@
 # Migré de SQLite vers PostgreSQL
 psycopg2-binary
 certifi
+pypdf

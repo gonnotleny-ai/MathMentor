@@ -2,11 +2,11 @@
 
 import { userKey } from './state.js';
 
-const GRAPH_COLORS = ['#2563eb', '#10b981', '#f59e0b'];
+const GRAPH_COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 const GRAPHER_STATE_KEY = 'maths-gcgp-grapher';
 let _xMin = -10, _xMax = 10;
 let _canvas = null;
-let _fns = [null, null, null];
+let _fns = [null, null, null, null, null];
 
 function evalFn(expr) {
   if (!expr || !expr.trim()) return null;
@@ -105,7 +105,7 @@ function updateRangeLabels() {
   if (a) a.textContent = r4(_xMin); if (b) b.textContent = r4(_xMax);
 }
 
-let _inputs = [null, null, null];
+let _inputs = [null, null, null, null, null];
 
 function saveGrapherState() {
   try {
@@ -113,6 +113,8 @@ function saveGrapherState() {
       f1: _inputs[0]?.value || '',
       f2: _inputs[1]?.value || '',
       f3: _inputs[2]?.value || '',
+      f4: _inputs[3]?.value || '',
+      f5: _inputs[4]?.value || '',
       xMin: _xMin,
       xMax: _xMax,
     };
@@ -128,6 +130,8 @@ function loadGrapherState() {
     if (state.f1 !== undefined && _inputs[0]) { _inputs[0].value = state.f1; _fns[0] = evalFn(state.f1); }
     if (state.f2 !== undefined && _inputs[1]) { _inputs[1].value = state.f2; _fns[1] = evalFn(state.f2); }
     if (state.f3 !== undefined && _inputs[2]) { _inputs[2].value = state.f3; _fns[2] = evalFn(state.f3); }
+    if (state.f4 !== undefined && _inputs[3]) { _inputs[3].value = state.f4; _fns[3] = evalFn(state.f4); }
+    if (state.f5 !== undefined && _inputs[4]) { _inputs[4].value = state.f5; _fns[4] = evalFn(state.f5); }
     if (typeof state.xMin === 'number' && typeof state.xMax === 'number') {
       _xMin = state.xMin; _xMax = state.xMax;
     }
@@ -146,7 +150,7 @@ export function initGrapher() {
     draw();
   }
 
-  _inputs = [1, 2, 3].map(i => document.getElementById(`grapher-fn${i}`));
+  _inputs = [1, 2, 3, 4, 5].map(i => document.getElementById(`grapher-fn${i}`));
   loadGrapherState();
   updateRangeLabels();
   _inputs.forEach((inp, i) => inp?.addEventListener('input', () => { _fns[i] = evalFn(inp.value); draw(); saveGrapherState(); }));

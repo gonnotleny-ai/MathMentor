@@ -569,13 +569,34 @@ export function init() {
 
   if (generatedExercise) {
     generatedExercise.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-correction-toggle]");
-      if (!button) return;
-      const content = generatedExercise.querySelector("[data-correction-content]");
-      if (!content) return;
-      const isHidden = content.classList.toggle("is-hidden");
-      button.textContent = isHidden ? "Afficher la correction" : "Masquer la correction";
-      button.setAttribute("aria-expanded", String(!isHidden));
+      // Correction toggle
+      const toggleBtn = event.target.closest("[data-correction-toggle]");
+      if (toggleBtn) {
+        const content = generatedExercise.querySelector("[data-correction-content]");
+        if (!content) return;
+        const isHidden = content.classList.toggle("is-hidden");
+        toggleBtn.textContent = isHidden ? "Afficher la correction" : "Masquer la correction";
+        toggleBtn.setAttribute("aria-expanded", String(!isHidden));
+        return;
+      }
+      // Print button
+      const printBtn = event.target.closest(".print-btn");
+      if (printBtn) {
+        const printArea = document.getElementById("print-area");
+        if (!printArea) { window.print(); return; }
+        printArea.innerHTML = generatedExercise.innerHTML;
+        printArea.querySelectorAll(".hint-item").forEach(el => el.classList.remove("is-hidden"));
+        printArea.querySelectorAll("[data-correction-content].is-hidden").forEach(el => el.classList.remove("is-hidden"));
+        printArea.querySelectorAll(
+          ".ai-correct-section, .exercise-timer, .fav-toggle-btn, .detail-head-actions button, .self-eval-wrap, .hint-controls"
+        ).forEach(el => el.remove());
+        document.body.classList.add("is-printing");
+        window.addEventListener("afterprint", () => {
+          document.body.classList.remove("is-printing");
+          printArea.innerHTML = "";
+        }, { once: true });
+        window.print();
+      }
     });
   }
 }
