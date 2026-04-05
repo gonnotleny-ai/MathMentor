@@ -3185,9 +3185,14 @@ class AppHandler(SimpleHTTPRequestHandler):
             topic_agg = {}
             for row in topic_rows:
                 eid = row["exercise_id"]
-                # Try to extract topic from exercise_id (e.g. "SYSLIN-01" → "SYSLIN")
-                parts = eid.split("-")
-                topic_code = parts[0].upper() if parts else "UNKNOWN"
+                # Exercise IDs: "exo-syslin-01" → parts[1], "teacher-exercise-N" → skip
+                parts = eid.lower().split("-")
+                if len(parts) >= 2 and parts[0] == "exo":
+                    topic_code = parts[1].upper()
+                elif len(parts) >= 2 and parts[0] == "teacher":
+                    continue  # teacher exercises tracked separately
+                else:
+                    topic_code = parts[0].upper() if parts else "UNKNOWN"
                 if topic_code not in topic_agg:
                     topic_agg[topic_code] = {"sum": 0.0, "count": 0, "students": set()}
                 topic_agg[topic_code]["sum"] += row["avg_rating"] * row["total_evals"]
