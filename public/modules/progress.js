@@ -325,6 +325,24 @@ export function renderHistoryList() {
     .join("");
 }
 
+export function updateDueBadge() {
+  import('./self-eval.js').then(({ getDueExercises }) => {
+    const { exercises } = window.APP_DATA || { exercises: [] };
+    const resources = getTeacherResources();
+    const state = getStudentState();
+    const allExercises = [...(resources?.exercises || []), ...(state.generatedExercises || []), ...exercises];
+    const due = getDueExercises(allExercises);
+    const badge = document.getElementById('tab-due-badge');
+    if (!badge) return;
+    if (due.length > 0) {
+      badge.textContent = due.length > 9 ? '9+' : String(due.length);
+      badge.classList.remove('is-hidden');
+    } else {
+      badge.classList.add('is-hidden');
+    }
+  }).catch(() => {});
+}
+
 export function renderDueExercises() {
   const container = document.getElementById('due-exercises-list');
   if (!container) return;

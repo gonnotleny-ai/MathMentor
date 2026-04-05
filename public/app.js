@@ -1,7 +1,7 @@
 // ── MathMentor — Application entry point ──────────────────────────────────────
 // Imports all ES modules and orchestrates initialization.
 
-import { loadState, renderStats, renderHistoryList, renderDueExercises } from './modules/progress.js';
+import { loadState, renderStats, renderHistoryList, renderDueExercises, updateDueBadge } from './modules/progress.js';
 import { setStudentState, setSelectedCourse, setSelectedExercise, defaultState } from './modules/state.js';
 import { setChipState } from './modules/utils.js';
 
@@ -327,6 +327,7 @@ async function init() {
   renderChatHistory();
   renderStats();
   renderDueExercises();
+  updateDueBadge();
   renderHistoryList();
   renderDashboard();
   renderThemesHub();
@@ -367,6 +368,7 @@ async function init() {
     renderGeneratedList();
     renderStats();
     renderDueExercises();
+    updateDueBadge();
     renderHistoryList();
     renderDashboard();
     renderTeacherSpace();

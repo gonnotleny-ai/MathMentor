@@ -208,6 +208,9 @@ export async function submitSelfEval(exerciseId, rating, blockElement) {
     }
   }
 
+  // Mettre à jour le badge révisions sur l'onglet Exercices
+  import('./progress.js').then(({ updateDueBadge }) => updateDueBadge()).catch(() => {});
+
   // POST to server (fire & forget — no re-render on failure)
   try {
     await apiRequest("/api/self-eval", { exerciseId, rating }, true);

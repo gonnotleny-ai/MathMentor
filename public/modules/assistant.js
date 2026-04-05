@@ -56,10 +56,18 @@ export async function handleAssistantForm(event) {
     .map((item) => `${item.semester} ${item.code} - ${item.title}: ${item.focus.join(", ")}`)
     .join("\n");
 
+  // Construire le contexte de conversation (3 derniers échanges)
+  const recentHistory = (getStudentState().chatHistory || []).slice(0, 3).reverse();
+  const conversationContext = recentHistory.length
+    ? "\n\nHistorique récent de la conversation :\n" + recentHistory.map(e =>
+        `Élève : ${e.question}\nAssistant : ${e.answer}`
+      ).join("\n---\n")
+    : "";
+
   try {
     const payload = await apiRequest("/api/ai", {
       prompt,
-      context: `Application de soutien en maths pour BUT GCGP.\n${appContext}`,
+      context: `Application de soutien en maths pour BUT GCGP.\n${appContext}${conversationContext}`,
       mode: _assistantMode,
     }, true);
     const answer = payload.text || payload.answer || payload.response || payload.content || "Réponse indisponible.";
