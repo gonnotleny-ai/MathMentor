@@ -168,6 +168,12 @@ def init_db():
             )
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS self_evaluations TEXT NOT NULL DEFAULT '{}'")
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS daily_activity TEXT NOT NULL DEFAULT '{}'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS chat_history TEXT NOT NULL DEFAULT '[]'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS earned_badges TEXT NOT NULL DEFAULT '{}'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS exercise_schedule TEXT NOT NULL DEFAULT '{}'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS topic_fail_counts TEXT NOT NULL DEFAULT '{}'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS learning_history TEXT NOT NULL DEFAULT '[]'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS error_history TEXT NOT NULL DEFAULT '[]'")
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS teacher_classes (
@@ -437,6 +443,12 @@ def get_progress(connection, user_id):
         "quizHistory": json_load(row["quiz_history"], []),
         "selfEvaluations": json_load(row.get("self_evaluations", "{}"), {}),
         "dailyActivity": json_load(row.get("daily_activity", "{}"), {}),
+        "chatHistory": json_load(row.get("chat_history", "[]"), []),
+        "earnedBadges": json_load(row.get("earned_badges", "{}"), {}),
+        "exerciseSchedule": json_load(row.get("exercise_schedule", "{}"), {}),
+        "topicFailCounts": json_load(row.get("topic_fail_counts", "{}"), {}),
+        "learningHistory": json_load(row.get("learning_history", "[]"), []),
+        "errorHistory": json_load(row.get("error_history", "[]"), []),
     }
 
 
@@ -444,8 +456,13 @@ def update_progress(connection, user_id, payload):
     with connection.cursor() as cur:
         cur.execute(
             """
-            INSERT INTO progress (user_id, viewed_exercises, favorite_exercises, generated_exercises, recent_questions, quiz_history, self_evaluations, daily_activity, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO progress (
+                user_id, viewed_exercises, favorite_exercises, generated_exercises,
+                recent_questions, quiz_history, self_evaluations, daily_activity,
+                chat_history, earned_badges, exercise_schedule, topic_fail_counts,
+                learning_history, error_history, updated_at
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT(user_id) DO UPDATE SET
                 viewed_exercises = EXCLUDED.viewed_exercises,
                 favorite_exercises = EXCLUDED.favorite_exercises,
@@ -454,6 +471,12 @@ def update_progress(connection, user_id, payload):
                 quiz_history = EXCLUDED.quiz_history,
                 self_evaluations = EXCLUDED.self_evaluations,
                 daily_activity = EXCLUDED.daily_activity,
+                chat_history = EXCLUDED.chat_history,
+                earned_badges = EXCLUDED.earned_badges,
+                exercise_schedule = EXCLUDED.exercise_schedule,
+                topic_fail_counts = EXCLUDED.topic_fail_counts,
+                learning_history = EXCLUDED.learning_history,
+                error_history = EXCLUDED.error_history,
                 updated_at = EXCLUDED.updated_at
             """,
             (
@@ -465,6 +488,12 @@ def update_progress(connection, user_id, payload):
                 json_dump(payload.get("quizHistory", [])),
                 json_dump(payload.get("selfEvaluations", {})),
                 json_dump(payload.get("dailyActivity", {})),
+                json_dump(payload.get("chatHistory", [])),
+                json_dump(payload.get("earnedBadges", {})),
+                json_dump(payload.get("exerciseSchedule", {})),
+                json_dump(payload.get("topicFailCounts", {})),
+                json_dump(payload.get("learningHistory", [])),
+                json_dump(payload.get("errorHistory", [])),
                 utc_now(),
             ),
         )

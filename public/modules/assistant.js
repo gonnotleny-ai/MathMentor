@@ -77,6 +77,7 @@ export async function handleAssistantForm(event) {
     ].slice(0, 100);
     setStudentState(s2);
     saveState();
+    apiUpdateProgress();
     renderChatHistory();
   } catch (error) {
     const reason = describeAiIssue(error.message);
@@ -246,6 +247,7 @@ async function analyzePhoto() {
     ].slice(0, 100);
     setStudentState(s);
     saveState();
+    apiUpdateProgress();
     renderChatHistory();
   } catch (error) {
     const reason = describeAiIssue(error.message);

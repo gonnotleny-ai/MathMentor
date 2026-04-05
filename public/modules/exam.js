@@ -3,7 +3,7 @@
 import { getAllExercises } from './library.js';
 import { escapeHtml, mathTextToHtml, renderMath } from './utils.js';
 import { getStudentState, setStudentState } from './state.js';
-import { saveState, updateDailyActivity } from './progress.js';
+import { saveState, apiUpdateProgress, updateDailyActivity } from './progress.js';
 
 let _examState = null; // current exam session state
 let _timerInterval = null;
@@ -173,6 +173,7 @@ function recordExamAnswer(rating) {
     learningHistory: [...(state.learningHistory || []), { date: new Date().toISOString(), exerciseId: exercise.id, topic: exercise.topic, score: rating }],
   });
   saveState();
+  apiUpdateProgress();
   updateDailyActivity("ex");
 
   // Next question or finish

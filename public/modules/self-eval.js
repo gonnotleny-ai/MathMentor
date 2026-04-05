@@ -118,6 +118,7 @@ function updateLearningHistory(exerciseId, topic, score) {
   });
   setStudentState({ ...state, learningHistory: history });
   saveState();
+  apiUpdateProgress();
 }
 
 function classifyAndStoreError(exerciseId, topic, rating) {
@@ -129,6 +130,7 @@ function classifyAndStoreError(exerciseId, topic, rating) {
   const trimmed = history.slice(-50);
   setStudentState({ ...state, errorHistory: trimmed });
   saveState();
+  apiUpdateProgress();
 }
 
 export async function submitSelfEval(exerciseId, rating, blockElement) {
@@ -167,6 +169,7 @@ export async function submitSelfEval(exerciseId, rating, blockElement) {
     },
   });
   saveState();
+  apiUpdateProgress();
 
   // Feature 8: Track topic fail counts
   if (rating === 1) {
@@ -188,6 +191,7 @@ export async function submitSelfEval(exerciseId, rating, blockElement) {
         },
       });
       saveState();
+      apiUpdateProgress();
 
       // Show toast if topic hit 3 consecutive fails
       if (newCount >= 3) {

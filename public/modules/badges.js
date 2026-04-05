@@ -1,7 +1,7 @@
 // ── Badges ────────────────────────────────────────────────────────────────────
 
 import { getStudentState, setStudentState } from './state.js';
-import { saveState } from './progress.js';
+import { saveState, apiUpdateProgress } from './progress.js';
 
 // ── Définition des badges ────────────────────────────────────────────────────
 
@@ -93,6 +93,7 @@ export function checkBadges() {
   if (newBadges.length) {
     setStudentState({ ...state, earnedBadges: earned });
     saveState();
+    apiUpdateProgress();
     newBadges.forEach((badge) => showBadgeToast(badge));
   }
   return newBadges;
