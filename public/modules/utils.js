@@ -117,11 +117,24 @@ export function textToHtml(text) {
 // in \(...\) so KaTeX can render them.
 export function mathTextToHtml(text) {
   let raw = String(text || "").normalize("NFC").replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-  // Convertir les balises HTML brutes retournées par l'IA en markdown (avant l'échappement HTML)
-  raw = raw.replace(/<strong>([\s\S]*?)<\/strong>/gi, '**$1**');
-  raw = raw.replace(/<em>([\s\S]*?)<\/em>/gi, '*$1*');
-  raw = raw.replace(/<b>([\s\S]*?)<\/b>/gi, '**$1**');
-  raw = raw.replace(/<i>([\s\S]*?)<\/i>/gi, '*$1*');
+
+  // ── Pré-étape : décoder les entités HTML pré-échappées renvoyées par l'IA
+  // (ex: &lt;strong&gt;Conclusion&lt;/strong&gt; → <strong>Conclusion</strong>)
+  raw = raw.replace(/&lt;(\/?\w[^&>]{0,80})&gt;/g, '<$1>');
+
+  // ── Étape 0 : convertir les balises HTML brutes en markdown (avant l'échappement HTML)
+  // Support des attributs : <strong class="x"> etc.
+  raw = raw.replace(/<h[1-2][^>]*>([\s\S]*?)<\/h[1-2]>/gi, '\n## $1\n');
+  raw = raw.replace(/<h[3-6][^>]*>([\s\S]*?)<\/h[3-6]>/gi, '\n### $1\n');
+  raw = raw.replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, '**$1**');
+  raw = raw.replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, '**$1**');
+  raw = raw.replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, '*$1*');
+  raw = raw.replace(/<i[^>]*>([\s\S]*?)<\/i>/gi, '*$1*');
+  raw = raw.replace(/<br\s*\/?>/gi, '\n');
+  raw = raw.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n');
+  raw = raw.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n');
+  // Supprimer toutes les balises HTML restantes (filet de sécurité)
+  raw = raw.replace(/<[^>]+>/g, '');
   const tokens = [];
   const ph = (i) => `\x00TOK${i}\x00`;
 
