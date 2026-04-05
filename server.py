@@ -174,6 +174,7 @@ def init_db():
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS topic_fail_counts TEXT NOT NULL DEFAULT '{}'")
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS learning_history TEXT NOT NULL DEFAULT '[]'")
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS error_history TEXT NOT NULL DEFAULT '[]'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS appearance TEXT NOT NULL DEFAULT '{}'")
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS teacher_classes (
@@ -449,6 +450,7 @@ def get_progress(connection, user_id):
         "topicFailCounts": json_load(row.get("topic_fail_counts", "{}"), {}),
         "learningHistory": json_load(row.get("learning_history", "[]"), []),
         "errorHistory": json_load(row.get("error_history", "[]"), []),
+        "appearance": json_load(row.get("appearance", "{}"), {}),
     }
 
 
@@ -460,9 +462,9 @@ def update_progress(connection, user_id, payload):
                 user_id, viewed_exercises, favorite_exercises, generated_exercises,
                 recent_questions, quiz_history, self_evaluations, daily_activity,
                 chat_history, earned_badges, exercise_schedule, topic_fail_counts,
-                learning_history, error_history, updated_at
+                learning_history, error_history, appearance, updated_at
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT(user_id) DO UPDATE SET
                 viewed_exercises = EXCLUDED.viewed_exercises,
                 favorite_exercises = EXCLUDED.favorite_exercises,
@@ -477,6 +479,7 @@ def update_progress(connection, user_id, payload):
                 topic_fail_counts = EXCLUDED.topic_fail_counts,
                 learning_history = EXCLUDED.learning_history,
                 error_history = EXCLUDED.error_history,
+                appearance = EXCLUDED.appearance,
                 updated_at = EXCLUDED.updated_at
             """,
             (
@@ -494,6 +497,7 @@ def update_progress(connection, user_id, payload):
                 json_dump(payload.get("topicFailCounts", {})),
                 json_dump(payload.get("learningHistory", [])),
                 json_dump(payload.get("errorHistory", [])),
+                json_dump(payload.get("appearance", {})),
                 utc_now(),
             ),
         )
@@ -1354,6 +1358,10 @@ class AppHandler(SimpleHTTPRequestHandler):
             self.send_json(200, {"user": serialize_user(user), "progress": progress})
             return
 
+        if self.path == "/api/appearance":
+            self.handle_appearance()
+            return
+
         if self.path == "/api/resources":
             user = self.require_user()
             if not user:
@@ -1470,6 +1478,9 @@ class AppHandler(SimpleHTTPRequestHandler):
             return
         if route == "/api/self-eval":
             self.handle_self_eval()
+            return
+        if route == "/api/appearance":
+            self.handle_appearance()
             return
         if route == "/api/teacher/file":
             self.handle_teacher_file_upload()
@@ -2122,6 +2133,47 @@ class AppHandler(SimpleHTTPRequestHandler):
                 cur.execute(
                     "DELETE FROM teacher_devoirs WHERE id = %s AND teacher_id = %s",
                     (devoir_id, user["id"]),
+                )
+            connection.commit()
+
+        self.send_json(200, {"ok": True})
+
+    def handle_appearance(self):
+        """GET → retourne l'apparence ; POST → sauvegarde l'apparence."""
+        user = self.require_user()
+        if not user:
+            return
+
+        if self.command == "GET":
+            with db_connection() as connection:
+                progress = get_progress(connection, user["id"])
+            self.send_json(200, {"appearance": progress.get("appearance", {})})
+            return
+
+        body = self.parse_json_body()
+        if body is None:
+            return
+
+        appearance = body.get("appearance")
+        if not isinstance(appearance, dict):
+            self.send_json(400, {"error": "appearance doit être un objet."})
+            return
+
+        # Validate allowed keys
+        allowed_keys = {"theme", "primaryColor", "fontSize"}
+        appearance = {k: v for k, v in appearance.items() if k in allowed_keys}
+
+        with db_connection() as connection:
+            with connection.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO progress (user_id, updated_at, appearance)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT(user_id) DO UPDATE SET
+                        appearance = EXCLUDED.appearance,
+                        updated_at = EXCLUDED.updated_at
+                    """,
+                    (user["id"], utc_now(), json_dump(appearance)),
                 )
             connection.commit()
 

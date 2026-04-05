@@ -26,33 +26,90 @@ import { initPomodoro } from './modules/pomodoro.js';
 
 // ── Dark mode ─────────────────────────────────────────────────────────────────
 
-const THEME_KEY        = "maths-gcgp-theme";
-const COLOR_KEY        = "maths-gcgp-primary-color";
-const FONTSIZE_KEY     = "maths-gcgp-fontsize";
+const THEME_KEY    = "maths-gcgp-theme";
+const COLOR_KEY    = "maths-gcgp-primary-color";
+const FONTSIZE_KEY = "maths-gcgp-fontsize";
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   const btn = document.getElementById("theme-toggle-btn");
   if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
-  // Sync appearance panel buttons
   document.querySelectorAll(".appearance-theme-btn").forEach(b => {
     b.classList.toggle("is-active", b.dataset.appearanceTheme === theme);
   });
 }
 
 function applyPrimaryColor(color) {
-  document.documentElement.style.setProperty("--primary", color);
-  // Derive a darker shade (~20% darker) for --primary-dark
-  document.documentElement.style.setProperty("--primary-dark", color);
-  // Soft background: color with low opacity
-  document.documentElement.style.setProperty("--primary-soft", color + "22");
-  document.documentElement.style.setProperty("--border", color + "44");
-  document.documentElement.style.setProperty("--surface-tint", color + "11");
-  document.documentElement.style.setProperty("--bg", color + "0d");
+  const root = document.documentElement;
+  root.style.setProperty("--primary", color);
+  root.style.setProperty("--primary-dark", color);
+  root.style.setProperty("--primary-soft", color + "22");
+  root.style.setProperty("--border", color + "44");
+  root.style.setProperty("--surface-tint", color + "11");
+  root.style.setProperty("--bg", color + "0d");
 }
 
 function applyFontSize(size) {
   document.documentElement.style.fontSize = size + "px";
+}
+
+// ── Apparence : persistance Neon ─────────────────────────────────────────────
+
+async function saveAppearanceToServer(appearance) {
+  try {
+    const { getAuthToken } = await import('./modules/state.js');
+    const token = getAuthToken();
+    if (!token) return;
+    await fetch("/api/appearance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ appearance }),
+    });
+  } catch (_) { /* fire & forget */ }
+}
+
+export async function loadAppearanceFromServer() {
+  try {
+    const { getAuthToken } = await import('./modules/state.js');
+    const token = getAuthToken();
+    if (!token) return;
+    const resp = await fetch("/api/appearance", {
+      headers: { "Authorization": `Bearer ${token}` },
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const a = data.appearance || {};
+    if (a.theme) {
+      applyTheme(a.theme);
+      localStorage.setItem(THEME_KEY, a.theme);
+    }
+    if (a.primaryColor) {
+      applyPrimaryColor(a.primaryColor);
+      localStorage.setItem(COLOR_KEY, a.primaryColor);
+      syncAppearancePanelColor(a.primaryColor);
+    }
+    if (a.fontSize) {
+      applyFontSize(a.fontSize);
+      localStorage.setItem(FONTSIZE_KEY, String(a.fontSize));
+      syncAppearancePanelFontSize(a.fontSize);
+    }
+  } catch (_) { /* silently ignore */ }
+}
+
+function syncAppearancePanelColor(color) {
+  const colorRow = document.getElementById("appearance-color-row");
+  if (!colorRow) return;
+  colorRow.querySelectorAll(".appearance-color-btn").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.color === color);
+  });
+  const custom = document.getElementById("appearance-custom-input");
+  if (custom) custom.value = color;
+}
+
+function syncAppearancePanelFontSize(size) {
+  document.querySelectorAll(".appearance-fontsize-btn").forEach(b => {
+    b.classList.toggle("is-active", parseInt(b.dataset.fontsize, 10) === size);
+  });
 }
 
 function initDarkMode() {
@@ -66,6 +123,8 @@ function initDarkMode() {
       const next = current === "dark" ? "light" : "dark";
       applyTheme(next);
       localStorage.setItem(THEME_KEY, next);
+      // Persist to server
+      saveAppearanceToServer({ theme: next });
     });
   }
 }
@@ -73,11 +132,12 @@ function initDarkMode() {
 // ── Appearance panel ──────────────────────────────────────────────────────────
 
 function initAppearance() {
-  // Restore saved color + fontsize
+  // Restore from localStorage (instant, before server responds)
   const savedColor = localStorage.getItem(COLOR_KEY);
   if (savedColor) applyPrimaryColor(savedColor);
   const savedSize = parseInt(localStorage.getItem(FONTSIZE_KEY) || "16", 10);
   applyFontSize(savedSize);
+  applyTheme(localStorage.getItem(THEME_KEY) || "light");
 
   // Theme buttons
   document.querySelectorAll(".appearance-theme-btn").forEach(btn => {
@@ -85,10 +145,9 @@ function initAppearance() {
       const theme = btn.dataset.appearanceTheme;
       applyTheme(theme);
       localStorage.setItem(THEME_KEY, theme);
+      saveAppearanceToServer({ theme });
     });
   });
-  // Sync initial state
-  applyTheme(localStorage.getItem(THEME_KEY) || "light");
 
   // Color swatches
   const colorRow = document.getElementById("appearance-color-row");
@@ -102,15 +161,19 @@ function initAppearance() {
         localStorage.setItem(COLOR_KEY, btn.dataset.color);
         const custom = document.getElementById("appearance-custom-input");
         if (custom) custom.value = btn.dataset.color;
+        saveAppearanceToServer({ primaryColor: btn.dataset.color });
       });
     });
     const customInput = document.getElementById("appearance-custom-input");
     if (customInput) {
       if (savedColor) customInput.value = savedColor;
+      let debounceTimer;
       customInput.addEventListener("input", () => {
         colorRow.querySelectorAll(".appearance-color-btn").forEach(b => b.classList.remove("is-active"));
         applyPrimaryColor(customInput.value);
         localStorage.setItem(COLOR_KEY, customInput.value);
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => saveAppearanceToServer({ primaryColor: customInput.value }), 600);
       });
     }
   }
@@ -126,6 +189,7 @@ function initAppearance() {
         btn.classList.add("is-active");
         applyFontSize(size);
         localStorage.setItem(FONTSIZE_KEY, String(size));
+        saveAppearanceToServer({ fontSize: size });
       });
     });
   }
@@ -457,10 +521,14 @@ async function init() {
     renderAccountPanel();
     setTabAvailability();
     loadStudentFiles();
+    loadAppearanceFromServer();
   });
 
   // 9. Restore session from localStorage token (will call loadTeacherResources)
   await restoreSession(loadTeacherResources);
+
+  // 9b. Load appearance from server (overrides localStorage if user is logged in)
+  loadAppearanceFromServer();
 
   // 10. Update account UI based on restored session
   updateAccountUi();
