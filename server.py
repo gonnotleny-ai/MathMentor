@@ -886,6 +886,21 @@ def _gemini_request(system_prompt, user_prompt, timeout=60):
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
 
+def _html_to_markdown(text):
+    """Convertit les balises HTML de formatage en markdown (pour les réponses chat)."""
+    text = re.sub(r'<strong>([\s\S]*?)</strong>', r'**\1**', text, flags=re.IGNORECASE)
+    text = re.sub(r'<b>([\s\S]*?)</b>', r'**\1**', text, flags=re.IGNORECASE)
+    text = re.sub(r'<em>([\s\S]*?)</em>', r'*\1*', text, flags=re.IGNORECASE)
+    text = re.sub(r'<i>([\s\S]*?)</i>', r'*\1*', text, flags=re.IGNORECASE)
+    text = re.sub(r'<h[1-6][^>]*>([\s\S]*?)</h[1-6]>', r'## \1', text, flags=re.IGNORECASE)
+    text = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r'<li[^>]*>([\s\S]*?)</li>', r'- \1', text, flags=re.IGNORECASE)
+    text = re.sub(r'</?(?:ul|ol|p)[^>]*>', '\n', text, flags=re.IGNORECASE)
+    # Supprimer les balises HTML restantes
+    text = re.sub(r'<[^>]+>', '', text)
+    return text.strip()
+
+
 def _clean_ai_text(text):
     """Nettoyage préliminaire du texte brut retourné par une IA avant parsing JSON."""
     # Supprimer les blocs <think>...</think> (modèles raisonneurs type Qwen/DeepSeek)
@@ -2801,6 +2816,10 @@ class AppHandler(SimpleHTTPRequestHandler):
 
         logger.info("Chat IA demandé par user id=%s (mode=%s)", user["id"], mode)
 
+        fmt = (
+            "FORMATAGE OBLIGATOIRE : utilise uniquement le markdown standard — **gras**, *italique*, `code`, "
+            "## Titre, - liste. N'utilise JAMAIS de balises HTML (<strong>, <em>, <b>, <br>, etc.). "
+        )
         if mode == "socratic":
             system_prompt = (
                 "Tu es un tuteur de mathématiques pour des étudiants de BUT Génie Chimique Génie des Procédés. "
@@ -2812,6 +2831,7 @@ class AppHandler(SimpleHTTPRequestHandler):
                 "Utilise un langage mathématique rigoureux (symboles ∈, ⟹, ⟺, ∀, ∃) et la notation LaTeX : "
                 "\\(...\\) pour les formules en ligne, \\[...\\] pour les formules centrées. "
                 "Écris les accents directement : é, è, à, ç, ê, î, ô, û — jamais de commandes LaTeX d'accent. "
+                + fmt +
                 "Réponds toujours en français."
             )
         else:
@@ -2824,6 +2844,7 @@ class AppHandler(SimpleHTTPRequestHandler):
                 "les notations ensemblistes (ℝ, ℂ, ℕ) et les opérateurs ∂, ∫, ∑, ∏ selon le contexte. "
                 "Notation LaTeX standard : \\(...\\) pour les formules en ligne et \\[...\\] pour les formules en display. "
                 "Écris les accents directement : é, è, à, ç, ê, î, ô, û — jamais de commandes LaTeX d'accent. "
+                + fmt +
                 "Réponds toujours en français."
             )
 
@@ -2832,7 +2853,7 @@ class AppHandler(SimpleHTTPRequestHandler):
                 system_prompt,
                 f"Contexte de l'application:\n{context}\n\nDemande de l'etudiant:\n{prompt}",
             )
-            text = _clean_ai_text(normalize_ai_text(text or ""))
+            text = _html_to_markdown(_clean_ai_text(normalize_ai_text(text or "")))
             self.send_json(200, {"text": text or "Aucune reponse textuelle retournee."})
         except Exception as error:
             self.send_json(503, {"error": str(error)})
