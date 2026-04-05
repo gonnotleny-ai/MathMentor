@@ -472,7 +472,7 @@ export async function handleQcmGeneration(event) {
 function renderQcmOutput(questions, container) {
   const html = questions.map((q, i) => `
     <div class="qcm-question" data-qcm-index="${i}">
-      <p class="qcm-question-text"><strong>${i + 1}.</strong> ${mathTextToHtml(q.question)}</p>
+      <div class="qcm-question-text"><strong>${i + 1}.</strong> ${mathTextToHtml(q.question)}</div>
       <div class="qcm-options">
         ${["A", "B", "C", "D"].map((letter, j) => {
           // options peut être un tableau ["...", "..."] ou un objet {A:"...", B:"..."}
@@ -480,7 +480,7 @@ function renderQcmOutput(questions, container) {
           const option = Array.isArray(opts) ? (opts[j] || "") : (opts[letter] || "");
           return `<label class="qcm-option">
             <input type="radio" name="qcm-q${i}" value="${letter}" />
-            <span><strong>${letter}.</strong> ${mathTextInline(option)}</span>
+            <span class="qcm-option-text"><strong>${letter}.</strong> ${mathTextInline(option)}</span>
           </label>`;
         }).join("")}
       </div>
