@@ -153,8 +153,15 @@ export function mathTextToHtml(text) {
 
   // ── Step 2b: catch bare LaTeX environments not wrapped in \[...\] ──
   // e.g. \begin{cases}...\end{cases} returned by AI without outer delimiters
-  s = s.replace(/\\begin\{([^}]+)\}([\s\S]*?)\\end\{\1\}/g, (m) => {
+  // Also normalise \( ... \\ ) → \( ... \) (AI sometimes writes \\ before closing paren)
+  s = s.replace(/\\begin\{([a-zA-Z*]+)\}([\s\S]*?)\\end\{\1\}/g, (m) => {
     tokens.push(`\\[${m}\\]`);
+    return ph(tokens.length - 1);
+  });
+  // Fix malformed \( ... \\) → \( ... \)
+  s = s.replace(/\\\(([^)]*?)\\\\(\s*)\\\)/g, (_, inner, sp) => {
+    const fixed = `\\(${inner}${sp}\\)`;
+    tokens.push(fixed);
     return ph(tokens.length - 1);
   });
 

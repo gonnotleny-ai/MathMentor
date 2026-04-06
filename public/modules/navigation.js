@@ -190,7 +190,7 @@ export function init() {
       openLibView(btn.dataset.libView);
       // Le grapheur a besoin d'un resize car son canvas est initialisé quand le panel est caché
       if (btn.dataset.libView === "grapher") {
-        requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+        setTimeout(() => window.dispatchEvent(new Event("resize")), 50);
       }
     });
   });

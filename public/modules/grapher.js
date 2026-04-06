@@ -314,13 +314,10 @@ export function initGrapher() {
   if (!_canvas) return;
 
   function resize() {
-    const p = _canvas.parentElement;
-    if (!p) return;
     const dpr = window.devicePixelRatio || 1;
-    const cssW = Math.max(300, p.clientWidth - 32);
-    const cssH = Math.round(cssW * 0.52);
-    _canvas.style.width  = cssW + 'px';
-    _canvas.style.height = cssH + 'px';
+    const cssW = _canvas.clientWidth;
+    const cssH = _canvas.clientHeight;
+    if (!cssW || !cssH) return; // panel caché, on ne redimensionne pas
     _canvas.width  = Math.round(cssW * dpr);
     _canvas.height = Math.round(cssH * dpr);
     draw();
