@@ -154,13 +154,15 @@ export function mathTextToHtml(text) {
   // ── Step 3: escape raw HTML chars (safe: tokens contain no & < >) ──
   s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  // ── Step 4: inline markdown ──
-  s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
-  s = s.replace(/\*\*\*([\s\S]+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-  s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
-  s = s.replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/gm, '$1<em>$2</em>');
+  // ── Step 4 + 5: line-by-line block processing + inline markdown per line ──
+  function applyInline(str) {
+    return str
+      .replace(/`([^`\n]+?)`/g, '<code>$1</code>')
+      .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/g, '$1<em>$2</em>');
+  }
 
-  // ── Step 5: line-by-line block processing ──
   const lines = s.split('\n');
   const out = [];
   let inList = false;
@@ -176,35 +178,34 @@ export function mathTextToHtml(text) {
       continue;
     }
 
-    // Headings
+    // Headings — strip inline markdown from heading text cleanly
     const h3 = trimmed.match(/^###\s+(.+)/);
     const h2 = trimmed.match(/^##\s+(.+)/);
     const h1 = trimmed.match(/^#\s+(.+)/);
-    if (h3) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h4 class="ai-h4">${h3[1]}</h4>`); continue; }
-    if (h2) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h3 class="ai-h3">${h2[1]}</h3>`); continue; }
-    if (h1) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h3 class="ai-h3">${h1[1]}</h3>`); continue; }
+    if (h3) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h4 class="ai-h4">${applyInline(h3[1])}</h4>`); continue; }
+    if (h2) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h3 class="ai-h3">${applyInline(h2[1])}</h3>`); continue; }
+    if (h1) { if (inList) { out.push('</ul>'); inList = false; } out.push(`<h3 class="ai-h3">${applyInline(h1[1])}</h3>`); continue; }
 
     // Horizontal rule
     if (/^---+$/.test(trimmed)) { if (inList) { out.push('</ul>'); inList = false; } out.push('<hr>'); continue; }
 
     // List item
-    const li = trimmed.match(/^[-*]\s+(.+)/) || trimmed.match(/^\d+\.\s+(.+)/);
+    const li = trimmed.match(/^[-*•]\s+(.+)/) || trimmed.match(/^\d+[.)]\s+(.+)/);
     if (li) {
       if (!inList) { out.push('<ul class="ai-list">'); inList = true; }
       const t = li[1].trim();
-      out.push(`<li>${isPureMathLine(t) ? `\\(${unicodeToLatex(t)}\\)` : inlineUnicodeMath(t)}</li>`);
+      out.push(`<li>${isPureMathLine(t) ? `\\(${unicodeToLatex(t)}\\)` : applyInline(inlineUnicodeMath(t))}</li>`);
       continue;
     }
 
     if (inList && trimmed === '') { out.push('</ul>'); inList = false; }
     if (trimmed === '') { out.push(''); continue; }
 
-    // Normal line — wrap in <p> so lines are visually separated
-    const t = trimmed;
-    if (isPureMathLine(t)) {
-      out.push(`<p class="ai-math-p">\\(${unicodeToLatex(t)}\\)</p>`);
+    // Normal line — wrap in <p>
+    if (isPureMathLine(trimmed)) {
+      out.push(`<p class="ai-math-p">\\(${unicodeToLatex(trimmed)}\\)</p>`);
     } else {
-      out.push(`<p>${inlineUnicodeMath(line)}</p>`);
+      out.push(`<p>${applyInline(inlineUnicodeMath(trimmed))}</p>`);
     }
   }
   if (inList) out.push('</ul>');
