@@ -929,19 +929,48 @@ export function renderGeneratedList() {
   const remaining = generated.length - visible.length;
 
   visible.forEach((exercise) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "generated-list-item";
+
     const button = document.createElement("button");
     button.type = "button";
     button.className = "list-card";
     button.innerHTML = exerciseCardHtml(exercise);
     button.addEventListener("click", () => {
-      if (detail) {
-        detail.classList.remove("empty-state");
-        detail.innerHTML = detailExerciseHtml(exercise, { collapseCorrection: true });
-        bindHintEvents(detail);
-        renderSelfEvalButtons(exercise.id, detail);
+      if (!detail) return;
+      detail.classList.remove("empty-state");
+      detail.innerHTML = detailExerciseHtml(exercise, { collapseCorrection: true });
+      bindHintEvents(detail);
+      bindAiCorrection(exercise, detail);
+      import('./mathkeyboard.js').then(({ attachMathKeyboard }) => {
+        const aiSection = detail.querySelector(".ai-correct-section");
+        if (aiSection) attachMathKeyboard(aiSection);
+      }).catch(() => {});
+      renderSelfEvalButtons(exercise.id, detail);
+      renderMath(detail);
+      const printBtn = detail.querySelector(".print-btn");
+      if (printBtn) {
+        printBtn.addEventListener("click", () => triggerPrint(detailExerciseHtml(exercise), exercise.title));
       }
     });
-    list.appendChild(button);
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "generated-delete-btn";
+    delBtn.title = "Supprimer de l'historique";
+    delBtn.textContent = "×";
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const state = getStudentState();
+      setStudentState({ ...state, generatedExercises: (state.generatedExercises || []).filter(ex => ex.id !== exercise.id) });
+      saveState();
+      apiUpdateProgress();
+      renderGeneratedList();
+    });
+
+    wrapper.appendChild(button);
+    wrapper.appendChild(delBtn);
+    list.appendChild(wrapper);
   });
 
   if (remaining > 0) {
@@ -1223,6 +1252,21 @@ export function triggerPrint(htmlContent, title) {
     const btn = printArea.querySelector("[data-correction-toggle]");
     if (btn) btn.textContent = "Masquer la correction";
   });
+
+  // ── Si une correction IA a été générée, l'inclure dans l'impression ──
+  const aiSection = printArea.querySelector(".ai-correct-section");
+  if (aiSection) {
+    const aiResult = aiSection.querySelector(".ai-correction-result:not(.is-hidden)");
+    if (aiResult && aiResult.innerHTML.trim()) {
+      const aiPrint = document.createElement("section");
+      aiPrint.className = "print-ai-section";
+      aiPrint.innerHTML = `<h4 class="print-ai-title">Correction IA de votre réponse</h4>${aiResult.innerHTML}`;
+      // Ouvrir les <details> dans la section IA
+      aiPrint.querySelectorAll("details").forEach(d => d.open = true);
+      printArea.appendChild(aiPrint);
+    }
+  }
+
   printArea.querySelectorAll(
     ".ai-correct-section, .exercise-timer, .fav-toggle-btn, .detail-head-actions button, .self-eval-wrap, .hint-controls, .print-btn, .graph-btn, .methods-btn, .sbs-section, .plot3d-btn"
   ).forEach(el => el.remove());

@@ -175,6 +175,7 @@ def init_db():
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS learning_history TEXT NOT NULL DEFAULT '[]'")
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS error_history TEXT NOT NULL DEFAULT '[]'")
             cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS appearance TEXT NOT NULL DEFAULT '{}'")
+            cursor.execute("ALTER TABLE progress ADD COLUMN IF NOT EXISTS grapher_state TEXT NOT NULL DEFAULT '{}'")
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS teacher_classes (
@@ -451,6 +452,7 @@ def get_progress(connection, user_id):
         "learningHistory": json_load(row.get("learning_history", "[]"), []),
         "errorHistory": json_load(row.get("error_history", "[]"), []),
         "appearance": json_load(row.get("appearance", "{}"), {}),
+        "grapherState": json_load(row.get("grapher_state", "{}"), {}),
     }
 
 
@@ -462,9 +464,9 @@ def update_progress(connection, user_id, payload):
                 user_id, viewed_exercises, favorite_exercises, generated_exercises,
                 recent_questions, quiz_history, self_evaluations, daily_activity,
                 chat_history, earned_badges, exercise_schedule, topic_fail_counts,
-                learning_history, error_history, appearance, updated_at
+                learning_history, error_history, appearance, grapher_state, updated_at
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT(user_id) DO UPDATE SET
                 viewed_exercises = EXCLUDED.viewed_exercises,
                 favorite_exercises = EXCLUDED.favorite_exercises,
@@ -480,6 +482,7 @@ def update_progress(connection, user_id, payload):
                 learning_history = EXCLUDED.learning_history,
                 error_history = EXCLUDED.error_history,
                 appearance = EXCLUDED.appearance,
+                grapher_state = EXCLUDED.grapher_state,
                 updated_at = EXCLUDED.updated_at
             """,
             (
@@ -498,6 +501,7 @@ def update_progress(connection, user_id, payload):
                 json_dump(payload.get("learningHistory", [])),
                 json_dump(payload.get("errorHistory", [])),
                 json_dump(payload.get("appearance", {})),
+                json_dump(payload.get("grapherState", {})),
                 utc_now(),
             ),
         )

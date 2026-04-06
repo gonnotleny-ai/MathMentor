@@ -57,12 +57,19 @@ function getSelfEval(exerciseId) {
 
 function storeSelfEval(exerciseId, rating) {
   const state = getStudentState();
+  const today = new Date().toISOString().slice(0, 10);
+  const activity = { ...(state.dailyActivity || {}) };
+  if (!activity[today]) activity[today] = { ex: 0, q: 0 };
+  activity[today].scoreSum = (activity[today].scoreSum || 0) + rating;
+  activity[today].scoreCount = (activity[today].scoreCount || 0) + 1;
+
   setStudentState({
     ...state,
     selfEvaluations: {
       ...(state.selfEvaluations || {}),
       [exerciseId]: rating,
     },
+    dailyActivity: activity,
   });
   saveState();
   apiUpdateProgress();

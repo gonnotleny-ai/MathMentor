@@ -3616,7 +3616,37 @@ li + li {
   body.is-printing .ai-list { margin-left: 1.5em; }
   body.is-printing .hint-item { border-left: 2px solid #2563eb; padding: 4pt 8pt; margin: 4pt 0; }
   body.is-printing [data-correction-content] { margin-top: 10pt; padding-top: 8pt; border-top: 1px solid #ccc; }
+  body.is-printing .print-ai-section { margin-top: 14pt; padding-top: 10pt; border-top: 2px solid #10b981; }
+  body.is-printing .print-ai-title { font-size: 11pt; color: #10b981; margin-bottom: 6pt; }
+  body.is-printing .ai-correction-score { font-weight: bold; margin-bottom: 4pt; }
+  body.is-printing .ai-correction-detail[open] summary { font-size: 10pt; color: #475569; }
 }
+
+/* ── Historique exercices générés ────────────────────────────────────────────── */
+.generated-list-item {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+.generated-list-item .list-card {
+  flex: 1;
+  padding-right: 2.5rem;
+}
+.generated-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.generated-delete-btn:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
 
 /* ── FEATURE 1 : Tableau de formules ─────────────────────────────────────────── */
 .formulas-search-bar {

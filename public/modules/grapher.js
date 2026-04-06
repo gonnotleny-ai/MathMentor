@@ -1,6 +1,7 @@
 // ── Grapheur de fonctions ──────────────────────────────────────────────────────
 
-import { userKey } from './state.js';
+import { userKey, getStudentState, setStudentState } from './state.js';
+import { saveState, apiUpdateProgress } from './progress.js';
 
 const GRAPH_COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 const POINT_COLOR  = '#f43f5e';
@@ -268,23 +269,36 @@ function updateRangeLabels() {
 
 let _inputs = [null, null, null, null, null];
 
+let _syncTimer = null;
+
 function saveGrapherState() {
+  const data = {
+    f1: _inputs[0]?.value || '', f2: _inputs[1]?.value || '',
+    f3: _inputs[2]?.value || '', f4: _inputs[3]?.value || '',
+    f5: _inputs[4]?.value || '',
+    xMin: _xMin, xMax: _xMax,
+    points: _points,
+  };
   try {
-    localStorage.setItem(userKey(GRAPHER_STATE_KEY), JSON.stringify({
-      f1: _inputs[0]?.value || '', f2: _inputs[1]?.value || '',
-      f3: _inputs[2]?.value || '', f4: _inputs[3]?.value || '',
-      f5: _inputs[4]?.value || '',
-      xMin: _xMin, xMax: _xMax,
-      points: _points,
-    }));
+    localStorage.setItem(userKey(GRAPHER_STATE_KEY), JSON.stringify(data));
   } catch (_) {}
+  // Sync to Neon (debounced 2 s pour éviter le spam sur zoom/pan)
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(() => {
+    const state = getStudentState();
+    setStudentState({ ...state, grapherState: data });
+    saveState();
+    apiUpdateProgress();
+  }, 2000);
 }
 
 function loadGrapherState() {
   try {
     const raw = localStorage.getItem(userKey(GRAPHER_STATE_KEY));
-    if (!raw) return;
-    const s = JSON.parse(raw);
+    // Fallback to Neon-synced state if localStorage is empty
+    const serverState = !raw ? (getStudentState().grapherState || null) : null;
+    const s = raw ? JSON.parse(raw) : serverState;
+    if (!s) return;
     ['f1','f2','f3','f4','f5'].forEach((k, i) => {
       if (s[k] !== undefined && _inputs[i]) { _inputs[i].value = s[k]; _fns[i] = evalFn(s[k]); }
     });

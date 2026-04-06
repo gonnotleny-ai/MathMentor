@@ -17,6 +17,7 @@ const TOPIC_COLORS = {
 let _statsRadar = null;
 let _statsBar   = null;
 let _statsLine  = null;
+let _statsScore = null;
 
 export function renderStatsTab() {
   const panel = document.querySelector('[data-view="stats"]');
@@ -171,6 +172,9 @@ export function renderStatsTab() {
     });
   }
 
+  // ── Score par semaine ──────────────────────────────────────────────────────
+  renderScoreChart(state.dailyActivity || {});
+
   // ── Line chart: activité quotidienne (30 derniers jours) ───────────────────
   const lineCanvas = document.getElementById("stats-line-chart");
   if (lineCanvas) {
@@ -230,6 +234,75 @@ export function renderStatsTab() {
       });
     }
   }
+}
+
+function renderScoreChart(daily) {
+  const scoreCanvas = document.getElementById("stats-score-chart");
+  if (!scoreCanvas || !window.Chart) return;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const labels = [];
+  const data = [];
+
+  // 8 semaines glissantes
+  for (let w = 7; w >= 0; w--) {
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - w * 7);
+    let scoreSum = 0, scoreCount = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      const day = daily[key] || {};
+      if (day.scoreCount) { scoreSum += day.scoreSum || 0; scoreCount += day.scoreCount; }
+    }
+    labels.push(`${weekStart.getDate()}/${weekStart.getMonth() + 1}`);
+    data.push(scoreCount > 0 ? parseFloat((scoreSum / scoreCount).toFixed(2)) : null);
+  }
+
+  if (_statsScore) { _statsScore.destroy(); _statsScore = null; }
+
+  const hasData = data.some(v => v !== null);
+  if (!hasData) {
+    const ctx = scoreCanvas.getContext("2d");
+    if (ctx) {
+      ctx.clearRect(0, 0, scoreCanvas.width, scoreCanvas.height);
+      ctx.font = "13px sans-serif";
+      ctx.fillStyle = "#94a3b8";
+      ctx.textAlign = "center";
+      ctx.fillText("Évaluez vos exercices pour voir votre progression", scoreCanvas.width / 2, scoreCanvas.height / 2);
+    }
+    return;
+  }
+
+  _statsScore = new window.Chart(scoreCanvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Score moyen / semaine",
+        data,
+        borderColor: "#10b981",
+        backgroundColor: "rgba(16,185,129,0.10)",
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        fill: true,
+        spanGaps: true,
+      }],
+    },
+    options: {
+      scales: {
+        y: {
+          min: 1, max: 3,
+          ticks: { stepSize: 1, callback: v => (["", "❌ Non su", "⚠️ Difficile", "✅ Réussi"])[v] || v },
+        },
+        x: { ticks: { font: { size: 10 } } },
+      },
+      plugins: { legend: { display: false } },
+    },
+  });
 }
 
 export function init() {}
