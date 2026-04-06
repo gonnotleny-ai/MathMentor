@@ -440,5 +440,15 @@ export function initGrapher() {
 
   document.getElementById('theme-toggle-btn')?.addEventListener('click', () => setTimeout(draw, 60));
   window.addEventListener('resize', resize);
+
+  // ── Observer : redimensionner dès que le panel grapher devient visible ──
+  // (lib-view passe de display:none à display:block quand is-active est ajouté)
+  const grapherPanel = _canvas.closest('.lib-view');
+  if (grapherPanel) {
+    new MutationObserver(() => {
+      if (grapherPanel.classList.contains('is-active')) resize();
+    }).observe(grapherPanel, { attributes: true, attributeFilter: ['class'] });
+  }
+
   resize();
 }
