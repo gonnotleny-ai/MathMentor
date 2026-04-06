@@ -9,7 +9,6 @@ import { saveState, apiUpdateProgress, updateDailyActivity } from './progress.js
 import { checkBadges } from './badges.js';
 import { pushUnique, escapeHtml, normalizeMathText, normalizeKey, normalizeCorrection, mathTextToHtml, renderMath, buildTagRow, looksLikeMathLine, isOrderedLine, isBulletLine, stripListPrefix } from './utils.js';
 import { renderSelfEvalButtons } from './self-eval.js';
-import { attachMathKeyboard } from './mathkeyboard.js';
 
 // ── Révision mode state ───────────────────────────────────────────────────────
 let _revisionQueue = [];
@@ -782,10 +781,12 @@ export function renderExerciseDetail() {
     });
   }
 
-  // Bind AI correction button + attach math keyboard
+  // Bind AI correction button + attach math keyboard (lazy import pour éviter cascade d'erreurs)
   bindAiCorrection(exercise, exerciseDetail);
-  const aiSection = exerciseDetail.querySelector(".ai-correct-section");
-  if (aiSection) attachMathKeyboard(aiSection);
+  import('./mathkeyboard.js').then(({ attachMathKeyboard }) => {
+    const aiSection = exerciseDetail.querySelector(".ai-correct-section");
+    if (aiSection) attachMathKeyboard(aiSection);
+  }).catch(() => {});
 
   // Add self-evaluation block
   renderSelfEvalButtons(exercise.id, exerciseDetail);

@@ -23,7 +23,6 @@ import { renderThemesHub, init as initThemes } from './modules/themes.js';
 import { hooks as navHooks } from './modules/navigation.js';
 import { initFormulas } from './modules/formulas.js';
 import { initPomodoro } from './modules/pomodoro.js';
-import { initMathKeyboard } from './modules/mathkeyboard.js';
 
 // ── Dark mode ─────────────────────────────────────────────────────────────────
 
@@ -569,8 +568,8 @@ async function init() {
   // 20. Pomodoro timer
   initPomodoro();
 
-  // 21. Clavier mathématique (observe les textareas de correction)
-  initMathKeyboard();
+  // 21. Clavier mathématique (lazy — ne bloque pas l'init si erreur)
+  import('./modules/mathkeyboard.js').then(({ initMathKeyboard }) => initMathKeyboard()).catch(() => {});
 
   // Re-render formulas when the section becomes visible
   navHooks.onTabOpen.push((tabName) => {
