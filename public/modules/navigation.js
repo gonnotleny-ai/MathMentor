@@ -186,7 +186,13 @@ export function init() {
 
   // Library inline nav buttons
   document.querySelectorAll(".lib-nav-btn[data-lib-view]").forEach((btn) => {
-    btn.addEventListener("click", () => openLibView(btn.dataset.libView));
+    btn.addEventListener("click", () => {
+      openLibView(btn.dataset.libView);
+      // Le grapheur a besoin d'un resize car son canvas est initialisé quand le panel est caché
+      if (btn.dataset.libView === "grapher") {
+        requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+      }
+    });
   });
 
   // Hub cards
