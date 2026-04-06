@@ -1183,8 +1183,25 @@ def normalize_ai_text(text):
     if not isinstance(text, str):
         return text
     text = unicodedata.normalize("NFC", text)
-    # Detect runs of ≥4 consecutive lines with ≤2 non-space chars and join them
+
+    # ── Pass 1 : coller les lignes qui ne contiennent qu'un caractère
+    # combinant / modificateur à la ligne précédente, puis re-NFC.
+    # Exemple : "e\nˊ\n" → "é\n" (accents décomposés sur ligne séparée)
+    _COMBINING_CATS = {"Mn", "Mc", "Me", "Lm", "Sk"}
     lines = text.split("\n")
+    merged = []
+    for line in lines:
+        s = line.strip()
+        if (merged and len(s) == 1
+                and unicodedata.category(s) in _COMBINING_CATS):
+            # Attacher le signe à la fin de la ligne précédente
+            merged[-1] = unicodedata.normalize("NFC", merged[-1] + s)
+        else:
+            merged.append(line)
+    lines = merged
+
+    # ── Pass 2 : détecter les runs de ≥4 lignes avec ≤2 caractères et les fusionner
+    # (cas extrême où l'IA sort chaque lettre sur une ligne séparée)
     result = []
     i = 0
     while i < len(lines):
@@ -1196,7 +1213,7 @@ def normalize_ai_text(text):
                 run.append(lines[j].strip())
                 j += 1
             if len(run) >= 4:
-                result.append("".join(run))
+                result.append(unicodedata.normalize("NFC", "".join(run)))
                 i = j
                 continue
         result.append(lines[i])
