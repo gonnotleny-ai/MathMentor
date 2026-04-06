@@ -3049,6 +3049,35 @@ class AppHandler(SimpleHTTPRequestHandler):
 
         is_procede = exercise_type == "procede"
 
+        # Topic-specific math requirements
+        topic_math_requirements = {
+            "SYSLIN": (
+                "L'énoncé DOIT contenir le système d'équations en LaTeX display, par exemple : "
+                "\\[\\begin{cases} 2x + 3y = 7 \\\\\\\\ x - 2y = -3 \\end{cases}\\] "
+                "avec des valeurs numériques concrètes. Interdiction de décrire le système en texte sans LaTeX."
+            ),
+            "POLY": (
+                "L'énoncé DOIT contenir l'expression du polynôme en LaTeX, par exemple : "
+                "\\(P(x) = 3x^3 - 2x^2 + x - 5\\). "
+                "Toutes les racines, factorisations et calculs doivent apparaître en LaTeX."
+            ),
+            "FVAR": (
+                "L'énoncé DOIT contenir la définition de la fonction en LaTeX, par exemple : "
+                "\\(f(x,y) = x^2 y + e^{xy}\\), et poser des questions sur les dérivées partielles "
+                "\\(\\frac{\\partial f}{\\partial x}\\) ou des intégrales doubles \\(\\iint_D f\\,dx\\,dy\\). "
+                "Toutes les expressions mathématiques DOIVENT être en LaTeX."
+            ),
+            "FRAT": (
+                "L'énoncé DOIT contenir la fraction rationnelle en LaTeX, par exemple : "
+                "\\(F(x) = \\frac{2x+1}{x^2 - 3x + 2}\\). "
+                "La décomposition en éléments simples doit être posée avec les inconnues A, B en LaTeX."
+            ),
+        }
+        topic_math_req = topic_math_requirements.get(topic, (
+            "L'énoncé DOIT contenir au moins 2 expressions ou équations mathématiques en LaTeX. "
+            "Interdiction de générer un énoncé sans équations."
+        ))
+
         system_prompt = (
             "IMPORTANT : ta réponse doit commencer DIRECTEMENT par { et se terminer par }. "
             "Aucun texte, titre, explication ou markdown avant ou après le JSON. "
@@ -3062,14 +3091,17 @@ class AppHandler(SimpleHTTPRequestHandler):
                 if is_procede else
                 "Type 'maths pures' : énoncé direct centré sur les calculs, sans mise en situation industrielle. "
             )
-            + "Le niveau de difficulté doit guider librement la complexité : nombre de questions, imbrication des calculs, richesse des données. "
+            + "RÈGLE ABSOLUE : un énoncé sans équations LaTeX est INVALIDE. "
+            + topic_math_req + " "
+            "Les environnements LaTeX (cases, pmatrix, bmatrix, array) doivent TOUJOURS être encadrés dans \\[...\\]. "
+            "Le niveau de difficulté doit guider librement la complexité : nombre de questions, imbrication des calculs, richesse des données. "
             "Les questions doivent être numérotées et progressives. "
             "Si le mode est 'guide', ajouter une courte aide après chaque question. "
-            "La correction (3 blocs) doit : (1) rappeler la méthode, (2) résoudre entièrement avec calculs détaillés et justifiés, "
+            "La correction (3 blocs) doit : (1) rappeler la méthode, (2) résoudre entièrement avec calculs détaillés et justifiés en LaTeX, "
             "(3) vérifier le résultat" + (" et l'interpréter dans le contexte procédé." if is_procede else ".") + " "
             "Rédige des paragraphes logiques, jamais de liste 'Étape 1, Étape 2'. "
             "Emploie un langage mathématique rigoureux : ∈, ⟹, ⟺, ℝ, ℂ. "
-            "Notation LaTeX OBLIGATOIRE : \\(...\\) pour l'inline, \\[...\\] pour le bloc. Jamais de formule en texte brut. "
+            "Notation LaTeX OBLIGATOIRE : \\(...\\) pour l'inline, \\[...\\] pour les blocs et environnements. Jamais de formule en texte brut. "
             "Caractères accentués directement (é, è, à, ç…), jamais de commandes LaTeX d'accent."
             + (
                 " graphData : {\"axes\":{\"xMin\":n,\"xMax\":n,\"yMin\":n,\"yMax\":n,\"xLabel\":str,\"yLabel\":str},"

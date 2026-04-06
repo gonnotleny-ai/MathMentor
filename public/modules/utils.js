@@ -145,9 +145,16 @@ export function mathTextToHtml(text) {
     return ph(tokens.length - 1);
   });
 
-  // ── Step 2: extract LaTeX blocks ──
+  // ── Step 2a: extract properly-delimited LaTeX blocks ──
   s = s.replace(/(\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\)|\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g, (m) => {
     tokens.push(m);
+    return ph(tokens.length - 1);
+  });
+
+  // ── Step 2b: catch bare LaTeX environments not wrapped in \[...\] ──
+  // e.g. \begin{cases}...\end{cases} returned by AI without outer delimiters
+  s = s.replace(/\\begin\{([^}]+)\}([\s\S]*?)\\end\{\1\}/g, (m) => {
+    tokens.push(`\\[${m}\\]`);
     return ph(tokens.length - 1);
   });
 
