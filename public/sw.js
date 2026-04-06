@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mathmentor-v6';
+const CACHE_NAME = 'mathmentor-v10';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

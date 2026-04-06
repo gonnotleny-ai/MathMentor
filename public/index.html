@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MathMentor</title>
-    <link rel="stylesheet" href="/styles.css?v=20260406" />
+    <link rel="stylesheet" href="/styles.css?v=20260407" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
@@ -1686,7 +1686,7 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="/data.js"></script>
     <script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda5"></script>
-    <script type="module" src="/app.js?v=20260406"></script>
+    <script type="module" src="/app.js?v=20260407"></script>
     <!-- Search modal -->
     <div id="search-modal" class="search-modal is-hidden" role="dialog" aria-modal="true" aria-label="Recherche globale">
       <div id="search-modal-overlay" class="search-modal-overlay"></div>
@@ -1868,11 +1868,14 @@
     </div>
 
     <script>
-      // Désenregistrer tous les service workers existants pour éviter le cache périmé
+      // Vider tout le cache navigateur + désenregistrer les service workers
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(registrations => {
           registrations.forEach(r => r.unregister());
         });
+      }
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
       }
     </script>
   </body>
