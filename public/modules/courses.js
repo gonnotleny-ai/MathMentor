@@ -6,6 +6,113 @@ import { apiRequest } from './api.js';
 
 let _coursesSemesterFilter = "S2";
 
+// ── Chatbot contextuel par cours ──────────────────────────────────────────────
+// Historique de messages en mémoire : Map<courseCode, [{role, text}]>
+const _chatMessages = new Map();
+
+function getChatMessages(courseCode) {
+  if (!_chatMessages.has(courseCode)) _chatMessages.set(courseCode, []);
+  return _chatMessages.get(courseCode);
+}
+
+function buildCourseContext(course) {
+  const lessons = (course.lessons || []).map((l, i) =>
+    `Partie ${i + 1} — ${l.title} : ${l.summary || ""}`
+  ).join("\n");
+  return `Tu es un assistant pédagogique pour le cours "${course.title}" (${course.code}, BUT GCGP S2).\n` +
+    `Objectif du chapitre : ${course.objective || ""}\n` +
+    `Contenu des parties :\n${lessons}\n\n` +
+    `Réponds uniquement sur ce chapitre. Si la question dépasse ce cadre, redirige l'élève vers le bon chapitre. ` +
+    `Sois clair, concis, pédagogique. Utilise des formules LaTeX si nécessaire.`;
+}
+
+function courseChatPanelHtml(courseCode) {
+  return `
+    <div class="course-chat-wrap" id="course-chat-wrap-${escapeHtml(courseCode)}">
+      <div class="course-chat-panel is-hidden" id="course-chat-panel-${escapeHtml(courseCode)}">
+        <div class="course-chat-header">
+          💬 Assistant IA
+          <span class="chat-subtitle">Pose une question sur ce cours</span>
+        </div>
+        <div class="course-chat-messages" id="course-chat-messages-${escapeHtml(courseCode)}">
+          <div class="course-chat-msg bot">
+            <div class="course-chat-bubble">Bonjour ! Je suis ici pour t'aider à comprendre ce chapitre. Pose-moi une question 🙂</div>
+          </div>
+        </div>
+        <div class="course-chat-input-row">
+          <input type="text" class="course-chat-input" id="course-chat-input-${escapeHtml(courseCode)}"
+            placeholder="Ex : Explique-moi les dérivées partielles…" autocomplete="off" />
+          <button type="button" class="course-chat-send" id="course-chat-send-${escapeHtml(courseCode)}">Envoyer</button>
+        </div>
+      </div>
+      <button type="button" class="course-chat-toggle" id="course-chat-toggle-${escapeHtml(courseCode)}">
+        💬 Aide IA
+      </button>
+    </div>
+  `;
+}
+
+async function sendCourseChat(course) {
+  const courseCode = course.code || getCourseKey(course);
+  const inputEl   = document.getElementById(`course-chat-input-${courseCode}`);
+  const sendBtn   = document.getElementById(`course-chat-send-${courseCode}`);
+  const messagesEl = document.getElementById(`course-chat-messages-${courseCode}`);
+  if (!inputEl || !messagesEl) return;
+
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  inputEl.value = "";
+  if (sendBtn) sendBtn.disabled = true;
+
+  // Afficher le message utilisateur
+  const messages = getChatMessages(courseCode);
+  messages.push({ role: "user", text });
+  const userBubble = document.createElement("div");
+  userBubble.className = "course-chat-msg user";
+  userBubble.innerHTML = `<div class="course-chat-bubble">${escapeHtml(text)}</div>`;
+  messagesEl.appendChild(userBubble);
+
+  // Indicateur de frappe
+  const typingEl = document.createElement("div");
+  typingEl.className = "course-chat-msg bot";
+  typingEl.innerHTML = `<div class="course-chat-typing"><span></span><span></span><span></span></div>`;
+  messagesEl.appendChild(typingEl);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  // Construire l'historique récent (5 derniers échanges)
+  const history = messages.slice(-10).map(m =>
+    `${m.role === "user" ? "Élève" : "Assistant"} : ${m.text}`
+  ).join("\n---\n");
+
+  try {
+    const payload = await apiRequest("/api/ai", {
+      prompt: text,
+      context: buildCourseContext(course) + (history ? `\n\nHistorique récent :\n${history}` : ""),
+      mode: "direct",
+    }, true);
+    const answer = payload.text || payload.answer || payload.response || payload.content || "Réponse indisponible.";
+    messages.push({ role: "bot", text: answer });
+
+    typingEl.remove();
+    const botBubble = document.createElement("div");
+    botBubble.className = "course-chat-msg bot";
+    botBubble.innerHTML = `<div class="course-chat-bubble">${mathTextToHtml(answer)}</div>`;
+    messagesEl.appendChild(botBubble);
+    renderMath(botBubble);
+  } catch (err) {
+    typingEl.remove();
+    const errBubble = document.createElement("div");
+    errBubble.className = "course-chat-msg bot";
+    errBubble.innerHTML = `<div class="course-chat-bubble" style="color:#dc2626">❌ ${escapeHtml(err.message)}</div>`;
+    messagesEl.appendChild(errBubble);
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    inputEl.focus();
+  }
+}
+
 // ── Progression séquentielle des leçons ──────────────────────────────────────
 // maxUnlocked[courseCode] = index de la première leçon non encore validée
 const _lessonProgress = new Map();
@@ -295,6 +402,7 @@ function detailCourseHtml(course) {
       </div>
       <div id="course-summary-content" class="course-summary-content"></div>
     </div>
+    ${courseChatPanelHtml(courseCode)}
   `;
 }
 
@@ -713,6 +821,30 @@ export function renderCourseDetail() {
   // Bind print button
   const printBtn = courseDetail.querySelector(".print-btn");
   if (printBtn) printBtn.addEventListener("click", () => window.print());
+
+  // ── Chatbot contextuel ────────────────────────────────────────────────────
+  const chatCode    = selected.code || getCourseKey(selected);
+  const chatToggle  = document.getElementById(`course-chat-toggle-${chatCode}`);
+  const chatPanel   = document.getElementById(`course-chat-panel-${chatCode}`);
+  const chatSendBtn = document.getElementById(`course-chat-send-${chatCode}`);
+  const chatInput   = document.getElementById(`course-chat-input-${chatCode}`);
+
+  if (chatToggle && chatPanel) {
+    chatToggle.addEventListener("click", () => {
+      const nowHidden = chatPanel.classList.toggle("is-hidden");
+      chatToggle.classList.toggle("is-active", !nowHidden);
+      chatToggle.textContent = nowHidden ? "💬 Aide IA" : "✕ Fermer le chat";
+      if (!nowHidden) chatInput?.focus();
+    });
+  }
+  if (chatSendBtn) {
+    chatSendBtn.addEventListener("click", () => sendCourseChat(selected));
+  }
+  if (chatInput) {
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendCourseChat(selected); }
+    });
+  }
 
   // Bind "S'entraîner" button — lazy import to avoid circular deps
   const trainBtn = courseDetail.querySelector("[data-train-topic]");
