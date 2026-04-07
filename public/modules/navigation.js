@@ -10,6 +10,26 @@ export const hooks = {
   onTabOpen: [], // Array of (tabName) => void
 };
 
+// Onglets visibles pour un professeur hors mode aperçu
+const TEACHER_TABS = new Set(["dashboard", "courses", "assistant", "teacher", "account"]);
+
+// Mode aperçu élève (professeur voit l'interface comme un élève)
+let _teacherPreviewMode = false;
+
+export function isTeacherPreviewMode() { return _teacherPreviewMode; }
+
+export function setTeacherPreviewMode(active) {
+  _teacherPreviewMode = active;
+  const banner = document.getElementById("teacher-preview-banner");
+  if (banner) banner.classList.toggle("is-hidden", !active);
+  setTabAvailability();
+  if (active) {
+    setActiveTabUI("dashboard");
+  } else {
+    setActiveTabUI("teacher");
+  }
+}
+
 const ui = {
   get tabButtons() { return Array.from(document.querySelectorAll("[data-tab]")); },
   get tabPanels() { return Array.from(document.querySelectorAll("[data-view]")); },
@@ -49,11 +69,23 @@ export function redirectToAccount(message) {
 }
 
 export function setTabAvailability() {
+  const teacher = isTeacherUser();
+  const preview = _teacherPreviewMode;
+
   ui.tabButtons.forEach((button) => {
     const tabName = button.dataset.tab;
-    const hidden = tabName === "teacher" && !isTeacherUser();
+    let hidden = false;
+
+    if (tabName === "teacher") {
+      // Onglet prof : visible seulement pour les profs hors mode aperçu
+      hidden = !teacher || preview;
+    } else if (teacher && !preview) {
+      // Prof hors aperçu : masquer les onglets élève
+      hidden = !TEACHER_TABS.has(tabName);
+    }
+    // Sinon (élève, ou prof en mode aperçu) : tout visible
+
     button.classList.toggle("is-hidden", hidden);
-    // Never disable tab buttons — auth is enforced inside openTab when clicked
     button.disabled = false;
   });
 
@@ -69,7 +101,7 @@ export function openTab(tabName) {
     return;
   }
 
-  if (tabName === "teacher" && !isTeacherUser()) {
+  if (tabName === "teacher" && (!isTeacherUser() || _teacherPreviewMode)) {
     setActiveTabUI("dashboard");
     const feedback = ui.accountFeedback;
     if (feedback) {
@@ -200,4 +232,10 @@ export function init() {
 
   // Back buttons
   bindBackButtons();
+
+  // Mode aperçu élève
+  const enterPreviewBtn = document.getElementById("enter-preview-btn");
+  const exitPreviewBtn  = document.getElementById("exit-preview-btn");
+  if (enterPreviewBtn) enterPreviewBtn.addEventListener("click", () => setTeacherPreviewMode(true));
+  if (exitPreviewBtn)  exitPreviewBtn.addEventListener("click",  () => setTeacherPreviewMode(false));
 }

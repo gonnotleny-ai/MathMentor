@@ -91,6 +91,13 @@
         <button type="button" class="tab-button" data-tab="account">Compte</button>
       </nav>
 
+      <!-- Bannière mode aperçu élève -->
+      <div id="teacher-preview-banner" class="teacher-preview-banner is-hidden">
+        <span class="tpb-icon">👁</span>
+        <span class="tpb-text">Mode aperçu élève — vous voyez l'interface telle qu'un élève la voit.</span>
+        <button type="button" id="exit-preview-btn" class="tpb-exit-btn">✕ Quitter l'aperçu</button>
+      </div>
+
       <main class="app-main">
         <section class="tab-panel is-active" data-view="dashboard">
 
@@ -802,6 +809,11 @@
                   <p class="section-label">Espace professeur</p>
                   <h2>Que souhaitez-vous faire ?</h2>
                 </div>
+              </div>
+              <div class="teacher-preview-row">
+                <button type="button" id="enter-preview-btn" class="teacher-preview-btn">
+                  👁 Aperçu élève — voir l'interface comme un élève
+                </button>
               </div>
               <div class="hub-grid">
                 <article class="hub-card" data-hub-tab="teacher" data-hub-section="classes">

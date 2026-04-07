@@ -5181,6 +5181,74 @@ li + li {
 [data-theme="dark"] .course-chat-msg.user .course-chat-bubble { background: var(--primary); }
 [data-theme="dark"] .course-chat-msg.bot  .course-chat-bubble { background: var(--surface-soft); }
 
+/* ── Mode aperçu élève (professeur) ──────────────────────────────────────── */
+
+.teacher-preview-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: #fef3c7;
+  border-bottom: 2px solid #fcd34d;
+  font-size: 0.87rem;
+  color: #78350f;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.teacher-preview-banner.is-hidden { display: none; }
+.tpb-icon { font-size: 1.1rem; flex-shrink: 0; }
+.tpb-text { flex: 1; font-weight: 500; }
+.tpb-exit-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #92400e;
+  background: #fff;
+  color: #92400e;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.tpb-exit-btn:hover { background: #fef9ee; }
+
+[data-theme="dark"] .teacher-preview-banner {
+  background: #2d1f00;
+  border-color: #92400e;
+  color: #fcd34d;
+}
+[data-theme="dark"] .tpb-exit-btn {
+  background: #1e293b;
+  border-color: #92400e;
+  color: #fcd34d;
+}
+
+.teacher-preview-row {
+  margin-bottom: 1.2rem;
+}
+.teacher-preview-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+  background: var(--surface-tint);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  justify-content: center;
+}
+.teacher-preview-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
 /* ── Stats : textes explicatifs ───────────────────────────────────────────── */
 
 .stats-section-desc {
