@@ -671,6 +671,8 @@
 
         <!-- ── Statistiques ───────────────────────────────────────────────── -->
         <section class="tab-panel" data-view="stats">
+
+          <!-- ── KPI + Analyse ── -->
           <section class="panel">
             <div class="panel-head">
               <div>
@@ -678,35 +680,65 @@
                 <h2>Ma progression détaillée</h2>
               </div>
             </div>
+            <p class="stats-section-desc">Vue d'ensemble de ton activité. Ces indicateurs se mettent à jour à chaque exercice consulté ou évalué.</p>
             <div id="stats-overview-cards" class="stats-kpi-grid"></div>
+            <div id="stats-insights" class="stats-insights-block"></div>
           </section>
 
+          <!-- ── Par thème ── -->
           <section class="panel">
             <div class="panel-head"><div><p class="section-label">Par thème</p><h2>Couverture et résultats</h2></div></div>
+            <p class="stats-section-desc">Pour chaque chapitre : la barre de progression indique le pourcentage d'exercices consultés. Le score est calculé à partir de tes auto-évaluations — ❌ Non su = 0 %, ⚠️ Difficile = 50 %, ✅ Réussi = 100 %.</p>
             <div id="stats-topic-cards" class="stats-topic-grid"></div>
           </section>
 
+          <!-- ── Radar + Bar ── -->
           <section class="panel">
             <div class="stats-charts-row">
               <div class="stats-chart-block">
                 <h3 class="stats-chart-title">Maîtrise &amp; couverture par thème</h3>
+                <p class="stats-chart-desc">Le radar superpose deux indicateurs : <strong>Maîtrise</strong> (bleue) = score d'auto-évaluation moyen sur les exercices notés ; <strong>Couverture</strong> (verte) = % d'exercices consultés. Un radar large et équilibré = excellente progression globale.</p>
                 <canvas id="stats-radar-chart" width="300" height="300"></canvas>
               </div>
               <div class="stats-chart-block">
                 <h3 class="stats-chart-title">Exercices vus par thème</h3>
+                <p class="stats-chart-desc">Barres colorées = exercices <strong>déjà ouverts</strong>. Barres transparentes = total disponible. L'objectif est de remplir chaque barre colorée jusqu'à la barre transparente.</p>
                 <canvas id="stats-bar-chart" width="300" height="300"></canvas>
               </div>
             </div>
           </section>
 
+          <!-- ── Donut + Activité quotidienne ── -->
           <section class="panel">
-            <h3 class="stats-chart-title">Activité quotidienne — 30 derniers jours</h3>
-            <canvas id="stats-line-chart" width="600" height="200"></canvas>
+            <div class="stats-charts-row">
+              <div class="stats-chart-block stats-chart-block--narrow">
+                <h3 class="stats-chart-title">Répartition des résultats</h3>
+                <p class="stats-chart-desc">Distribution de tes <strong>auto-évaluations</strong> sur l'ensemble des exercices notés. Vise un maximum de vert (✅ Réussi). Les exercices ❌ et ⚠️ sont ceux à retravailler en priorité.</p>
+                <canvas id="stats-donut-chart" width="260" height="260"></canvas>
+                <div id="stats-donut-legend" class="stats-donut-legend"></div>
+              </div>
+              <div class="stats-chart-block">
+                <h3 class="stats-chart-title">Activité quotidienne — 30 derniers jours</h3>
+                <p class="stats-chart-desc">Nombre d'exercices réalisés chaque jour sur les 30 derniers jours. Une pratique <strong>régulière et quotidienne</strong> est beaucoup plus efficace que des sessions intensives ponctuelles.</p>
+                <canvas id="stats-line-chart" width="400" height="220"></canvas>
+              </div>
+            </div>
           </section>
+
+          <!-- ── Score semaines ── -->
           <section class="panel">
             <h3 class="stats-chart-title">Progression du score — 8 dernières semaines</h3>
+            <p class="stats-chart-desc">Évolution de ton <strong>score d'auto-évaluation moyen</strong> semaine par semaine. Une courbe qui monte = progression réelle. Si elle stagne ou descend, concentre-toi sur les exercices notés ❌ Non su ou ⚠️ Difficile dans les fiches d'exercices.</p>
             <canvas id="stats-score-chart" width="600" height="200"></canvas>
           </section>
+
+          <!-- ── Avancement leçons ── -->
+          <section class="panel">
+            <div class="panel-head"><div><p class="section-label">Cours</p><h2>Avancement dans les leçons</h2></div></div>
+            <p class="stats-section-desc">Chaque barre représente ta progression dans les leçons d'un chapitre. Les leçons se débloquent séquentiellement en réussissant le QCM de chaque partie (onglet Cours).</p>
+            <div id="stats-lessons-grid" class="stats-lessons-grid"></div>
+          </section>
+
         </section>
 
         <section class="tab-panel" data-view="assistant">

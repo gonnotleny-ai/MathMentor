@@ -3606,9 +3606,9 @@ li + li {
 
 .stats-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 1.2rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 1rem;
 }
 
 .stats-kpi-card {
@@ -3670,7 +3670,26 @@ li + li {
   gap: 6px;
   font-size: 0.76rem;
   color: var(--muted);
+  margin-bottom: 6px;
 }
+
+.stats-topic-breakdown {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.stb {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+}
+.stb-ok   { background: #dcfce7; color: #166534; }
+.stb-hard { background: #fef3c7; color: #92400e; }
+.stb-fail { background: #fee2e2; color: #991b1b; }
+.stb-none { background: var(--surface-tint); color: var(--muted); }
 
 /* ── Thèmes hub ───────────────────────────────────────────────────────────── */
 
@@ -3785,7 +3804,7 @@ li + li {
 /* Responsive: collapse three-columns on smaller screens */
 @media (max-width: 900px) {
   .three-columns { grid-template-columns: 1fr; }
-  .stats-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-kpi-grid { grid-template-columns: repeat(3, 1fr); }
   .themes-hub-grid { grid-template-columns: 1fr; }
 }
 
@@ -5161,3 +5180,158 @@ li + li {
 
 [data-theme="dark"] .course-chat-msg.user .course-chat-bubble { background: var(--primary); }
 [data-theme="dark"] .course-chat-msg.bot  .course-chat-bubble { background: var(--surface-soft); }
+
+/* ── Stats : textes explicatifs ───────────────────────────────────────────── */
+
+.stats-section-desc {
+  font-size: 0.83rem;
+  color: var(--muted);
+  margin: -0.2rem 0 1rem;
+  line-height: 1.55;
+}
+
+.stats-chart-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 0.8rem;
+  line-height: 1.5;
+}
+
+/* ── Stats : analyse & conseils ───────────────────────────────────────────── */
+
+.stats-insights-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 0.5rem;
+}
+
+.stats-insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--surface-tint);
+  border-left: 3px solid var(--ic, var(--primary));
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.stats-insight-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.stats-insight-text { flex: 1; }
+
+/* ── Stats : graphique donut ──────────────────────────────────────────────── */
+
+.stats-chart-block--narrow {
+  max-width: 280px;
+  flex-shrink: 0;
+}
+
+.stats-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.donut-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+}
+
+.donut-leg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-leg-label { flex: 1; color: var(--text); }
+.donut-leg-count { font-weight: 600; color: var(--muted); }
+
+/* ── Stats : avancement leçons ────────────────────────────────────────────── */
+
+.stats-lessons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 0.5rem;
+}
+
+.stats-lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stats-lesson-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.stats-lesson-code {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--surface-tint);
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+
+.stats-lesson-title {
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.stats-lesson-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.stats-lesson-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stats-lesson-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.stats-lesson-fraction {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .stats-lesson-row { flex-direction: column; align-items: stretch; gap: 6px; }
+  .stats-lesson-info { min-width: unset; }
+  .stats-lesson-right { min-width: unset; }
+  .stats-chart-block--narrow { max-width: 100%; }
+  .stats-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}

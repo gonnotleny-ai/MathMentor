@@ -118,10 +118,15 @@ async function sendCourseChat(course) {
 const _lessonProgress = new Map();
 
 function getMaxUnlocked(courseCode) {
+  if (!_lessonProgress.has(courseCode)) {
+    const saved = localStorage.getItem(`mm_lp_${courseCode}`);
+    if (saved !== null) _lessonProgress.set(courseCode, parseInt(saved, 10) || 0);
+  }
   return _lessonProgress.get(courseCode) ?? 0;
 }
 function setMaxUnlocked(courseCode, index) {
   _lessonProgress.set(courseCode, index);
+  localStorage.setItem(`mm_lp_${courseCode}`, String(index));
 }
 
 // Mélange l'ordre des questions ET l'ordre des propositions dans chaque question.
