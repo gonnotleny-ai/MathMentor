@@ -12,12 +12,150 @@ window.APP_DATA = {
     prerequisites: ["algèbre de base", "équations du premier degré", "notion de variable"],
     applications: ["mélange de solutions", "bilans sur réacteurs", "réseaux de conduites", "bilans thermiques sur échangeurs"],
     lessons: [
-      { title: "Définition d'un système d'équations", summary: "Un système d'équations linéaires est un ensemble de n équations à p inconnues. La forme générale s'écrit en colonnes : a₁₁x₁ + a₁₂x₂ + … + a₁ₚxₚ = b₁, …, aₙ₁x₁ + … + aₙₚxₚ = bₙ, soit sous forme matricielle A·x = b où A ∈ Mₙₚ(ℝ) est la matrice des coefficients, x ∈ ℝᵖ le vecteur des inconnues et b ∈ ℝⁿ le vecteur des seconds membres. On travaille sur la matrice augmentée [A|b] ∈ Mₙ,ₚ₊₁(ℝ). Un système carré (n = p) est dit de Cramer si det(A) ≠ 0 : il admet alors une solution unique. Si det(A) = 0, le théorème de Rouché-Fontené précise : le système est compatible (infinité de solutions) si rang(A) = rang([A|b]), et incompatible (aucune solution) sinon." },
-      { title: "Méthode par substitution", summary: "La méthode par substitution consiste à isoler une inconnue dans l'équation la plus simple, puis à substituer cette expression dans toutes les autres équations pour les simplifier. On répète jusqu'à n'avoir plus qu'une inconnue, que l'on résout, puis on remonte par substitution arrière. Exemple complet : 2x + y = 7 (L1) et x − y = 2 (L2). De L2 : y = x − 2. Substitution dans L1 : 2x + (x − 2) = 7 → 3x = 9 → x = 3, puis y = 3 − 2 = 1. Vérification : 2·3 + 1 = 7 ✓ et 3 − 1 = 2 ✓. Cette méthode est la plus efficace pour les systèmes 2×2 où une variable s'exprime facilement." },
-      { title: "Méthode du pivot de Gauss", summary: "La méthode du pivot de Gauss transforme le système en forme triangulaire supérieure par opérations élémentaires sur les lignes : Lᵢ ← Lᵢ + k·Lⱼ. L'objectif est d'obtenir des zéros sous la diagonale. Étapes : (1) choisir un pivot (coefficient non nul en tête de colonne), (2) éliminer cette variable dans toutes les lignes suivantes par combinaisons linéaires, (3) répéter pour chaque colonne, (4) remonter par substitution arrière en partant de la dernière ligne. Exemple 3×3 : x + y + z = 6 (L1), 2x + y − z = 3 (L2), x + 2y − z = 5 (L3). L2 ← L2 − 2·L1 : −y − 3z = −9 (L2'). L3 ← L3 − L1 : y − 2z = −1 (L3'). L3' ← L3' + L2' élimine y : −5z = −10 → z = 2. Remontée depuis L2' : y = 9 − 3×2 = 3. Depuis L1 : x = 6 − 3 − 2 = 1. Vérification : L1 : 1+3+2=6 ✓, L2 : 2+3−2=3 ✓, L3 : 1+6−2=5 ✓." },
-      { title: "Changement de variable", summary: "Le changement de variable consiste à introduire de nouvelles inconnues pour simplifier un système. Par exemple, si les équations font intervenir (x + y) et (x − y), on pose u = x + y et v = x − y pour obtenir un système diagonal. Autre usage : quand une variable est libre (degré de liberté), on la note t ∈ ℝ et on exprime les autres en fonction de t, donnant la solution paramétrique (x, y, z) = (f(t), g(t), h(t)). En génie des procédés, un changement de variable permet aussi de substituer une relation de stœchiométrie connue (ex. : FA = F₀ − ξ) dans un bilan pour réduire le nombre d'inconnues et simplifier la résolution." },
-      { title: "Écriture des solutions", summary: "Après réduction par la méthode de Gauss, trois cas se présentent. (1) Solution unique : toutes les inconnues sont déterminées (système de Cramer, det(A) ≠ 0) ; l'ensemble solution est {(x, y, z)} = {(a, b, c)} — un singleton. (2) Infinité de solutions : une ou plusieurs inconnues sont libres (variables de paramètre), on les note t, s… ∈ ℝ et l'on exprime les autres en fonction ; l'ensemble solution est un sous-espace affine de ℝⁿ (droite, plan…), ex. : S = {((5−t)/3, (2t+2)/3, t) | t ∈ ℝ}. Toujours vérifier en substituant dans chacune des équations d'origine. (3) Aucune solution (système incompatible) : l'ensemble solution est ∅. Dans tous les cas, conclure explicitement : S = {(…)} ou S = ∅." },
-      { title: "Systèmes sans solution", summary: "Un système est dit incompatible ou sans solution si, après réduction gaussienne, on obtient une ligne de la forme 0x + 0y + … = c avec c ≠ 0, ce qui constitue une contradiction mathématique. Géométriquement, cela correspond à des droites parallèles (en 2D) ou des plans qui ne se coupent pas en un point commun (en 3D). En génie des procédés, un système incompatible signale des contraintes physiques incohérentes : par exemple, deux bilans matière sur le même flux donnant des débits différents (mesures contradictoires, erreurs de modélisation, ou instrument défaillant). La détection d'un système incompatible est un outil de diagnostic précieux pour valider la cohérence d'un modèle de procédé." },
+      {
+        title: "Définition d'un système d'équations",
+        summary: "Un système d'équations est un ensemble d'équations faisant intervenir plusieurs inconnues dépendant les unes des autres. Résoudre un système signifie déterminer toutes les valeurs possibles des inconnues satisfaisant simultanément toutes les équations. Exemple caractéristique du cours : x + 2y + 2z = 2 (L₁), x + 3y − 2z = −1 (L₂), 3x + 5y + 8z = 8 (L₃). Dans les problèmes concrets, toutes les solutions mathématiques ne sont pas forcément acceptables (contraintes physiques, domaines de définition). Il faut donc, après résolution, vérifier que chaque solution trouvée est compatible avec le contexte du problème.",
+        qcm: [
+          {
+            question: "Sous quelle forme matricielle compact note-t-on un système linéaire ?",
+            choices: ["A·x = b", "A/x = b", "A·x + b = 0", "x = A⁻¹"],
+            answer: 0,
+            explanation: "A est la matrice des coefficients, x le vecteur des inconnues et b le vecteur des seconds membres."
+          },
+          {
+            question: "Un système carré (n = p) admet une solution unique quand :",
+            choices: ["det(A) ≠ 0 (système de Cramer)", "det(A) = 0", "A est triangulaire", "b = 0"],
+            answer: 0,
+            explanation: "Si det(A) ≠ 0 le système est de Cramer et admet exactement une solution. Si det(A) = 0 il y a soit infinité de solutions, soit aucune."
+          },
+          {
+            question: "Qu'est-ce que la matrice augmentée [A|b] ?",
+            choices: ["La matrice A complétée par le vecteur b en dernière colonne", "Le produit A × b", "La matrice inverse de A", "La transposée de A"],
+            answer: 0,
+            explanation: "[A|b] ∈ M_{n,p+1}(ℝ) contient toute l'information utile pour résoudre le système par les méthodes de réduction."
+          }
+        ]
+      },
+      {
+        title: "Méthode par substitution",
+        summary: "La méthode par substitution est peut-être la plus simple car systématique, mais parfois fastidieuse. Elle consiste à remplacer successivement chaque variable par son expression en fonction des autres. Application au système du cours (x + 2y + 2z = 2, x + 3y − 2z = −1, 3x + 5y + 8z = 8) en trois étapes : Étape 1 — de L₁ on tire x = 2 − 2y − 2z, que l'on substitue dans L₂ et L₃ pour obtenir y − 4z = −3 et −y + 2z = 2. Étape 2 — de la nouvelle L₂ on tire y = −3 + 4z, que l'on substitue dans la nouvelle L₃ pour obtenir −2z = −1. Étape 3 — on remonte : z = 1/2, puis y = −3 + 4×(1/2) = −1, puis x = 2 − 2(−1) − 2(1/2) = 3. Remarque importante : dans les problèmes concrets, toutes les solutions ne sont pas forcément acceptables ; il faut faire attention aux domaines de définition.",
+        qcm: [
+          {
+            question: "Quelle est la première étape de la méthode par substitution ?",
+            choices: ["Isoler une inconnue dans l'équation la plus simple", "Calculer le déterminant de A", "Triangulariser la matrice augmentée", "Poser un paramètre libre t"],
+            answer: 0,
+            explanation: "On choisit l'équation où une variable s'exprime le plus facilement, on l'isole, puis on substitue partout ailleurs."
+          },
+          {
+            question: "Pour le système 2x + y = 7 et x − y = 2, quelle est la solution ?",
+            choices: ["x = 3, y = 1", "x = 1, y = 3", "x = 2, y = 3", "x = 3, y = 2"],
+            answer: 0,
+            explanation: "De L2 : y = x − 2. Substitution dans L1 : 2x + x − 2 = 7 → 3x = 9 → x = 3, y = 1. Vérification : 2·3 + 1 = 7 ✓."
+          },
+          {
+            question: "Quand la méthode par substitution est-elle la plus avantageuse ?",
+            choices: ["Systèmes 2×2 où une variable s'exprime facilement", "Systèmes 10×10 denses", "Quand le déterminant est nul", "Quand les coefficients sont tous décimaux"],
+            answer: 0,
+            explanation: "La substitution est rapide et lisible pour les petits systèmes. Pour les grands systèmes, le pivot de Gauss est préférable."
+          }
+        ]
+      },
+      {
+        title: "Méthode du pivot de Gauss",
+        summary: "La méthode du pivot de Gauss transforme le système en un système équivalent triangulaire (qui admet exactement les mêmes solutions). Les opérations autorisées sur les lignes sont : échange de deux lignes, multiplication d'une ligne par un nombre non nul, addition d'un multiple d'une ligne à une autre. Application au système du cours (x + 2y + 2z = 2, x + 3y − 2z = −1, 3x + 5y + 8z = 8) : L₂' ← L₂ − L₁ donne y − 4z = −3 ; L₃' ← L₃ − 3L₁ donne −y + 2z = 2. Puis L₃'' ← L₃' + L₂' donne −2z = −1, soit z = 1/2. Remontée : y = −3 + 4×(1/2) = −1, puis x = 2 − 2(−1) − 2(1/2) = 3. Ces trois opérations élémentaires sur les lignes ne modifient pas l'ensemble des solutions du système.",
+        qcm: [
+          {
+            question: "Quel est l'objectif de la méthode du pivot de Gauss ?",
+            choices: ["Obtenir une forme triangulaire supérieure avec des zéros sous la diagonale", "Calculer l'inverse de A", "Diagonaliser A", "Trouver le déterminant de A"],
+            answer: 0,
+            explanation: "Les opérations Lᵢ ← Lᵢ + k·Lⱼ éliminent les coefficients sous le pivot colonne par colonne jusqu'à obtenir un système triangulaire facile à résoudre par remontée."
+          },
+          {
+            question: "Quelle opération élémentaire sur les lignes est autorisée dans le pivot de Gauss ?",
+            choices: ["Lᵢ ← Lᵢ + k·Lⱼ (combinaison linéaire)", "Lᵢ ← Lᵢ² (carré d'une ligne)", "Lᵢ ← Lᵢ × Lⱼ (produit de deux lignes)", "Remplacer tous les coefficients par leur valeur absolue"],
+            answer: 0,
+            explanation: "On peut : multiplier une ligne par un scalaire non nul, ajouter un multiple d'une ligne à une autre, et permuter deux lignes. Ces opérations préservent les solutions."
+          },
+          {
+            question: "Dans l'exemple 3×3 du cours, après réduction gaussienne, quelle est la valeur de z ?",
+            choices: ["z = 2", "z = 1", "z = 3", "z = −2"],
+            answer: 0,
+            explanation: "L3' ← L3' + L2' donne −5z = −10 → z = 2. Puis remontée : y = 3, x = 1."
+          }
+        ]
+      },
+      {
+        title: "Changement de variable",
+        summary: "Le changement de variable s'applique quand le système ne fait pas intervenir les inconnues directement mais des expressions de celles-ci : x², |x|, √x, etc. On pose alors de nouvelles inconnues pour se ramener à un système linéaire classique. Exemple du cours : x² + y² = 5 et x² − y² = 3. On pose u = x² et v = y², ce qui donne le système linéaire u + v = 5 et u − v = 3. Résolution : u = 4 et v = 1, d'où x = ±2 et y = ±1. Remarque importante : dans les problèmes concrets, toutes les solutions mathématiques ne sont pas forcément acceptables (quantités positives imposées, domaines de définition à respecter). Il faut donc systématiquement vérifier la validité de chaque solution obtenue dans le contexte physique du problème.",
+        qcm: [
+          {
+            question: "Pourquoi introduit-on parfois un paramètre libre t ∈ ℝ dans la solution ?",
+            choices: ["Parce qu'une inconnue est libre (infinité de solutions)", "Pour simplifier les calculs numériques", "Pour rendre le système incompatible", "Parce que le déterminant vaut 1"],
+            answer: 0,
+            explanation: "Quand une colonne ne contient pas de pivot, l'inconnue correspondante est libre : on la note t et on exprime les autres en fonction de t."
+          },
+          {
+            question: "Si u = x + y et v = x − y simplifient le système, comment s'appelle cette technique ?",
+            choices: ["Changement de variable", "Substitution arrière", "Pivot de Gauss", "Méthode des résidus"],
+            answer: 0,
+            explanation: "On remplace des expressions complexes par de nouvelles variables pour obtenir un système plus simple, souvent diagonal."
+          },
+          {
+            question: "En génie des procédés, à quoi sert un changement de variable dans un bilan ?",
+            choices: ["Substituer une relation de stœchiométrie pour réduire le nombre d'inconnues", "Augmenter le nombre d'équations", "Calculer le déterminant plus rapidement", "Éviter la vérification finale"],
+            answer: 0,
+            explanation: "Par exemple FA = F₀ − ξ réduit le nombre d'inconnues indépendantes dans un bilan réactionnel."
+          }
+        ]
+      },
+      {
+        title: "Écriture des solutions",
+        summary: "Il faut écrire TOUTES les solutions possibles d'un système. Exemple du cours : x² + y = 3 et x² − y = −1. Après résolution, on obtient x² = 1 et y = 2, d'où x = 1 ou x = −1 (deux valeurs). On doit indiquer toutes les solutions, soit sous forme de systèmes : {x = 1, y = 2} ou {x = −1, y = 2}, soit sous forme de couples : (x, y) ∈ {(1, 2) ; (−1, 2)}, soit en notation ensembliste : S = {(1, 2) ; (−1, 2)}. On ne doit pas oublier de solutions ni en inventer : dans cet exemple il y a exactement deux couples solutions. Cette rigueur dans l'écriture des solutions est essentielle, notamment dans les problèmes concrets où chaque solution peut correspondre à un état physique différent.",
+        qcm: [
+          {
+            question: "Combien de cas distincts peut-on rencontrer après la réduction gaussienne d'un système ?",
+            choices: ["3 cas : solution unique, infinité de solutions, aucune solution", "2 cas : solution ou pas de solution", "4 cas selon la taille de la matrice", "Autant de cas que d'équations"],
+            answer: 0,
+            explanation: "Après réduction : (1) système de Cramer → solution unique ; (2) variable libre → infinité de solutions ; (3) contradiction 0 = c ≠ 0 → aucune solution."
+          },
+          {
+            question: "Comment note-t-on l'ensemble solution quand il n'y a aucune solution ?",
+            choices: ["S = ∅", "S = {0}", "S = ℝ", "S = {t | t ∈ ℝ}"],
+            answer: 0,
+            explanation: "L'ensemble vide ∅ signifie qu'aucun triplet (x, y, z) ne satisfait toutes les équations simultanément."
+          },
+          {
+            question: "L'ensemble S = {((5−t)/3, (2t+2)/3, t) | t ∈ ℝ} décrit :",
+            choices: ["Une infinité de solutions (droite paramétrée dans ℝ³)", "Une solution unique", "Un système incompatible", "La matrice inverse"],
+            answer: 0,
+            explanation: "z = t est libre, donc il y a une infinité de solutions formant une droite affine dans ℝ³."
+          }
+        ]
+      },
+      {
+        title: "Systèmes sans solution",
+        summary: "Un système sans solution apparaît lorsque deux lignes au moins sont incompatibles entre elles, ce qui mène à une contradiction lors de la résolution. Exemple du cours : x + y + z = 1 (L₁), x + y + 2z = 1 (L₂), x + y = 3 (L₃). La soustraction L₂ − L₁ donne z = 0, mais L₁ − L₃ donne z = −2 : contradiction, il n'y a pas de solution. Pour un système 2×2 de la forme α₁x + β₁y = γ₁ et α₂x + β₂y = γ₂, on définit le déterminant det S = α₁β₂ − α₂β₁. Le système admet une solution unique si et seulement si det S ≠ 0. Si det S = 0, le système est soit incompatible (aucune solution), soit indéterminé (infinité de solutions), selon que les seconds membres sont cohérents ou non.",
+        qcm: [
+          {
+            question: "Quel signe caractéristique indique qu'un système est incompatible après réduction gaussienne ?",
+            choices: ["Une ligne de la forme 0 = c avec c ≠ 0 (contradiction)", "Une ligne nulle 0 = 0", "Un pivot nul sur la diagonale", "Un déterminant positif"],
+            answer: 0,
+            explanation: "0 = c (c ≠ 0) est une contradiction : aucune valeur de x, y, z ne peut satisfaire cette équation."
+          },
+          {
+            question: "En 2D, que représente géométriquement un système incompatible ?",
+            choices: ["Deux droites parallèles qui ne se croisent jamais", "Deux droites confondues", "Deux droites perpendiculaires", "Un point d'intersection unique"],
+            answer: 0,
+            explanation: "Des droites parallèles distinctes n'ont aucun point commun, ce qui se traduit par l'absence de solution dans le système."
+          },
+          {
+            question: "Dans un bilan de procédé, que signifie obtenir un système incompatible ?",
+            choices: ["Des mesures contradictoires ou une erreur de modélisation", "Que le débit est nul", "Que toutes les mesures sont correctes", "Qu'une variable est libre"],
+            answer: 0,
+            explanation: "Un système incompatible dans un bilan signale une incohérence physique : capteur défaillant, fuite non modélisée, ou erreur de données."
+          }
+        ]
+      },
     ],
     examples: [
       {
@@ -61,11 +199,120 @@ window.APP_DATA = {
     prerequisites: ["calcul algébrique", "équations du second degré (discriminant)", "notion de degré"],
     applications: ["courbes de calibration de capteurs", "équations d'état cubiques (Van der Waals)", "polynômes caractéristiques de systèmes dynamiques", "ajustement de données expérimentales"],
     lessons: [
-      { title: "Introduction", summary: "Les polynômes apparaissent partout en génie des procédés : les courbes de calibration de capteurs sont ajustées par des polynômes de degré 2 ou 3, les équations d'état cubiques (Van der Waals) sont des polynômes de degré 3 en volume, et les polynômes caractéristiques de systèmes dynamiques (équations en r provenant des EDO) déterminent la stabilité des procédés. Comprendre les polynômes permet de modéliser des données expérimentales (régression polynomiale), de trouver les points d'équilibre d'un procédé (racines), et d'analyser la stabilité d'un système de régulation via la position de ses pôles dans le plan complexe. La maîtrise du calcul polynomial est donc un prérequis fondamental pour le génie des procédés." },
-      { title: "Définition", summary: "Un polynôme de degré n à coefficients dans ℝ (ou ℂ) est P(X) = cₙXⁿ + cₙ₋₁Xⁿ⁻¹ + … + c₁X + c₀ avec cₙ ≠ 0 (coefficient dominant). Le degré est la plus haute puissance à coefficient non nul ; par convention, deg(0) = −∞ et deg(constante ≠ 0) = 0. On ordonne toujours par degré décroissant. Pour évaluer P(a) efficacement, l'algorithme de Horner factorielle imbrique les multiplications : P(a) = (…((cₙ·a + cₙ₋₁)·a + cₙ₋₂)…)·a + c₀. Important : si un terme est absent, son coefficient est 0 et doit figurer dans la liste. Exemple : P(X) = 2X³ − X + 3 a les coefficients [2, 0, −1, 3] (le coefficient de X² est 0). Évaluation en X = 2 : b₃ = 2 ; b₂ = 2·2 + 0 = 4 ; b₁ = 4·2 + (−1) = 7 ; b₀ = 7·2 + 3 = 17 → P(2) = 17. Vérification directe : 2·8 + 0 − 2 + 3 = 17 ✓." },
-      { title: "Opérations sur polynômes", summary: "Addition : on regroupe les termes de même degré ; deg(A + B) ≤ max(deg A, deg B). Multiplication : chaque terme de A multiplie chaque terme de B, on regroupe ensuite ; deg(A·B) = deg A + deg B. Division euclidienne : pour tout P et D (D ≠ 0), il existe des polynômes uniques Q et R tels que P = Q·D + R avec deg R < deg D ; Q est le quotient, R le reste. Algorithme de la division longue : diviser le terme de plus haut degré de P par celui de D, soustraire, recommencer. Théorème du reste : le reste de la division de P par (X − a) est exactement P(a). Conséquence : P(a) = 0 ⟺ (X − a) divise P, ce qui facilite la factorisation. Exemple : diviser P(X) = X³ − 6X² + 11X − 6 par (X − 1) : quotient X² − 5X + 6, reste 0 (car P(1) = 0)." },
-      { title: "Racines des polynômes et factorisation", summary: "a est une racine de P ⟺ P(a) = 0 ⟺ (X − a) divise P(X) (théorème du facteur). Pour le degré 2 : P(X) = aX² + bX + c, discriminant Δ = b² − 4ac. Si Δ > 0 : deux racines réelles distinctes x₁,₂ = (−b ± √Δ)/(2a). Si Δ = 0 : racine double x = −b/(2a), factorisation P(X) = a(X − x)². Si Δ < 0 : pas de racine réelle, deux racines complexes conjuguées (−b ± i√|Δ|)/(2a). Pour le degré ≥ 3 : le théorème des racines rationnelles stipule que toute racine rationnelle p/q (fraction irréductible, p, q ∈ ℤ, q > 0) de P à coefficients entiers vérifie p | c₀ et q | cₙ ; on teste donc les candidats ±(diviseurs de c₀)/(diviseurs de cₙ), puis on divise euclidiennement pour réduire le degré. Factorisation complète sur ℂ : P(X) = cₙ(X − r₁)^m₁·(X − r₂)^m₂·… où Σmᵢ = n (un polynôme de degré n a exactement n racines dans ℂ en comptant les multiplicités). En génie des procédés, les racines réelles positives représentent des états d'équilibre physiques, et les racines complexes à partie réelle négative garantissent la stabilité d'un système dynamique." },
-      { title: "Schéma de Horner et division synthétique", summary: "Le schéma de Horner (ou division synthétique) permet simultanément d'évaluer P(a) et d'obtenir le quotient Q de la division de P par (X − a), sans poser la division longue. Principe : en notant P(X) = cₙXⁿ + … + c₀, on construit la table ligne par ligne : (1) première ligne : coefficients [cₙ, cₙ₋₁, …, c₀] de gauche à droite ; (2) on descend cₙ directement ; (3) pour chaque colonne suivante : multiplier la valeur descendue par a, ajouter au coefficient courant, descendre le résultat. La dernière valeur descendue est P(a) = reste ; les valeurs précédentes sont les coefficients du quotient Q(X) de degré n−1. Exemple : diviser P(X) = X³ − 4X² + X + 6 par (X − 2). Table Horner pour a = 2 : coefficients [1, −4, 1, 6]. b₂ = 1 ; b₁ = 1×2 + (−4) = −2 ; b₀ = −2×2 + 1 = −3 ; reste = −3×2 + 6 = 0. Donc P(2) = 0 (2 est racine) et Q(X) = X² − 2X − 3. Factorisation de Q : Δ = 4+12 = 16, racines 3 et −1. Factorisation complète : P(X) = (X−2)(X−3)(X+1). Le schéma de Horner est particulièrement efficace pour les polynômes de haut degré car il ne requiert que n multiplications et n additions pour évaluer P(a), contre 2n opérations pour l'évaluation naïve." },
+      {
+        title: "Introduction",
+        summary: "Les fonctions polynomiales x ↦ a₀ + a₁x + … + aₙxⁿ ont déjà été rencontrées au lycée. Dans tout ce chapitre, on travaille dans ℝ ou ℂ. Les polynômes constituent un outil fondamental en mathématiques et dans leurs applications : ils interviennent dans la modélisation de nombreux phénomènes physiques, chimiques et industriels. Ce chapitre présente la définition formelle des polynômes à coefficients dans un corps K (ℝ ou ℂ), les opérations que l'on peut leur appliquer (addition, multiplication, division), ainsi que l'étude de leurs racines et de leur factorisation.",
+        qcm: [
+          {
+            question: "Dans quelles applications du génie des procédés les polynômes interviennent-ils ? (choisir la réponse la plus complète)",
+            choices: ["Calibration de capteurs, équations d'état cubiques (Van der Waals), polynômes caractéristiques de systèmes dynamiques", "Seulement pour les intégrales numériques", "Uniquement pour les bilans matière", "Seulement pour la résolution de systèmes linéaires"],
+            answer: 0,
+            explanation: "Les polynômes sont omniprésents : ajustement de courbes de calibration (degré 2-3), équation de Van der Waals (cubique en V), polynôme caractéristique des EDO pour la stabilité."
+          },
+          {
+            question: "Que représentent les racines d'un polynôme en génie des procédés ?",
+            choices: ["Les points d'équilibre ou les pôles d'un système dynamique", "Les maxima de la fonction polynomiale", "Les coefficients de la matrice du système", "Les valeurs initiales des inconnues"],
+            answer: 0,
+            explanation: "Les racines réelles positives sont des états d'équilibre physiques ; les racines complexes à partie réelle négative indiquent un système stable."
+          }
+        ]
+      },
+      {
+        title: "Définition",
+        summary: "Un polynôme à coefficients dans K est P(X) = Σ_{k≥0} aₖXᵏ avec aₖ ∈ K, les termes étant nuls à partir d'un certain rang. Le degré est le plus grand entier n tel que aₙ ≠ 0. Par convention, le polynôme nul a pour degré −∞. Deux polynômes A et B sont égaux si et seulement si pour tout k, aₖ = bₖ (même coefficients à chaque degré). Vocabulaire : X est l'indéterminée, aₖ est le coefficient du terme de degré k, aₖXᵏ est un monôme de degré k, et K[X] désigne l'ensemble de tous les polynômes à coefficients dans K. Exemple du cours : P(X) = 1 + 3X² + 5X⁴ est de degré 4 dans ℝ[X] ; le coefficient de degré 2 est 3 ; le coefficient de degré 3 est nul (terme absent) ; le monôme de degré 4 est 5X⁴.",
+        qcm: [
+          {
+            question: "Quelle est la liste de coefficients de P(X) = 2X³ − X + 3 pour l'algorithme de Horner ?",
+            choices: ["[2, 0, −1, 3]", "[2, −1, 3]", "[2, 1, −1, 3]", "[3, −1, 0, 2]"],
+            answer: 0,
+            explanation: "Le terme X² est absent : son coefficient est 0. On écrit toujours tous les coefficients, y compris les nuls, par ordre décroissant."
+          },
+          {
+            question: "En appliquant Horner à P(X) = 2X³ − X + 3 pour X = 2, quel est P(2) ?",
+            choices: ["17", "15", "13", "21"],
+            answer: 0,
+            explanation: "b₃=2 ; b₂=2×2+0=4 ; b₁=4×2+(−1)=7 ; b₀=7×2+3=17. Vérification : 2×8−2+3=17 ✓."
+          },
+          {
+            question: "Par convention, quel est le degré d'un polynôme constant non nul, par exemple P(X) = 5 ?",
+            choices: ["0", "1", "−∞", "Indéfini"],
+            answer: 0,
+            explanation: "deg(5) = 0 car 5 = 5·X⁰. En revanche deg(0) = −∞ par convention."
+          }
+        ]
+      },
+      {
+        title: "Opérations sur polynômes",
+        summary: "Trois opérations fondamentales s'appliquent aux polynômes. Multiplication par un scalaire λ ≠ 0 : le polynôme λA a pour coefficients bₖ = λ·aₖ, et deg(λA) = deg A. Addition : le polynôme S = A + B a pour coefficients sₖ = aₖ + bₖ, et deg(S) ≤ max(deg A, deg B) (l'inégalité stricte est possible en cas d'annulations des coefficients dominants). Multiplication : le polynôme R = A·B a pour coefficients rₖ = Σ_{i+j=k} aᵢ·bⱼ, et deg(R) = deg(A) + deg(B). Pour la division, deux variantes : la division par puissances décroissantes (on ordonne par degrés décroissants et on divise comme en primaire) donne A = B·Q + R avec deg R < deg B ; B divise A si R = 0 ; cette division n'est utile que si deg A ≥ deg B. La division par puissances croissantes à l'ordre n consiste à ordonner par puissances croissantes et à s'arrêter dès que le reste est factorisable par X^{n+1} ; le degré de Q est inférieur à n ; c'est l'utilisation voulue qui impose l'ordre d'arrêt.",
+        qcm: [
+          {
+            question: "Si deg(A) = 3 et deg(B) = 2, quel est deg(A·B) ?",
+            choices: ["5", "6", "3", "2"],
+            answer: 0,
+            explanation: "deg(A·B) = deg(A) + deg(B) = 3 + 2 = 5. Le produit multiplie les degrés comme une addition."
+          },
+          {
+            question: "Qu'énonce le théorème du reste pour la division de P par (X − a) ?",
+            choices: ["Le reste est P(a)", "Le reste est P(0)", "Le reste est toujours nul", "Le reste est le coefficient dominant de P"],
+            answer: 0,
+            explanation: "P = Q·(X−a) + R avec R constante. En substituant X = a : P(a) = 0 + R → R = P(a)."
+          },
+          {
+            question: "Que signifie P(a) = 0 pour la division euclidienne de P par (X − a) ?",
+            choices: ["(X − a) divise P(X) exactement (reste nul)", "P est le polynôme nul", "a est le coefficient dominant de P", "Le quotient est nul"],
+            answer: 0,
+            explanation: "P(a) = 0 ⟺ reste = 0 ⟺ (X − a) | P(X). C'est le théorème du facteur, fondement de la factorisation."
+          }
+        ]
+      },
+      {
+        title: "Racines des polynômes et factorisation",
+        summary: "Factoriser un polynôme, c'est le mettre sous forme de PRODUIT de facteurs du type (X − nombre) ou (aX² + bX + c) avec Δ < 0 dans ℝ. Pour le second degré P(X) = aX² + bX + c : discriminant Δ = b² − 4ac ; si Δ > 0 deux racines réelles distinctes et P(X) = a(X − X₁)(X − X₂) ; si Δ = 0 racine double X₀ = −b/(2a) et P(X) = a(X − X₀)² ; si Δ < 0 pas de racine réelle. Par définition, X₀ est racine de P si P(X₀) = 0 ; dans ce cas, il existe un polynôme Q de degré n − 1 tel que P(X) = (X − X₀)·Q(X). L'ordre de multiplicité ν de X₀ est le plus grand entier tel que P soit divisible par (X − X₀)ν. Propriété : X₀ est d'ordre ν si et seulement si P(X₀) = P'(X₀) = … = P^{(ν−1)}(X₀) = 0. La somme des ordres de multiplicité est égale au degré du polynôme : Σνᵢ = n. Tout polynôme de degré ≥ 1 a au moins une racine complexe. Pour un polynôme à coefficients réels, les racines complexes sont conjuguées deux à deux. Factorisation dans ℂ : P(X) = aₙ·∏(X − Xᵢ)^νᵢ. Factorisation dans ℝ : les racines complexes conjuguées restent regroupées en facteurs irréductibles du second degré de la forme X² + |X₀|² − 2X·ℜ(X₀).",
+        qcm: [
+          {
+            question: "Pour P(X) = X² − 5X + 6, quel est le discriminant Δ ?",
+            choices: ["Δ = 1", "Δ = 4", "Δ = −1", "Δ = 25"],
+            answer: 0,
+            explanation: "Δ = b² − 4ac = 25 − 24 = 1. Racines : x = (5 ± 1)/2, soit x₁ = 3 et x₂ = 2."
+          },
+          {
+            question: "Que se passe-t-il si Δ < 0 pour un polynôme de degré 2 à coefficients réels ?",
+            choices: ["Pas de racine réelle, deux racines complexes conjuguées", "Une seule racine réelle double", "Deux racines réelles distinctes", "Le polynôme est identiquement nul"],
+            answer: 0,
+            explanation: "Δ < 0 implique √Δ imaginaire : les racines sont (−b ± i√|Δ|)/(2a), complexes conjuguées, sans partie réelle commune."
+          },
+          {
+            question: "Pour chercher les racines rationnelles de P(X) = X³ − 6X² + 11X − 6, quels candidats teste-t-on ?",
+            choices: ["±1, ±2, ±3, ±6 (diviseurs du terme constant 6)", "±1 seulement", "±6 seulement", "Tous les entiers de 0 à 6"],
+            answer: 0,
+            explanation: "Théorème des racines rationnelles : toute racine entière divise c₀ = 6. On teste ±1, ±2, ±3, ±6. Ici P(1) = 0 ✓."
+          }
+        ]
+      },
+      {
+        title: "Division euclidienne : puissances décroissantes et croissantes",
+        summary: "La division euclidienne par puissances décroissantes s'effectue en ordonnant le dividende A et le diviseur B par degrés décroissants, puis en divisant comme en primaire : on divise le terme de plus haut degré de A par celui de B pour obtenir le premier terme de Q, on soustrait, et on recommence. Le résultat est A = B·Q + R avec deg R < deg B. On dit que B divise A si R = 0. Cette division n'est pertinente que si deg A ≥ deg B. La division par puissances croissantes à l'ordre n s'effectue en ordonnant par puissances croissantes (de X⁰ vers Xⁿ). On s'arrête dès que le reste est factorisable par X^{n+1}, autrement dit dès que tous les termes du reste ont un degré supérieur à n. Le quotient Q obtenu vérifie deg Q < n. Contrairement à la division décroissante, cette division ne s'arrête a priori jamais : c'est l'utilisation prévue (développement limité, approximation à un certain ordre) qui impose l'ordre d'arrêt n.",
+        qcm: [
+          {
+            question: "Dans le schéma de Horner pour diviser P(X) par (X − a), que représente la dernière valeur du tableau ?",
+            choices: ["P(a), c'est-à-dire le reste de la division", "Le coefficient dominant du quotient", "Le degré de P", "La valeur de a²"],
+            answer: 0,
+            explanation: "La dernière valeur calculée est précisément P(a). Si P(a) = 0, a est une racine et la division est exacte."
+          },
+          {
+            question: "Pour P(X) = X³ − 4X² + X + 6 et a = 2, quels sont les coefficients du quotient Q(X) ?",
+            choices: ["1, −2, −3 donc Q(X) = X² − 2X − 3", "1, −4, 1 donc Q(X) = X² − 4X + 1", "1, 2, 3 donc Q(X) = X² + 2X + 3", "−4, 1, 6"],
+            answer: 0,
+            explanation: "Horner : b₂=1 ; b₁=1×2+(−4)=−2 ; b₀=−2×2+1=−3 ; reste=−3×2+6=0. Quotient Q(X)=X²−2X−3."
+          },
+          {
+            question: "Quel est l'avantage principal de l'algorithme de Horner par rapport à l'évaluation directe ?",
+            choices: ["Il ne nécessite que n multiplications et n additions (au lieu de ~2n)", "Il évite de trouver les racines", "Il fonctionne uniquement pour les polynômes de degré 2", "Il permet d'éviter la division euclidienne"],
+            answer: 0,
+            explanation: "Horner imbrique les multiplications : P(a) = (…((cₙ·a + cₙ₋₁)·a + …)·a + c₀, soit n multiplications et n additions exactement."
+          }
+        ]
+      },
     ],
     examples: [
       {
@@ -124,11 +371,126 @@ window.APP_DATA = {
       "Optimisation de coûts de procédés industriels",
     ],
     lessons: [
-      { title: "Fonctions de plusieurs variables", summary: "Une fonction f : D ⊂ ℝ² → ℝ associe à chaque couple (x, y) de son domaine D un nombre réel f(x, y). Le domaine de définition D est l'ensemble des (x, y) pour lesquels f est bien définie : on exclut les racines carrées de valeurs négatives (2x − y ≥ 0), les divisions par zéro (dénominateur ≠ 0), et les logarithmes de valeurs non strictement positives. Les courbes de niveau f(x, y) = c sont les ensembles de points où f est constante : isothermes si f = T(P, V), isobares si f = P(T, V), ou courbes d'équilibre chimique. En thermodynamique, P = nRT/V est une fonction de T et V ; les courbes de niveau P = const sont les isothermes de Boyle. La continuité en (x₀, y₀) exige que la limite de f(x, y) quand (x, y) → (x₀, y₀) soit indépendante du chemin d'approche, condition plus forte qu'en une variable." },
-      { title: "Dérivées partielles et équations aux dérivées partielles", summary: "La dérivée partielle ∂f/∂x en (x₀, y₀) est définie par lim_{h→0} [f(x₀+h, y₀) − f(x₀, y₀)]/h : on dérive par rapport à x en traitant y comme une constante. De même ∂f/∂y dérive par rapport à y en fixant x. Dérivées d'ordre 2 : ∂²f/∂x², ∂²f/∂y², ∂²f/∂x∂y et ∂²f/∂y∂x ; le théorème de Schwarz (ou de Clairaut) affirme que ∂²f/∂x∂y = ∂²f/∂y∂x lorsque ces dérivées secondes mixtes sont continues sur le domaine (f de classe C² sur son domaine). Le gradient ∇f = (∂f/∂x, ∂f/∂y) est le vecteur qui pointe dans la direction de plus forte montée de f, de norme ‖∇f‖. Un point critique vérifie ∇f = (0, 0) ; la matrice hessienne H = [[∂²f/∂x², ∂²f/∂x∂y], [∂²f/∂y∂x, ∂²f/∂y²]] permet de classifier : si det(H) > 0 et ∂²f/∂x² > 0 → minimum local ; si det(H) > 0 et ∂²f/∂x² < 0 → maximum local ; si det(H) < 0 → point selle. Les EDP (équations aux dérivées partielles) sont des équations impliquant les dérivées partielles d'une fonction inconnue u(x, t) : l'équation de la chaleur ∂u/∂t = k·∂²u/∂x² modélise la diffusion thermique, l'équation de transport ∂u/∂t + c·∂u/∂x = 0 décrit la propagation sans déformation. Pour vérifier qu'une fonction est solution : calculer chaque membre de l'EDP séparément et vérifier l'égalité." },
-      { title: "Différentielle totale et formule de la chaîne", summary: "La différentielle totale de f en (x, y) est df = (∂f/∂x) dx + (∂f/∂y) dy. Elle représente la variation linéaire approchée de f pour de petits déplacements (dx, dy). En thermodynamique, cela s'écrit dP = (∂P/∂T)_V dT + (∂P/∂V)_T dV : la variation de pression dépend des variations de T et V pondérées par leurs dérivées partielles. Si x = x(t) et y = y(t) dépendent d'un paramètre t (règle de la chaîne) : df/dt = (∂f/∂x)·(dx/dt) + (∂f/∂y)·(dy/dt). Plus généralement, si x et y dépendent de (u, v) : ∂f/∂u = (∂f/∂x)·(∂x/∂u) + (∂f/∂y)·(∂y/∂u). Application clé : pour un mélange dont la composition xᵢ varie au cours du temps, la variation de l'enthalpie H(T, P, xᵢ) s'écrit dH/dt = (∂H/∂T)·(dT/dt) + (∂H/∂P)·(dP/dt) + Σᵢ (∂H/∂xᵢ)·(dxᵢ/dt). La condition d'exactitude d'une différentielle totale M dx + N dy est ∂M/∂y = ∂N/∂x (théorème de Schwarz), ce qui permet de vérifier si une grandeur physique est une fonction d'état (dH exacte : ∂Cp/∂P = −T·∂²V/∂T²)." },
-      { title: "Intégrales multiples", summary: "L'intégrale double ∬_D f(x, y) dA mesure le volume sous la surface z = f(x, y) au-dessus de la région D dans le plan xy. Le théorème de Fubini permet de l'évaluer comme intégrales itérées : ∬_D f dA = ∫_a^b (∫_{g(x)}^{h(x)} f(x, y) dy) dx. Toujours préciser l'ordre d'intégration (dy dx ou dx dy) et les bornes ; pour un domaine rectangulaire [a,b]×[c,d] les bornes sont toutes constantes. Pour un domaine triangulaire ou général, les bornes de l'intégrale intérieure dépendent de la variable extérieure. Changer l'ordre d'intégration : redessiner la région D, identifier les nouvelles bornes. Applications : masse = ∬_D ρ(x,y) dA où ρ est la densité surfacique ; valeur moyenne f̄ = (1/Aire(D))·∬_D f dA ; coordonnées du centre de masse (x̄, ȳ) = (1/M)·(∬xρ dA, ∬yρ dA). En génie des procédés, les intégrales doubles servent au calcul de flux de chaleur sur des surfaces d'échange et à l'intégration de distributions spatiales de concentration." },
-      { title: "Optimisation et extrema de fonctions de deux variables", summary: "Trouver les extrema de f(x, y) se fait en trois étapes. (1) Points critiques : résoudre le système ∂f/∂x = 0 et ∂f/∂y = 0 simultanément. (2) Classification via la hessienne H en chaque point critique : calculer D = det(H) = (∂²f/∂x²)(∂²f/∂y²) − (∂²f/∂x∂y)². Si D > 0 et ∂²f/∂x² > 0 → minimum local ; D > 0 et ∂²f/∂x² < 0 → maximum local ; D < 0 → col (point-selle, ni max ni min) ; D = 0 → test non concluant. (3) Optimisation sous contrainte : la méthode des multiplicateurs de Lagrange s'applique quand on cherche le min/max de f(x, y) sous la contrainte g(x, y) = c. On pose L(x, y, λ) = f − λ·(g − c) et on résout ∂L/∂x = 0, ∂L/∂y = 0, ∂L/∂λ = 0, ce qui donne ∇f = λ·∇g et g = c. En génie des procédés, l'optimisation sous contrainte modélise le problème : maximiser le rendement d'un réacteur f(T, P) sous la contrainte de coût g(T, P) = budget ou de sécurité (T ≤ T_max)." },
+      {
+        title: "Exemple introductif et définition des fonctions de plusieurs variables",
+        summary: "Exemple introductif : le volume V d'un gaz parfait est donné par V = nRT/P, qui est une fonction de trois variables n, T et P. On écrit formellement V : ℝ₊³ → ℝ₊, (n, T, P) ↦ nRT/P. Définition générale : une fonction de n variables est une application f : E → F dont le domaine de définition D = D₁ × D₂ × … × Dₙ est un produit cartésien. La représentation graphique d'une fonction de 2 variables est une surface dans ℝ³ : à chaque point (x ; y) du domaine on associe un point (x ; y ; z = f(x ; y)) dans l'espace tridimensionnel.",
+        qcm: [
+          {
+            question: "Quel est le domaine de définition de f(x, y) = ln(x + y) ?",
+            choices: ["x + y > 0 (demi-plan strictement positif)", "x > 0 et y > 0 séparément", "x + y ≥ 0", "Tous les (x, y) ∈ ℝ²"],
+            answer: 0,
+            explanation: "Le logarithme est défini uniquement pour des valeurs strictement positives. Il faut donc x + y > 0."
+          },
+          {
+            question: "Que représentent les courbes de niveau f(x, y) = c pour f = P(T, V) = nRT/V ?",
+            choices: ["Des isothermes (T constant), appelées isothermes de Boyle", "Des isobares (P constant)", "Des isochores (V constant)", "Des courbes de chaleur spécifique"],
+            answer: 0,
+            explanation: "Les courbes de niveau de P(T,V) = const correspondent à T constant : ce sont les isothermes de Boyle PV = const."
+          },
+          {
+            question: "En combien de dimensions vit le graphe d'une fonction f(x, y) ?",
+            choices: ["3 dimensions (surface dans ℝ³)", "2 dimensions (courbe dans ℝ²)", "4 dimensions", "1 dimension"],
+            answer: 0,
+            explanation: "f associe à chaque point (x, y) du plan ℝ² une valeur z = f(x,y) : le graphe est une surface dans ℝ³."
+          }
+        ]
+      },
+      {
+        title: "Dérivées partielles d'ordre 1 et d'ordres supérieurs",
+        summary: "La dérivée partielle ∂f/∂xᵢ est obtenue en dérivant f par rapport à xᵢ en gardant toutes les autres variables constantes. Sa définition par limite est : ∂f/∂xᵢ = lim_{h→0} [f(…, xᵢ + h, …) − f(…, xᵢ, …)] / h. La notation ∂f/∂xᵢ|_{xⱼ, j≠i} rappelle que les autres variables sont fixées. Attention : pour une fonction d'une seule variable, on écrit df/dx et non ∂f/∂x. Les dérivées d'ordre supérieur se calculent à partir des dérivées d'ordre précédent : on définit ∂²f/∂x², ∂²f/∂y², ∂²f/∂x∂y et ∂²f/∂y∂x. Résultat fondamental : ∂²f/∂y∂x = ∂²f/∂x∂y toujours (les dérivées mixtes sont égales). De même, les dérivées d'ordre n se calculent à partir des dérivées d'ordre n − 1.",
+        qcm: [
+          {
+            question: "Comment calcule-t-on ∂f/∂x pour f(x, y) = 3x²y + y³ ?",
+            choices: ["On dérive par rapport à x en traitant y comme une constante : ∂f/∂x = 6xy", "On dérive par rapport aux deux variables simultanément", "On pose y = 0 puis on dérive", "∂f/∂x = 3x² + 3y²"],
+            answer: 0,
+            explanation: "∂f/∂x = 6xy (y est une constante). De même ∂f/∂y = 3x² + 3y²."
+          },
+          {
+            question: "Qu'affirme le théorème de Schwarz sur les dérivées mixtes ?",
+            choices: ["∂²f/∂x∂y = ∂²f/∂y∂x si f est de classe C²", "∂f/∂x = ∂f/∂y en tout point", "Les dérivées partielles d'ordre 2 sont toujours nulles", "On ne peut pas dériver deux fois en variables différentes"],
+            answer: 0,
+            explanation: "Si f est suffisamment régulière (C²), l'ordre de dérivation n'a pas d'importance : on peut dériver d'abord par rapport à x puis y, ou l'inverse."
+          },
+          {
+            question: "Que modélise l'équation aux dérivées partielles ∂u/∂t = k·∂²u/∂x² ?",
+            choices: ["La diffusion thermique (équation de la chaleur)", "La propagation d'une onde sonore", "Un bilan matière en régime permanent", "La loi de Van der Waals"],
+            answer: 0,
+            explanation: "L'équation de la chaleur décrit comment la température u(x,t) évolue au cours du temps par diffusion thermique dans un milieu."
+          }
+        ]
+      },
+      {
+        title: "Différentielle d'une fonction de plusieurs variables",
+        summary: "La différentielle d'une fonction f de n variables est df = Σᵢ (∂f/∂xᵢ) dxᵢ = (∂f/∂x₁) dx₁ + (∂f/∂x₂) dx₂ + … + (∂f/∂xₙ) dxₙ. Elle représente la variation infinitésimale de f résultant des variations infinitésimales dxᵢ de chaque variable. Autrement dit, df donne l'approximation linéaire de la variation de f lorsque chaque variable subit une petite variation dxᵢ, la contribution de chaque variable étant pondérée par la dérivée partielle correspondante.",
+        qcm: [
+          {
+            question: "Quelle est l'expression de la différentielle totale df de f(x, y) ?",
+            choices: ["df = (∂f/∂x) dx + (∂f/∂y) dy", "df = ∂f/∂x + ∂f/∂y", "df = f(x+dx, y+dy)", "df = (∂²f/∂x²) dx² + (∂²f/∂y²) dy²"],
+            answer: 0,
+            explanation: "La différentielle totale donne la variation linéaire approchée de f pour de petits déplacements (dx, dy)."
+          },
+          {
+            question: "Si x = x(t) et y = y(t), comment s'écrit df/dt (règle de la chaîne) ?",
+            choices: ["df/dt = (∂f/∂x)(dx/dt) + (∂f/∂y)(dy/dt)", "df/dt = ∂f/∂t", "df/dt = (∂f/∂x)·(∂f/∂y)", "df/dt = dx/dt + dy/dt"],
+            answer: 0,
+            explanation: "La règle de la chaîne généralise la dérivation en chaîne : chaque variable contribue selon sa dérivée partielle fois sa vitesse de variation."
+          },
+          {
+            question: "Quelle est la condition d'exactitude de la différentielle M(x,y) dx + N(x,y) dy ?",
+            choices: ["∂M/∂y = ∂N/∂x", "M = N", "∂M/∂x = ∂N/∂y", "M·N = 0"],
+            answer: 0,
+            explanation: "Par le théorème de Schwarz, si ∂M/∂y = ∂N/∂x, la forme différentielle est exacte : elle dérive d'une fonction potentiel (fonction d'état en thermodynamique)."
+          }
+        ]
+      },
+      {
+        title: "Équations aux dérivées partielles (EDP)",
+        summary: "Une EDP est une équation faisant intervenir les dérivées partielles d'une fonction inconnue. Exemples du cours : (1) ∂²f/∂x² = 0 avec ∂²f/∂x∂y = 3y², f(1,0) = 0 et f(0,0) = 1 ; (2) ∂f/∂x = 2xy + y² et ∂f/∂y = x² + 2xy avec f(0,0) = 3 ; (3) ∂²f/∂x² + f(x,y) = 0 et ∂f/∂y = cos(x) avec f(0,0) = 3. Application importante : la fonction T(x,t) = T₀ e^{−αx} sin(ωt − αx) avec α = √(ωρc / 2λ) vérifie l'équation de la chaleur ∂²T/∂x² = (ρc/λ) ∂T/∂t. Cette équation modélise la diffusion thermique dans un milieu (par exemple, la propagation des variations de température dans le sol en fonction de la profondeur x et du temps t).",
+        qcm: [
+          {
+            question: "Qu'est-ce qui distingue une EDP d'une EDO classique ?",
+            choices: ["Une EDP fait intervenir des dérivées partielles par rapport à plusieurs variables indépendantes", "Une EDP n'a pas de solution", "Une EDP est linéaire par définition", "Une EDP concerne uniquement les fonctions d'une variable"],
+            answer: 0,
+            explanation: "Dans une EDO, l'inconnue dépend d'une seule variable. Dans une EDP, l'inconnue (ex. T(x,t)) dépend de plusieurs variables indépendantes et l'équation fait intervenir ses dérivées partielles."
+          },
+          {
+            question: "L'équation de la chaleur ∂T/∂t = k·∂²T/∂x² modélise :",
+            choices: ["La diffusion thermique : comment la température T(x,t) évolue dans le temps par conduction", "La propagation d'une onde sonore", "L'équation d'état des gaz parfaits", "Un bilan matière en régime stationnaire"],
+            answer: 0,
+            explanation: "L'équation de la chaleur est une EDP du 2ème ordre en espace et du 1er ordre en temps. Elle décrit comment une distribution de température diffuse dans un milieu au cours du temps."
+          },
+          {
+            question: "Pour résoudre ∂f/∂x = 2xy + y², on intègre par rapport à x en traitant y comme une constante. Le résultat est :",
+            choices: ["f(x, y) = x²y + xy² + C(y), où C(y) est une fonction arbitraire de y", "f(x, y) = x²y + xy² + C (constante)", "f(x, y) = 2y + 0 (on dérive par rapport à x uniquement)", "f(x, y) = x² + y²"],
+            answer: 0,
+            explanation: "En intégrant par rapport à x, y est constante : ∫(2xy + y²)dx = x²y + xy² + C(y). La constante d'intégration peut être une fonction quelconque de y, à déterminer via la deuxième condition."
+          }
+        ]
+      },
+      {
+        title: "Intégrales multiples",
+        summary: "Pour calculer une intégrale multiple I = ∫∫…∫ f(x₁ ; … ; xₙ) dxₙ … dx₁, on intègre successivement par rapport à chaque variable en gardant les autres constantes. On commence par intégrer selon xₙ, ce qui donne une fonction g(x₁, …, xₙ₋₁), puis on intègre selon xₙ₋₁, et ainsi de suite. L'ordre d'intégration n'a pas d'importance : le résultat est le même quelle que soit la variable par laquelle on commence. Exemple du cours : ∫₀¹ ∫₀^π ∫₋₁² x z² sin(y) dz dy dx — on intègre d'abord selon z, puis selon y, puis selon x. Application : le calcul de l'aire d'un disque de rayon R par intégrale double en coordonnées polaires donne A = ∫₀ᴿ ∫₀^{2π} r dr dθ = πR².",
+        qcm: [
+          {
+            question: "Quel théorème permet d'évaluer une intégrale double comme deux intégrales simples successives ?",
+            choices: ["Le théorème de Fubini : ∬_D f dA = ∫_a^b (∫_{g(x)}^{h(x)} f dy) dx", "Le théorème de Schwarz sur les dérivées mixtes", "Le théorème de Gauss-Jordan", "Le théorème des accroissements finis"],
+            answer: 0,
+            explanation: "Fubini autorise de décomposer une intégrale double en deux intégrales simples imbriquées. On intègre d'abord par rapport à la variable intérieure en fixant l'autre, puis on intègre le résultat."
+          },
+          {
+            question: "Pour calculer ∫₀¹ ∫₀^π x·sin(y) dy dx, quelle est la bonne démarche ?",
+            choices: ["Intégrer d'abord par rapport à y (variable intérieure) en traitant x comme une constante, puis intégrer le résultat par rapport à x", "Intégrer simultanément par rapport aux deux variables", "Calculer ∂(x·sin y)/∂x d'abord", "Poser u = x·sin y et changer de variable"],
+            answer: 0,
+            explanation: "On applique Fubini : ∫₀¹ [∫₀^π x·sin(y) dy] dx = ∫₀¹ x·[−cos(y)]₀^π dx = ∫₀¹ 2x dx = [x²]₀¹ = 1."
+          },
+          {
+            question: "En coordonnées polaires (r, θ), l'aire du disque de rayon R se calcule par ∬ r dr dθ. Le résultat est :",
+            choices: ["A = πR² (en intégrant r de 0 à R et θ de 0 à 2π)", "A = 2πR", "A = R²", "A = 4πR²"],
+            answer: 0,
+            explanation: "∫₀^{2π} ∫₀^R r dr dθ = 2π · [r²/2]₀^R = 2π · R²/2 = πR². Le jacobien de la transformation polaire est r, d'où le facteur r dans l'intégrale."
+          }
+        ]
+      },
     ],
     examples: [
       {
@@ -187,11 +549,126 @@ window.APP_DATA = {
       "Analyse de stabilité par position des pôles",
     ],
     lessons: [
-      { title: "Fractions rationnelles", summary: "Une fraction rationnelle est un quotient F(X) = P(X)/Q(X) où P, Q ∈ ℝ[X] (polynômes à coefficients réels) et Q ≢ 0. F est dite propre (ou strictement propre) si deg P < deg Q — condition nécessaire pour la DES directe — et impropre si deg P ≥ deg Q. Dans le cas impropre, la division euclidienne de P par Q donne P = Q₀·Q + R avec deg R < deg Q, soit F(X) = Q₀(X) + R(X)/Q(X) : Q₀ est la partie entière (polynôme) et R/Q la partie propre (sur laquelle on applique la DES). Les pôles de F sont les racines du dénominateur Q(X) : un pôle d'ordre m est une racine de multiplicité m de Q. La multiplicité m détermine la forme des éléments simples correspondants. Exemple : F(X) = (X²+1)/(X²−1) est impropre (degrés égaux). Division : X²+1 = 1·(X²−1) + 2 → F(X) = 1 + 2/((X−1)(X+1)). Pôles simples : X = 1 et X = −1 (chacun d'ordre 1)." },
-      { title: "Décomposition en éléments simples des fractions rationnelles", summary: "Étape 1 : s'assurer que F est propre (sinon, effectuer la division euclidienne). Étape 2 : factoriser complètement le dénominateur Q(X) sur ℝ. Étape 3 : selon la nature de chaque facteur, écrire la forme de la décomposition. (a) Racine simple r de Q : terme A/(X−r), coefficient A = lim_{X→r} (X−r)·F(X) (méthode de couverture ou résidu). (b) Racine double r : termes A/(X−r) + B/(X−r)², coefficient B = lim_{X→r} (X−r)²·F(X) et A obtenu par dérivation ou identification. (c) Facteur quadratique irréductible X²+pX+q (Δ < 0) : terme (AX+B)/(X²+pX+q), coefficients A et B trouvés par identification des puissances de X après mise au même dénominateur. Étape 4 : toujours vérifier en recombinant sur le dénominateur commun et en comparant avec F(X). L'identification par valeurs particulières (substituer des valeurs simples de X) accélère les calculs." },
-      { title: "Primitives des fractions rationnelles réelles", summary: "Après décomposition en éléments simples, intégrer terme à terme. Pour une racine simple r : ∫ A/(X−r) dX = A·ln|X−r| + C. Pour une racine double r : ∫ B/(X−r)² dX = −B/(X−r) + C. Pour un facteur irréductible (X−α)²+β² : compléter le carré, écrire le numérateur AX+B = A(X−α) + (Aα+B) = A(X−α) + Bβ·(β), puis séparer en deux parties : ∫ A(X−α)/((X−α)²+β²) dX = (A/2)·ln((X−α)²+β²) + C et ∫ Bβ/((X−α)²+β²) dX = B·arctan((X−α)/β) + C. Connexion à la transformée de Laplace : L{e^(at)·1(t)} = 1/(s−a) pour s > a ; donc L⁻¹{A/(s−r)} = A·e^(rt)·1(t). Pour des pôles complexes conjugués α ± βi : L⁻¹{(s−α)/((s−α)²+β²)} = e^(αt)·cos(βt) et L⁻¹{β/((s−α)²+β²)} = e^(αt)·sin(βt). La décomposition en éléments simples est donc le pont entre le calcul polynomial et l'analyse temporelle des systèmes dynamiques." },
-      { title: "Transformée de Laplace — définition et propriétés", summary: "La transformée de Laplace d'une fonction causale f(t) (définie pour t ≥ 0) est F(s) = L{f(t)} = ∫₀^+∞ f(t)·e^(−st) dt, où s ∈ ℂ est la variable de Laplace. Transformées usuelles à connaître : L{1(t)} = 1/s ; L{t} = 1/s² ; L{tⁿ} = n!/s^(n+1) ; L{e^(at)} = 1/(s−a) ; L{sin(ωt)} = ω/(s²+ω²) ; L{cos(ωt)} = s/(s²+ω²). Propriétés fondamentales : (1) Linéarité : L{af+bg} = aF+bG. (2) Dérivation : L{f'(t)} = s·F(s) − f(0⁺), L{f''(t)} = s²F(s) − sf(0⁺) − f'(0⁺). Cette propriété est la raison principale de l'utilisation de Laplace : elle transforme les EDO en équations algébriques. (3) Décalage en s (amortissement) : L{e^(at)·f(t)} = F(s−a). (4) Valeur initiale : lim_{t→0⁺} f(t) = lim_{s→+∞} s·F(s). (5) Valeur finale : lim_{t→+∞} f(t) = lim_{s→0} s·F(s) (si la limite existe, c.-à-d. si tous les pôles de sF(s) sont à partie réelle strictement négative). En génie des procédés, la transformée de Laplace permet de calculer la réponse temporelle d'un procédé décrit par une EDO : Laplace → algèbre → DES → Laplace inverse → f(t)." },
-      { title: "Analyse fréquentielle et stabilité des procédés", summary: "La fonction de transfert d'un système linéaire est G(s) = Y(s)/U(s), rapport de la sortie Y sur l'entrée U dans le domaine de Laplace. Pour un système du 1ᵉʳ ordre : G(s) = K/(τs+1), avec K le gain statique et τ la constante de temps. Réponse indicielle (entrée échelon U(s) = 1/s) : Y(s) = K/(s(τs+1)) → y(t) = K(1 − e^(−t/τ)). Pour un système du 2ᵉ ordre standard : G(s) = ωₙ²/(s²+2ζωₙs+ωₙ²) avec ωₙ la pulsation naturelle et ζ le facteur d'amortissement. Régimes : ζ > 1 sur-amorti (2 pôles réels négatifs, pas d'oscillation) ; ζ = 1 amortissement critique (pôle double) ; 0 < ζ < 1 sous-amorti (pôles complexes conjugués, oscillations amorties) ; ζ = 0 oscillant permanent ; ζ < 0 instable. Critère de stabilité : le système est stable si et seulement si tous les pôles de G(s) ont une partie réelle strictement négative (pôles dans le demi-plan gauche). La DES est l'outil central pour calculer la réponse temporelle : inverser Y(s) = G(s)·U(s) par décomposition en éléments simples puis inversion terme à terme." },
+      {
+        title: "Fractions rationnelles",
+        summary: "Une fraction rationnelle est un quotient F(X) = N(X)/D(X) où N est le numérateur et D le dénominateur (D est un polynôme non nul). Exemples : X²/(3X + 1), 1/((X − 2)(X + 3)), X³/(X⁷ + X⁴ − 1). Opérations : l'addition s'effectue en mettant au même dénominateur ; la multiplication donne N₁N₂/D₁D₂ ; la simplification est possible si N et D ont une racine commune R : on écrit N = Ñ·R et D = D̃·R pour obtenir F = Ñ/D̃ ; une fraction est irréductible s'il n'existe plus de racine commune. Partie entière E(X) et reste R(X) : on effectue la division euclidienne N = D·E + R avec deg R < deg D, ce qui donne F = E + R/D. Si deg N < deg D, alors E = 0. Si deg N = deg D, alors E est une constante égale à lim_{X→∞} F(X). Pôles : Y₀ est pôle de F irréductible si D(Y₀) = 0 et N(Y₀) ≠ 0 ; si Y₀ est racine de D d'ordre α, alors Y₀ est pôle d'ordre α.",
+        qcm: [
+          {
+            question: "F(X) = P(X)/Q(X) est dite propre quand :",
+            choices: ["deg P < deg Q", "deg P = deg Q", "deg P > deg Q", "Q est constant"],
+            answer: 0,
+            explanation: "Une fraction propre (strictement propre) vérifie deg P < deg Q. C'est la condition pour appliquer directement la DES sans division préalable."
+          },
+          {
+            question: "Pour F(X) = (X²+1)/(X²−1), que faut-il faire avant la DES ?",
+            choices: ["Effectuer la division euclidienne pour extraire la partie entière", "Factoriser le numérateur", "Chercher les racines de X²+1", "Rien, on peut décomposer directement"],
+            answer: 0,
+            explanation: "deg(num) = deg(dén) = 2 → fraction impropre. Division : X²+1 = 1·(X²−1) + 2, soit F = 1 + 2/(X²−1). On applique la DES à la partie propre 2/((X−1)(X+1))."
+          },
+          {
+            question: "Que sont les pôles d'une fraction rationnelle F(X) = P(X)/Q(X) ?",
+            choices: ["Les racines du dénominateur Q(X)", "Les racines du numérateur P(X)", "Les valeurs où F(X) = 0", "Les coefficients de Q"],
+            answer: 0,
+            explanation: "Les pôles sont les valeurs de X qui annulent Q(X). Un pôle d'ordre m correspond à une racine de multiplicité m de Q."
+          }
+        ]
+      },
+      {
+        title: "Décomposition en éléments simples des fractions rationnelles",
+        summary: "La décomposition en éléments simples (DES) suit quatre étapes. Étape 1 — déterminer la partie entière (effectuer la division euclidienne si deg N ≥ deg D). Étape 2 — factoriser le dénominateur dans ℝ ou ℂ. Étape 3 — poser la forme générale de la DES selon la nature des pôles et leurs multiplicités : à chaque facteur (X − X₀)ⁿ on associe n termes A₁/(X − X₀) + A₂/(X − X₀)² + … + Aₙ/(X − X₀)ⁿ ; à chaque facteur irréductible (X² + pX + q)ⁿ dans ℝ on associe n termes (a₁X + b₁)/(X² + pX + q) + … + (aₙX + bₙ)/(X² + pX + q)ⁿ. Étape 4 — déterminer les coefficients par trois méthodes : (a) résidus : pour un pôle simple a, le coefficient est A = (X − a)·F(X)|_{X=a} ; (b) valeurs particulières : substituer des valeurs de X qui ne sont pas des pôles ; (c) division par puissances croissantes pour les pôles multiples : poser h = X − a, développer N(a + h)/D(a + h) par puissances croissantes. Lien ℂ↔ℝ : pour les pôles complexes conjugués Z₁ et Z₂, les coefficients réels a et b des termes de 2ᵉ espèce s'obtiennent via a = A + B et b = −(AZ₁ + BZ₂) où A et B sont les résidus complexes.",
+        qcm: [
+          {
+            question: "Quelle est la 1ère étape de la décomposition en éléments simples ?",
+            choices: ["Vérifier que F est propre (deg P < deg Q)", "Factoriser le numérateur", "Identifier les coefficients par valeurs particulières", "Calculer la dérivée de F"],
+            answer: 0,
+            explanation: "On doit d'abord s'assurer que la fraction est propre. Si elle est impropre, on effectue la division euclidienne pour extraire la partie entière."
+          },
+          {
+            question: "Pour une racine simple r de Q, comment calcule-t-on le résidu A par la méthode de couverture ?",
+            choices: ["A = [(X−r)·F(X)] évalué en X = r", "A = F(r)", "A = F'(r)", "A = Q'(r)"],
+            answer: 0,
+            explanation: "On multiplie F par (X−r) — ce qui couvre le facteur (X−r) au dénominateur — puis on évalue en X = r : A = lim_{X→r}(X−r)·F(X)."
+          },
+          {
+            question: "Quel terme de décomposition correspond à un facteur quadratique irréductible X²+pX+q (Δ < 0) ?",
+            choices: ["(AX + B)/(X²+pX+q)", "A/(X²+pX+q)", "A/(X−r₁) + A/(X−r₂) avec r₁,r₂ complexes", "A·X + B"],
+            answer: 0,
+            explanation: "Un facteur irréductible du second degré donne un terme de la forme (AX+B)/(X²+pX+q). On trouve A et B par identification."
+          }
+        ]
+      },
+      {
+        title: "Primitives des fractions rationnelles réelles",
+        summary: "Pour calculer la primitive d'une fraction rationnelle, on effectue toujours d'abord la DES, puis on intègre terme à terme. Éléments de 1ʳᵉ espèce A/(X − a)ⁿ : si n = 1, la primitive est A·ln|X − a| + cste ; si n > 1, la primitive est −A / ((n−1)(X − a)^{n−1}) + cste. Éléments de 2ᵉ espèce (aX + b)/(X² + pX + q) avec X² + pX + q irréductible dans ℝ (Δ < 0) : on décompose l'intégrale en I = (a/2)·I₁ + (b − ap/2)·I₂ où I₁ = ln|X² + pX + q| et I₂ = (1/δ)·arctan((X + p/2)/δ) avec δ = √(q − (p/2)²) > 0. La formule résumée est : ∫ (at + b)/(t² + pt + q) dt = (a/2) ln|X² + pX + q| + (b − ap/2)/δ · arctan((X + p/2)/δ) + cste.",
+        qcm: [
+          {
+            question: "Quelle est la primitive de A/(X − r) ?",
+            choices: ["A·ln|X − r| + C", "A/(X − r)² + C", "A·e^(X−r) + C", "A·arctan(X − r) + C"],
+            answer: 0,
+            explanation: "C'est la primitive fondamentale de 1/(X−r). Elle apparaît chaque fois qu'on intègre un terme issu d'un pôle simple."
+          },
+          {
+            question: "Quelle est la primitive de B/(X − r)² (pôle double) ?",
+            choices: ["−B/(X − r) + C", "B·ln|X − r| + C", "2B/(X − r)³ + C", "B·(X−r) + C"],
+            answer: 0,
+            explanation: "∫(X−r)^(−2) dX = (X−r)^(−1)/(−1) = −1/(X−r). Donc ∫B/(X−r)² dX = −B/(X−r) + C."
+          },
+          {
+            question: "En transformée de Laplace inverse, L⁻¹{A/(s − r)} vaut :",
+            choices: ["A·e^(rt) pour t ≥ 0", "A·r·t", "A·e^(−rt)", "A·sin(rt)"],
+            answer: 0,
+            explanation: "L{e^(rt)} = 1/(s−r), donc L⁻¹{A/(s−r)} = A·e^(rt)·1(t). Si r < 0, ce terme s'amortit (stable)."
+          }
+        ]
+      },
+      {
+        title: "Transformée de Laplace — définition et propriétés",
+        summary: "La transformée de Laplace d'une fonction causale f(t) (définie pour t ≥ 0) est F(s) = L{f(t)} = ∫₀^+∞ f(t)·e^(−st) dt, où s ∈ ℂ est la variable de Laplace. Transformées usuelles à connaître : L{1(t)} = 1/s ; L{t} = 1/s² ; L{tⁿ} = n!/s^(n+1) ; L{e^(at)} = 1/(s−a) ; L{sin(ωt)} = ω/(s²+ω²) ; L{cos(ωt)} = s/(s²+ω²). Propriétés fondamentales : (1) Linéarité : L{af+bg} = aF+bG. (2) Dérivation : L{f'(t)} = s·F(s) − f(0⁺), L{f''(t)} = s²F(s) − sf(0⁺) − f'(0⁺). Cette propriété est la raison principale de l'utilisation de Laplace : elle transforme les EDO en équations algébriques. (3) Décalage en s (amortissement) : L{e^(at)·f(t)} = F(s−a). (4) Valeur initiale : lim_{t→0⁺} f(t) = lim_{s→+∞} s·F(s). (5) Valeur finale : lim_{t→+∞} f(t) = lim_{s→0} s·F(s) (si la limite existe, c.-à-d. si tous les pôles de sF(s) sont à partie réelle strictement négative). En génie des procédés, la transformée de Laplace permet de calculer la réponse temporelle d'un procédé décrit par une EDO : Laplace → algèbre → DES → Laplace inverse → f(t).",
+        qcm: [
+          {
+            question: "Quelle est la transformée de Laplace de e^(at) ?",
+            choices: ["1/(s − a) pour s > a", "1/(s + a)", "a/(s² + a²)", "s/(s² + a²)"],
+            answer: 0,
+            explanation: "C'est une transformée fondamentale à connaître : L{e^(at)} = 1/(s−a). Elle est valable pour s > a (convergence de l'intégrale)."
+          },
+          {
+            question: "Quel est le principal avantage de la transformée de Laplace pour résoudre des EDO ?",
+            choices: ["Elle transforme les EDO en équations algébriques (plus simples à résoudre)", "Elle élimine les conditions initiales", "Elle transforme les intégrales en dérivées", "Elle s'applique seulement aux fonctions constantes"],
+            answer: 0,
+            explanation: "La propriété de dérivation L{f'(t)} = s·F(s) − f(0⁺) transforme chaque dérivée en multiplication par s. L'EDO devient une équation algébrique en F(s)."
+          },
+          {
+            question: "Comment calcule-t-on la valeur finale lim_{t→+∞} f(t) à partir de F(s) ?",
+            choices: ["lim_{s→0} s·F(s) (théorème de la valeur finale)", "lim_{s→+∞} s·F(s)", "lim_{s→0} F(s)", "F(0)"],
+            answer: 0,
+            explanation: "Théorème de la valeur finale : lim_{t→∞} f(t) = lim_{s→0} s·F(s), applicable si tous les pôles de sF(s) sont à partie réelle négative."
+          }
+        ]
+      },
+      {
+        title: "Analyse fréquentielle et stabilité des procédés",
+        summary: "La fonction de transfert d'un système linéaire est G(s) = Y(s)/U(s), rapport de la sortie Y sur l'entrée U dans le domaine de Laplace. Pour un système du 1ᵉʳ ordre : G(s) = K/(τs+1), avec K le gain statique et τ la constante de temps. Réponse indicielle (entrée échelon U(s) = 1/s) : Y(s) = K/(s(τs+1)) → y(t) = K(1 − e^(−t/τ)). Pour un système du 2ᵉ ordre standard : G(s) = ωₙ²/(s²+2ζωₙs+ωₙ²) avec ωₙ la pulsation naturelle et ζ le facteur d'amortissement. Régimes : ζ > 1 sur-amorti (2 pôles réels négatifs, pas d'oscillation) ; ζ = 1 amortissement critique (pôle double) ; 0 < ζ < 1 sous-amorti (pôles complexes conjugués, oscillations amorties) ; ζ = 0 oscillant permanent ; ζ < 0 instable. Critère de stabilité : le système est stable si et seulement si tous les pôles de G(s) ont une partie réelle strictement négative (pôles dans le demi-plan gauche). La DES est l'outil central pour calculer la réponse temporelle : inverser Y(s) = G(s)·U(s) par décomposition en éléments simples puis inversion terme à terme.",
+        qcm: [
+          {
+            question: "Un système est stable si et seulement si :",
+            choices: ["Tous les pôles de G(s) ont une partie réelle strictement négative", "Le gain statique K > 0", "Les pôles sont réels", "La fonction de transfert est propre"],
+            answer: 0,
+            explanation: "Critère de stabilité BIBO : pôles dans le demi-plan gauche ouvert (Re(pôle) < 0). Tout pôle à partie réelle positive ou nulle rend le système instable ou marginalement stable."
+          },
+          {
+            question: "Pour un système du 2ᵉ ordre avec ζ > 1, quel est le régime de réponse ?",
+            choices: ["Sur-amorti : 2 pôles réels négatifs, pas d'oscillation", "Sous-amorti : oscillations amorties", "Amortissement critique : pôle double", "Instable : oscillations croissantes"],
+            answer: 0,
+            explanation: "ζ > 1 → discriminant positif → 2 pôles réels distincts négatifs → réponse exponentielle décroissante sans oscillation."
+          },
+          {
+            question: "Quelle est la réponse indicielle (échelon) d'un système du 1ᵉʳ ordre G(s) = K/(τs+1) ?",
+            choices: ["y(t) = K(1 − e^(−t/τ))", "y(t) = K·e^(−t/τ)", "y(t) = K·t·e^(−t/τ)", "y(t) = K·sin(t/τ)"],
+            answer: 0,
+            explanation: "Y(s) = K/(s(τs+1)) → DES → K/s − Kτ/(τs+1) → inversion → y(t) = K(1 − e^(−t/τ)). La réponse tend vers K en régime permanent."
+          }
+        ]
+      },
     ],
     examples: [
       {

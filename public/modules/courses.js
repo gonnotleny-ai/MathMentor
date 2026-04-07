@@ -6,6 +6,33 @@ import { apiRequest } from './api.js';
 
 let _coursesSemesterFilter = "S2";
 
+// ── Progression séquentielle des leçons ──────────────────────────────────────
+// maxUnlocked[courseCode] = index de la première leçon non encore validée
+const _lessonProgress = new Map();
+
+function getMaxUnlocked(courseCode) {
+  return _lessonProgress.get(courseCode) ?? 0;
+}
+function setMaxUnlocked(courseCode, index) {
+  _lessonProgress.set(courseCode, index);
+}
+
+// Mélange l'ordre des questions ET l'ordre des propositions dans chaque question.
+// Met à jour l'index `answer` en conséquence pour que la correction reste cohérente.
+function shuffleQcm(qcm) {
+  if (!Array.isArray(qcm) || !qcm.length) return [];
+  return [...qcm].sort(() => Math.random() - 0.5).map(q => {
+    const n = q.choices.length;
+    const perm = [...Array(n).keys()].sort(() => Math.random() - 0.5);
+    return {
+      question: q.question,
+      choices: perm.map(i => q.choices[i]),
+      answer: perm.indexOf(q.answer),
+      explanation: q.explanation || '',
+    };
+  });
+}
+
 export function getCourseOrigin(course) {
   const source = String(course?.source || "").toLowerCase();
   const id = String(course?.id || "");
@@ -107,6 +134,81 @@ function renderExamplesHtml(examples) {
   `;
 }
 
+// ── Rendu d'une leçon selon son état ─────────────────────────────────────────
+
+function lessonActiveInnerHtml(lesson, lessonIndex, courseCode, savedNote) {
+  const shuffledQcm = shuffleQcm(lesson.qcm || []);
+  const qcmHtml = renderQcmHtmlFromData(shuffledQcm, courseCode, lessonIndex);
+  return `
+    <strong>${escapeHtml(lesson.title)}</strong>
+    <div class="lesson-summary">${mathTextToHtml(lesson.summary)}</div>
+    ${qcmHtml}
+    <div class="lesson-notes-block">
+      <h4 class="lesson-notes-title">📝 Mes notes</h4>
+      <textarea class="lesson-notes-textarea" id="lesson-notes-${escapeHtml(courseCode)}-${lessonIndex}"
+        placeholder="Ajoute tes notes personnelles ici…" rows="4">${escapeHtml(savedNote)}</textarea>
+      <div class="lesson-notes-actions">
+        <button class="lesson-notes-save btn-primary" data-course="${escapeHtml(courseCode)}" data-lesson="${lessonIndex}">Sauvegarder</button>
+        <span class="lesson-notes-status" id="notes-status-${escapeHtml(courseCode)}-${lessonIndex}"></span>
+      </div>
+    </div>
+  `;
+}
+
+function lessonCompletedInnerHtml(lesson, lessonIndex, courseCode, savedNote) {
+  return `
+    <div class="lesson-completed-row">
+      <span class="lesson-check-badge">✅</span>
+      <strong>${escapeHtml(lesson.title)}</strong>
+    </div>
+    <div class="lesson-summary">${mathTextToHtml(lesson.summary)}</div>
+    <p class="qcm-passed-msg">✅ QCM réussi — cette partie est validée.</p>
+    <div class="lesson-notes-block">
+      <h4 class="lesson-notes-title">📝 Mes notes</h4>
+      <textarea class="lesson-notes-textarea" id="lesson-notes-${escapeHtml(courseCode)}-${lessonIndex}"
+        placeholder="Ajoute tes notes personnelles ici…" rows="4">${escapeHtml(savedNote)}</textarea>
+      <div class="lesson-notes-actions">
+        <button class="lesson-notes-save btn-primary" data-course="${escapeHtml(courseCode)}" data-lesson="${lessonIndex}">Sauvegarder</button>
+        <span class="lesson-notes-status" id="notes-status-${escapeHtml(courseCode)}-${lessonIndex}"></span>
+      </div>
+    </div>
+  `;
+}
+
+function lessonLockedInnerHtml(lesson) {
+  return `
+    <div class="lesson-locked-row">
+      <span class="lesson-lock-icon">🔒</span>
+      <strong>${escapeHtml(lesson.title)}</strong>
+      <span class="lesson-lock-hint">Réussis le QCM de la partie précédente pour débloquer.</span>
+    </div>
+  `;
+}
+
+function renderQcmHtmlFromData(qcm, courseCode, lessonIndex) {
+  if (!Array.isArray(qcm) || !qcm.length) return "";
+  const items = qcm.map((q, qi) => `
+    <div class="qcm-item" data-qcm-id="${escapeHtml(courseCode)}-${lessonIndex}-${qi}">
+      <p class="qcm-question">${mathTextToHtml(q.question)}</p>
+      <div class="qcm-choices">
+        ${q.choices.map((c, ci) => `
+          <button type="button" class="qcm-choice" data-correct="${q.answer}" data-ci="${ci}"
+            data-expl="${escapeHtml(q.explanation || '')}">
+            <span class="qcm-choice-letter">${String.fromCharCode(65 + ci)}</span>${mathTextToHtml(c)}
+          </button>
+        `).join("")}
+      </div>
+      <div class="qcm-feedback is-hidden"></div>
+    </div>
+  `).join("");
+  return `
+    <div class="qcm-block">
+      <p class="qcm-block-title">🎯 Vérification de compréhension</p>
+      ${items}
+    </div>
+  `;
+}
+
 function detailCourseHtml(course) {
   const origin = getCourseOrigin(course);
   const lessons = Array.isArray(course.lessons) ? course.lessons : [];
@@ -114,22 +216,23 @@ function detailCourseHtml(course) {
   const applications = Array.isArray(course.applications) ? course.applications : [];
 
   const courseCode = course.code || getCourseKey(course);
+  const maxUnlocked = getMaxUnlocked(courseCode);
   const lessonsHtml = lessons.length
     ? lessons.map((lesson, lessonIndex) => {
         const savedNote = localStorage.getItem(userKey(`note_${courseCode}_${lessonIndex}`)) || '';
+        const isCompleted = lessonIndex < maxUnlocked;
+        const isActive    = lessonIndex === maxUnlocked;
+        const stateClass  = isCompleted ? 'is-completed' : isActive ? 'is-active' : 'is-locked';
+        const innerHtml   = isCompleted
+          ? lessonCompletedInnerHtml(lesson, lessonIndex, courseCode, savedNote)
+          : isActive
+            ? lessonActiveInnerHtml(lesson, lessonIndex, courseCode, savedNote)
+            : lessonLockedInnerHtml(lesson);
         return `
-          <article class="history-item">
-            <strong>${escapeHtml(lesson.title)}</strong>
-            <div class="lesson-summary">${mathTextToHtml(lesson.summary)}</div>
-            <div class="lesson-notes-block">
-              <h4 class="lesson-notes-title">📝 Mes notes</h4>
-              <textarea class="lesson-notes-textarea" id="lesson-notes-${escapeHtml(courseCode)}-${lessonIndex}"
-                placeholder="Ajoute tes notes personnelles ici…" rows="4">${escapeHtml(savedNote)}</textarea>
-              <div class="lesson-notes-actions">
-                <button class="lesson-notes-save btn-primary" data-course="${escapeHtml(courseCode)}" data-lesson="${lessonIndex}">Sauvegarder</button>
-                <span class="lesson-notes-status" id="notes-status-${escapeHtml(courseCode)}-${lessonIndex}"></span>
-              </div>
-            </div>
+          <article class="history-item lesson-article ${stateClass}"
+            id="lesson-article-${escapeHtml(courseCode)}-${lessonIndex}"
+            data-lesson-index="${lessonIndex}">
+            ${innerHtml}
           </article>
         `;
       }).join("")
@@ -424,6 +527,140 @@ async function loadCourseSummary(course, forceRegenerate) {
   }
 }
 
+// ── Logique QCM interactive ───────────────────────────────────────────────────
+
+function handleQcmChoice(btn, courseDetail, course) {
+  const item = btn.closest(".qcm-item");
+  if (!item || item.dataset.answered) return;
+  item.dataset.answered = "1";
+
+  const correct = parseInt(btn.dataset.correct, 10);
+  const ci      = parseInt(btn.dataset.ci, 10);
+  const expl    = btn.dataset.expl || "";
+
+  item.querySelectorAll(".qcm-choice").forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === correct) b.classList.add("is-correct");
+    else if (idx === ci && ci !== correct) b.classList.add("is-wrong");
+  });
+
+  const feedback = item.querySelector(".qcm-feedback");
+  if (feedback) {
+    feedback.classList.remove("is-hidden");
+    feedback.className = `qcm-feedback ${ci === correct ? "is-success" : "is-error"}`;
+    feedback.textContent = ci === correct
+      ? (expl ? `✓ Bonne réponse ! ${expl}` : "✓ Bonne réponse !")
+      : (expl ? `✗ Incorrect. ${expl}` : "✗ Incorrect.");
+  }
+
+  const lessonArticle = btn.closest(".lesson-article");
+  if (!lessonArticle) return;
+  const lessonIndex = parseInt(lessonArticle.dataset.lessonIndex, 10);
+
+  if (ci !== correct) {
+    // Mauvaise réponse → mode re-lecture après un court délai
+    setTimeout(() => showRereadMode(lessonArticle, course, lessonIndex), 1200);
+  } else {
+    // Bonne réponse → vérifier si toutes les questions du bloc sont passées
+    const qcmBlock = item.closest(".qcm-block");
+    if (!qcmBlock) return;
+    const allItems = [...qcmBlock.querySelectorAll(".qcm-item")];
+    const allPassedCorrectly = allItems.every(it =>
+      it.dataset.answered && it.querySelectorAll(".qcm-choice.is-wrong").length === 0
+    );
+    if (allPassedCorrectly) {
+      setTimeout(() => unlockNextLesson(courseDetail, course, lessonIndex), 1000);
+    }
+  }
+}
+
+function showRereadMode(lessonArticle, course, lessonIndex) {
+  const qcmBlock = lessonArticle.querySelector(".qcm-block");
+  if (!qcmBlock) return;
+  qcmBlock.innerHTML = `
+    <div class="qcm-fail-banner">
+      <p class="qcm-fail-title">❌ Mauvaise réponse</p>
+      <p class="qcm-fail-body">Relis attentivement le cours ci-dessus, puis retente le QCM.</p>
+      <button type="button" class="qcm-retake-btn" data-lesson-index="${lessonIndex}">
+        📖 Je suis prêt(e) — Retenter le QCM
+      </button>
+    </div>
+  `;
+  lessonArticle.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function handleQcmRetake(btn, course) {
+  const lessonIndex = parseInt(btn.dataset.lessonIndex, 10);
+  const lessons = Array.isArray(course.lessons) ? course.lessons : [];
+  const lesson = lessons[lessonIndex];
+  if (!lesson) return;
+  const courseCode = course.code || getCourseKey(course);
+  const qcmBlock = btn.closest(".qcm-block");
+  if (!qcmBlock) return;
+
+  const freshQcm = shuffleQcm(lesson.qcm || []);
+  qcmBlock.innerHTML = `
+    <p class="qcm-block-title">🎯 Vérification de compréhension — Nouvel essai</p>
+    ${freshQcm.map((q, qi) => `
+      <div class="qcm-item" data-qcm-id="${escapeHtml(courseCode)}-${lessonIndex}-r${qi}">
+        <p class="qcm-question">${mathTextToHtml(q.question)}</p>
+        <div class="qcm-choices">
+          ${q.choices.map((c, ci) => `
+            <button type="button" class="qcm-choice" data-correct="${q.answer}" data-ci="${ci}"
+              data-expl="${escapeHtml(q.explanation || '')}">
+              <span class="qcm-choice-letter">${String.fromCharCode(65 + ci)}</span>${mathTextToHtml(c)}
+            </button>
+          `).join("")}
+        </div>
+        <div class="qcm-feedback is-hidden"></div>
+      </div>
+    `).join("")}
+  `;
+  renderMath(qcmBlock);
+}
+
+function unlockNextLesson(courseDetail, course, lessonIndex) {
+  const courseCode = course.code || getCourseKey(course);
+  const lessons = Array.isArray(course.lessons) ? course.lessons : [];
+  const nextIndex = lessonIndex + 1;
+
+  const cur = getMaxUnlocked(courseCode);
+  if (nextIndex > cur) setMaxUnlocked(courseCode, nextIndex);
+
+  // Marquer la leçon courante comme complétée
+  const currentArticle = courseDetail.querySelector(`#lesson-article-${courseCode}-${lessonIndex}`);
+  if (currentArticle) {
+    currentArticle.classList.remove("is-active");
+    currentArticle.classList.add("is-completed");
+    const qcmBlock = currentArticle.querySelector(".qcm-block");
+    if (qcmBlock) qcmBlock.innerHTML = '<p class="qcm-passed-msg">✅ QCM réussi — cette partie est validée.</p>';
+  }
+
+  if (nextIndex < lessons.length) {
+    // Débloquer la leçon suivante
+    const nextArticle = courseDetail.querySelector(`#lesson-article-${courseCode}-${nextIndex}`);
+    if (nextArticle) {
+      const lesson = lessons[nextIndex];
+      const savedNote = localStorage.getItem(userKey(`note_${courseCode}_${nextIndex}`)) || '';
+      nextArticle.classList.remove("is-locked");
+      nextArticle.classList.add("is-active");
+      nextArticle.innerHTML = lessonActiveInnerHtml(lesson, nextIndex, courseCode, savedNote);
+      renderMath(nextArticle);
+      setTimeout(() => nextArticle.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    }
+  } else {
+    // Toutes les leçons sont complétées
+    const historyList = courseDetail.querySelector(".history-list");
+    if (historyList && !historyList.querySelector(".lesson-all-completed")) {
+      const msg = document.createElement("div");
+      msg.className = "lesson-all-completed";
+      msg.textContent = "🎉 Bravo ! Tu as validé toutes les parties de ce chapitre.";
+      historyList.appendChild(msg);
+      msg.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+}
+
 export function renderCourseDetail() {
   const courseDetail = document.getElementById("course-detail");
   if (!courseDetail) return;
@@ -440,21 +677,27 @@ export function renderCourseDetail() {
   // Render math
   renderMath(courseDetail);
 
-  // Feature 5: Bind lesson notes save buttons
-  courseDetail.querySelectorAll(".lesson-notes-save").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const courseCodeAttr = btn.dataset.course;
-      const lessonIndexAttr = btn.dataset.lesson;
-      const textarea = document.getElementById(`lesson-notes-${courseCodeAttr}-${lessonIndexAttr}`);
-      const statusEl = document.getElementById(`notes-status-${courseCodeAttr}-${lessonIndexAttr}`);
-      if (textarea) {
-        localStorage.setItem(userKey(`note_${courseCodeAttr}_${lessonIndexAttr}`), textarea.value);
-        if (statusEl) {
-          statusEl.textContent = "✓ Sauvegardé";
-          setTimeout(() => { statusEl.textContent = ""; }, 2000);
-        }
+  // Délégation d'événements : QCM choix, retentative, notes — un seul listener
+  // couvre aussi les éléments injectés dynamiquement (nouvelles questions, leçons débloquées)
+  courseDetail.addEventListener("click", (e) => {
+    const choiceBtn = e.target.closest(".qcm-choice");
+    if (choiceBtn) { handleQcmChoice(choiceBtn, courseDetail, selected); return; }
+
+    const retakeBtn = e.target.closest(".qcm-retake-btn");
+    if (retakeBtn) { handleQcmRetake(retakeBtn, selected); return; }
+
+    const notesBtn = e.target.closest(".lesson-notes-save");
+    if (notesBtn) {
+      const cc = notesBtn.dataset.course;
+      const li = notesBtn.dataset.lesson;
+      const ta = document.getElementById(`lesson-notes-${cc}-${li}`);
+      const st = document.getElementById(`notes-status-${cc}-${li}`);
+      if (ta) {
+        localStorage.setItem(userKey(`note_${cc}_${li}`), ta.value);
+        if (st) { st.textContent = "✓ Sauvegardé"; setTimeout(() => { st.textContent = ""; }, 2000); }
       }
-    });
+      return;
+    }
   });
 
   // Bind AI summary button

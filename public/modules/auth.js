@@ -16,7 +16,22 @@ import { setActiveTabUI, setTabAvailability, openTab, isTeacherUser } from './na
 let _onSessionChange = null;
 export function onSessionChange(fn) { _onSessionChange = fn; }
 
+export function showLoginScreen() {
+  const el = document.getElementById('login-screen');
+  if (el) el.classList.remove('is-hidden');
+}
+
+export function hideLoginScreen() {
+  const el = document.getElementById('login-screen');
+  if (el) el.classList.add('is-hidden');
+}
+
 function notifySessionChange() {
+  if (getCurrentUser()) {
+    hideLoginScreen();
+  } else {
+    showLoginScreen();
+  }
   if (_onSessionChange) _onSessionChange();
 }
 
@@ -186,4 +201,62 @@ export function init() {
   if (loginForm) loginForm.addEventListener("submit", handleLogin);
   if (logoutButton) logoutButton.addEventListener("click", handleLogout);
   if (registerRole) registerRole.addEventListener("change", updateRegisterRoleUi);
+
+  // ── Écran de connexion dédié ──────────────────────────────────────────────
+  const lsLoginForm    = document.getElementById("login-screen-form");
+  const lsRegisterForm = document.getElementById("register-screen-form");
+  const lsFeedback     = document.getElementById("login-screen-feedback");
+
+  // Tabs login / register
+  document.querySelectorAll(".login-tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.loginTab;
+      document.querySelectorAll(".login-tab-btn").forEach(b => b.classList.toggle("is-active", b === btn));
+      document.querySelectorAll(".login-form").forEach(f => {
+        f.classList.toggle("is-hidden", f.dataset.loginPanel !== target);
+      });
+      if (lsFeedback) lsFeedback.textContent = "";
+    });
+  });
+
+  if (lsLoginForm) {
+    lsLoginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (lsFeedback) lsFeedback.textContent = "";
+      try {
+        const payload = await apiRequest("/api/login", {
+          email: document.getElementById("ls-login-email").value.trim(),
+          password: document.getElementById("ls-login-password").value,
+        });
+        setSession(payload.token, payload.user, payload.progress, payload.refreshToken);
+        notifySessionChange();
+        lsLoginForm.reset();
+        openTab("dashboard");
+      } catch (err) {
+        if (lsFeedback) lsFeedback.textContent = err.message;
+      }
+    });
+  }
+
+  if (lsRegisterForm) {
+    lsRegisterForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (lsFeedback) lsFeedback.textContent = "";
+      try {
+        const payload = await apiRequest("/api/register", {
+          name: document.getElementById("ls-register-name").value.trim(),
+          email: document.getElementById("ls-register-email").value.trim(),
+          password: document.getElementById("ls-register-password").value,
+          role: "student",
+          teacherCode: "",
+        });
+        setSession(payload.token, payload.user, payload.progress, payload.refreshToken);
+        notifySessionChange();
+        lsRegisterForm.reset();
+        openTab("dashboard");
+      } catch (err) {
+        if (lsFeedback) lsFeedback.textContent = err.message;
+      }
+    });
+  }
 }

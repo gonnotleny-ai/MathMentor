@@ -286,67 +286,27 @@ export function renderDueExercises() {
   });
 }
 
+function renderGreeting() {
+  const nameEl = document.getElementById("dashboard-greeting-name");
+  const dateEl = document.getElementById("dashboard-greeting-date");
+  if (nameEl) {
+    const user = getCurrentUser();
+    const firstName = user ? user.name.split(" ")[0] : null;
+    nameEl.textContent = firstName ? `Bonjour, ${firstName} !` : "Bonjour !";
+  }
+  if (dateEl) {
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+    // Capitalise la première lettre
+    dateEl.textContent = dateEl.textContent.charAt(0).toUpperCase() + dateEl.textContent.slice(1);
+  }
+}
+
 export function renderDashboard() {
-  const focusTitle = document.getElementById("dashboard-focus-title");
-  if (!focusTitle) return;
-
-  const state = getStudentState();
-  const recommendedCourse = getRecommendedCourse();
-  const latestExercise = getLatestExerciseForDashboard();
-  const latestQuestion = (state.recentQuestions || [])[0] || null;
-
-  if (recommendedCourse) {
-    focusTitle.textContent = `${recommendedCourse.title} · ${recommendedCourse.semester}`;
-    const focusText = document.getElementById("dashboard-focus-text");
-    const focusTags = document.getElementById("dashboard-focus-tags");
-    if (focusText) focusText.textContent = recommendedCourse.objective;
-    if (focusTags) {
-      focusTags.innerHTML = (recommendedCourse.focus || [])
-        .slice(0, 4)
-        .map((item) => `<span>${escapeHtml(item)}</span>`)
-        .join("");
-    }
-  }
-
-  const latestTitle = document.getElementById("dashboard-latest-title");
-  const latestText = document.getElementById("dashboard-latest-text");
-  const latestAction = document.getElementById("dashboard-latest-action");
-  if (latestExercise) {
-    const origin = getExerciseOrigin(latestExercise);
-    if (latestTitle) latestTitle.textContent = latestExercise.title;
-    if (latestText) latestText.textContent = `${latestExercise.topic} · ${latestExercise.level} · ${latestExercise.duration || "durée libre"} · ${origin.label}`;
-    if (latestAction) latestAction.textContent = "Reprendre cet exercice";
-  } else {
-    if (latestTitle) latestTitle.textContent = "Aucun exercice récent";
-    if (latestText) latestText.textContent = "Générez ou ouvrez un premier exercice pour pouvoir le reprendre rapidement depuis l'accueil.";
-    if (latestAction) latestAction.textContent = "Ouvrir la bibliothèque";
-  }
-
-  const questionTitle = document.getElementById("dashboard-question-title");
-  const questionText = document.getElementById("dashboard-question-text");
-  const questionAction = document.getElementById("dashboard-question-action");
-  if (latestQuestion) {
-    if (questionTitle) questionTitle.textContent = latestQuestion.question;
-    if (questionText) questionText.textContent = `Dernière question posée le ${latestQuestion.date}. Vous pouvez la reprendre ou la reformuler dans l'assistant.`;
-    if (questionAction) questionAction.textContent = "Revenir à l'assistant";
-  } else {
-    if (questionTitle) questionTitle.textContent = "Aucune question récente";
-    if (questionText) questionText.textContent = "L'assistant est utile pour débloquer une méthode, un calcul ou une interprétation de résultat.";
-    if (questionAction) questionAction.textContent = "Poser une question";
-  }
-
-  renderTeacherHighlights();
-  renderStudentStats();
-  renderSkillsMap();
+  renderGreeting();
   renderDueExercises();
   renderStreak();
   renderWeeklyGoals();
-  renderActivityHeatmap();
-  renderBadges(document.getElementById("badges-grid"));
-  renderDevoirs();
-  renderAdaptiveSuggestion();
-  renderAdvancedStats();
-  renderErrorHistory();
 }
 
 const S2_TOPICS = ["SYSLIN", "POLY", "FVAR", "FRAT"];
@@ -667,77 +627,5 @@ export function renderErrorHistory() {
 }
 
 export function init() {
-  const dashboardFocusCourse = document.getElementById("dashboard-focus-course");
-  const dashboardFocusGenerate = document.getElementById("dashboard-focus-generate");
-  const dashboardLatestAction = document.getElementById("dashboard-latest-action");
-  const dashboardQuestionAction = document.getElementById("dashboard-question-action");
-  const teacherCourseAction = document.getElementById("teacher-course-action");
-  const teacherExerciseAction = document.getElementById("teacher-exercise-action");
-
-  if (dashboardFocusCourse) {
-    dashboardFocusCourse.addEventListener("click", () => {
-      const recommendedCourse = getRecommendedCourse();
-      if (recommendedCourse) {
-        setSelectedCourse(recommendedCourse);
-        renderCourseList();
-        renderCourseDetail();
-      }
-      openTab("courses");
-    });
-  }
-
-  if (dashboardFocusGenerate) {
-    dashboardFocusGenerate.addEventListener("click", () => {
-      const recommendedCourse = getRecommendedCourse();
-      const generatorTopic = document.getElementById("generator-topic");
-      if (recommendedCourse && generatorTopic) generatorTopic.value = recommendedCourse.code;
-      openTab("generator");
-    });
-  }
-
-  if (dashboardLatestAction) {
-    dashboardLatestAction.addEventListener("click", () => {
-      const latestExercise = getLatestExerciseForDashboard();
-      if (latestExercise) {
-        setSelectedExercise(latestExercise);
-        renderExerciseList();
-        renderExerciseDetail();
-      }
-      openTab("library");
-    });
-  }
-
-  if (dashboardQuestionAction) {
-    dashboardQuestionAction.addEventListener("click", () => {
-      const state = getStudentState();
-      const latestQuestion = (state.recentQuestions || [])[0];
-      const assistantQuestion = document.getElementById("assistant-question");
-      if (latestQuestion && assistantQuestion) assistantQuestion.value = latestQuestion.question;
-      openTab("assistant");
-    });
-  }
-
-  if (teacherCourseAction) {
-    teacherCourseAction.addEventListener("click", () => {
-      const latestCourse = getLatestTeacherCourse();
-      if (latestCourse) {
-        setSelectedCourse(latestCourse);
-        renderCourseList();
-        renderCourseDetail();
-      }
-      openTab("courses");
-    });
-  }
-
-  if (teacherExerciseAction) {
-    teacherExerciseAction.addEventListener("click", () => {
-      const latestExercise = getLatestTeacherExercise();
-      if (latestExercise) {
-        setSelectedExercise(latestExercise);
-        renderExerciseList();
-        renderExerciseDetail();
-      }
-      openTab("library");
-    });
-  }
+  // Les boutons du dashboard utilisent data-jump et sont déjà bindés par navigation.js
 }
