@@ -511,13 +511,7 @@
                   <p>Aide-mémoire condensé : formules clés, cas types et méthodes pour chaque thème BUT GCGP.</p>
                   <span class="hub-card-action">Accéder →</span>
                 </article>
-                <article class="hub-card" data-hub-tab="courses" data-hub-section="flashcards">
-                  <span class="hub-card-icon">🃏</span>
-                  <h3>Cartes mémoire</h3>
-                  <p>Révisez les formules clés sous forme de flashcards : retournez la carte et évaluez votre connaissance.</p>
-                  <span class="hub-card-action">Réviser →</span>
-                </article>
-                <article class="hub-card" data-hub-tab="courses" data-hub-section="formulas">
+<article class="hub-card" data-hub-tab="courses" data-hub-section="formulas">
                   <span class="hub-card-icon">🔢</span>
                   <h3>Tableau de formules</h3>
                   <p>Toutes les formules du programme BUT GCGP classées par thème, avec recherche instantanée et export vers la calculatrice.</p>
@@ -529,35 +523,20 @@
 
           <!-- Section : Programme officiel -->
           <div class="tab-section" data-section="official" data-hub-parent="courses">
-            <div class="section-back-bar">
-              <button type="button" class="ghost-button back-button" data-back-hub="courses">← Retour</button>
-            </div>
             <div class="panel">
               <div class="semester-tabs">
                 <button type="button" class="semester-tab-btn" data-semester="S1">Semestre 1</button>
                 <button type="button" class="semester-tab-btn is-active" data-semester="S2">Semestre 2</button>
               </div>
+              <div class="course-search-bar">
+                <input type="search" id="course-search-input" placeholder="Rechercher un cours, une notion…" autocomplete="off" />
+              </div>
             </div>
-            <div class="panel-grid two-columns">
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Cours</p>
-                    <h2>Programme de maths</h2>
-                  </div>
-                </div>
-                <div class="course-search-bar">
-                  <input type="search" id="course-search-input" placeholder="Rechercher un cours, une notion…" autocomplete="off" />
-                </div>
+            <div class="panel-grid course-layout-grid">
+              <section class="panel course-list-panel">
                 <div id="course-list" class="card-list"></div>
               </section>
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Contenu</p>
-                    <h2>Objectifs et notions</h2>
-                  </div>
-                </div>
+              <section class="panel course-detail-panel">
                 <article id="course-detail" class="detail-card empty-state">
                   Sélectionnez un module pour voir le détail du contenu.
                 </article>
@@ -570,23 +549,12 @@
             <div class="section-back-bar">
               <button type="button" class="ghost-button back-button" data-back-hub="courses">← Retour</button>
             </div>
-            <div class="panel-grid two-columns">
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Professeurs</p>
-                    <h2>Cours publiés</h2>
-                  </div>
-                </div>
+            <div class="panel-grid course-layout-grid">
+              <section class="panel course-list-panel">
+                <p class="section-label" style="margin-bottom:8px">Cours publiés</p>
                 <div id="teacher-course-list" class="card-list"></div>
               </section>
-              <section class="panel">
-                <div class="panel-head">
-                  <div>
-                    <p class="section-label">Contenu</p>
-                    <h2>Détail du cours</h2>
-                  </div>
-                </div>
+              <section class="panel course-detail-panel">
                 <article id="teacher-course-detail" class="detail-card empty-state">
                   Sélectionnez un cours pour voir le détail.
                 </article>

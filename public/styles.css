@@ -533,6 +533,21 @@ p {
   grid-template-columns: minmax(320px, 0.92fr) minmax(0, 1.08fr);
 }
 
+/* Cours : sidebar compacte + détail pleine largeur */
+.course-layout-grid {
+  grid-template-columns: 260px 1fr;
+  align-items: start;
+}
+.course-list-panel {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+.course-detail-panel {
+  min-width: 0; /* permet au détail de respecter la grille */
+}
+
 .three-columns {
   grid-template-columns: repeat(3, 1fr);
 }
@@ -1711,6 +1726,20 @@ li + li {
 
   .file-card {
     flex-wrap: wrap;
+  }
+
+  .course-layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .course-list-panel {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .course-layout-grid {
+    grid-template-columns: 220px 1fr;
   }
 }
 
@@ -5402,4 +5431,92 @@ li + li {
   .stats-lesson-right { min-width: unset; }
   .stats-chart-block--narrow { max-width: 100%; }
   .stats-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Fix rendu mathématiques et texte formaté ─────────────────────────────── */
+
+/* Espacement KaTeX inline : empêche les formules d'être collées au texte */
+.lesson-summary .katex,
+.lesson-summary .katex-html,
+.qcm-question .katex,
+.qcm-choice .katex,
+.qcm-feedback .katex,
+.course-summary-content .katex,
+.detail-section .katex,
+#assistant-answer .katex {
+  margin: 0 0.1em;
+}
+
+/* Meilleure lisibilité des résumés de leçons */
+.lesson-summary {
+  line-height: 1.75;
+  font-size: 0.93rem;
+  color: var(--text);
+}
+
+.lesson-summary p {
+  margin: 0.55em 0;
+  line-height: 1.75;
+}
+
+.lesson-summary strong {
+  font-weight: 700;
+  color: var(--text);
+  padding: 0 0.05em;
+}
+
+.lesson-summary em {
+  font-style: italic;
+  padding: 0 0.05em;
+}
+
+/* QCM : meilleur espacement des questions et choix */
+.qcm-question {
+  line-height: 1.6;
+  margin-bottom: 0.6rem;
+}
+
+.qcm-choice {
+  line-height: 1.55;
+}
+
+/* Formules display-mode : centrage et marges */
+.lesson-summary .katex-display,
+.course-summary-content .katex-display,
+#assistant-answer .katex-display {
+  margin: 0.8em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Éviter le débordement des longues formules */
+.lesson-summary,
+.qcm-question,
+.qcm-choice,
+.course-summary-content,
+#assistant-answer {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* AI responses : meilleur espacement headings */
+.lesson-summary .ai-h3,
+.lesson-summary .ai-h4,
+#assistant-answer .ai-h3,
+#assistant-answer .ai-h4 {
+  margin-top: 1.1em;
+  margin-bottom: 0.4em;
+  line-height: 1.4;
+}
+
+/* Code inline dans les formules */
+.lesson-summary code,
+.qcm-question code,
+#assistant-answer code {
+  background: var(--surface-tint);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-size: 0.88em;
+  font-family: 'SFMono-Regular', 'Menlo', monospace;
 }

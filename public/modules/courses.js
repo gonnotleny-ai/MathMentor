@@ -395,7 +395,6 @@ function detailCourseHtml(course) {
       <button type="button" class="primary-button" data-train-topic="${escapeHtml(course.code || "")}">
         S'entraîner sur ce chapitre →
       </button>
-      <button type="button" class="ghost-button print-btn">Imprimer / PDF</button>
       <button type="button" class="secondary-button ai-summary-btn" data-course-code="${escapeHtml(course.code || "")}">
         ✨ Résumé IA
       </button>
@@ -822,10 +821,6 @@ export function renderCourseDetail() {
   if (summaryRegenBtn) {
     summaryRegenBtn.addEventListener("click", () => loadCourseSummary(selected, true));
   }
-
-  // Bind print button
-  const printBtn = courseDetail.querySelector(".print-btn");
-  if (printBtn) printBtn.addEventListener("click", () => window.print());
 
   // ── Chatbot contextuel ────────────────────────────────────────────────────
   const chatCode    = selected.code || getCourseKey(selected);

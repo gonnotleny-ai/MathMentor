@@ -10,6 +10,7 @@ import { init as initAuth, updateAccountUi, onSessionChange, restoreSession } fr
 import { init as initGenerator, renderSelectors, updateGeneratorModeText } from './modules/generator.js';
 import { init as initLibrary, renderExerciseList, renderExerciseDetail, renderFavoritesList, renderGeneratedList } from './modules/library.js';
 import { renderCourseList, renderCourseDetail, renderReferences, initSemesterTabs } from './modules/courses.js';
+import { openHubSection } from './modules/navigation.js';
 import { renderFlashcards } from './modules/flashcards.js';
 import { init as initDashboard, renderDashboard } from './modules/dashboard.js';
 import { init as initAssistant, checkServer, renderChatHistory } from './modules/assistant.js';
@@ -462,6 +463,7 @@ async function init() {
   renderSelectors();
 
   // 4. Initial renders — before auth so the UI is populated on first paint
+  openHubSection("courses", "official"); // ouvrir directement le programme sans passer par le hub
   renderCourseList();
   renderCourseDetail();
   renderExerciseList();
@@ -571,9 +573,13 @@ async function init() {
   // 21. Clavier mathématique (lazy — ne bloque pas l'init si erreur)
   import('./modules/mathkeyboard.js').then(({ initMathKeyboard }) => initMathKeyboard()).catch(() => {});
 
-  // Re-render formulas when the section becomes visible
+  // Ouvrir directement le programme quand on clique sur "Cours"
+  // (évite le hub intermédiaire — les autres sections restent accessibles via ← Retour)
   navHooks.onTabOpen.push((tabName) => {
-    if (tabName === "courses") initFormulas();
+    if (tabName === "courses") {
+      import('./modules/navigation.js').then(({ openHubSection }) => openHubSection("courses", "official"));
+      initFormulas();
+    }
   });
 }
 
