@@ -4191,60 +4191,22 @@ li + li {
   font-size: 0.95rem;
   line-height: 1.65;
 }
-/* ── AI-generated content typography ──────────────────────────────────────── */
-.ai-h3 {
-  font-size: 1.05em;
-  font-weight: 700;
-  margin: 0.9em 0 0.3em;
-  color: var(--text-strong, inherit);
-}
-.ai-h4 {
-  font-size: 0.97em;
-  font-weight: 700;
-  margin: 0.75em 0 0.25em;
-  color: var(--text-strong, inherit);
-}
-.ai-list {
-  margin: 0.4em 0 0.4em 1.2em;
-  padding: 0;
-}
-.ai-list li {
-  margin: 0.2em 0;
-}
+/* ── AI-generated content typography (styles définis en bas du fichier) ─── */
+/* .ai-h3, .ai-h4, .ai-list, .ai-list li → voir section "Rendu mathématiques" */
 .ai-code-block {
-  background: var(--surface-alt, #f4f4f5);
+  background: var(--surface-tint);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.7em 1em;
   margin: 0.5em 0;
   overflow-x: auto;
   font-size: 0.88em;
 }
-
-.course-summary-content p,
-.lesson-summary p,
-.ai-math-p,
-.detail-section p,
-.detail-card p,
-.section-body p,
-.hint-text p,
-.correction-section p,
-.from-pdf-text p,
-.exam-correction-body p,
-.ai-correct-result p,
-.assistant-bubble p,
-#assistant-answer p {
-  margin: 0.35em 0;
+/* Paragraphes .ai-math-p (ligne contenant uniquement une formule) */
+.ai-math-p {
+  text-align: center;
+  margin: 0.7em 0;
 }
-.course-summary-content p:first-child,
-.lesson-summary p:first-child,
-.detail-section p:first-child,
-.detail-card p:first-child,
-#assistant-answer p:first-child { margin-top: 0; }
-.course-summary-content p:last-child,
-.lesson-summary p:last-child,
-.detail-section p:last-child,
-.detail-card p:last-child,
-#assistant-answer p:last-child { margin-bottom: 0; }
 [data-theme="dark"] .course-summary-panel { background: var(--surface); }
 
 /* ── FEATURE 8 : Class analytics ─────────────────────────────────────────────── */
@@ -5433,90 +5395,320 @@ li + li {
   .stats-kpi-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ── Fix rendu mathématiques et texte formaté ─────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Rendu mathématiques et texte formaté — fix global
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Espacement KaTeX inline : empêche les formules d'être collées au texte */
-.lesson-summary .katex,
-.lesson-summary .katex-html,
-.qcm-question .katex,
-.qcm-choice .katex,
-.qcm-feedback .katex,
-.course-summary-content .katex,
-.detail-section .katex,
-#assistant-answer .katex {
-  margin: 0 0.1em;
-}
-
-/* Meilleure lisibilité des résumés de leçons */
-.lesson-summary {
+/*
+ * Sélecteur universel : toutes les zones qui affichent du texte mathématique
+ * ou du texte formaté (Markdown → HTML) dans l'appli.
+ */
+.math-content,
+.lesson-summary,
+.qcm-question,
+.qcm-choice,
+.qcm-feedback,
+.course-summary-content,
+.course-chat-bubble,
+.correction-section,
+.detail-section,
+.detail-card,
+.example-card,
+.hint-text,
+.from-pdf-text,
+.exam-correction-body,
+.ai-correct-result,
+.assistant-bubble,
+#assistant-answer {
+  overflow-wrap: break-word;
+  word-break: break-word;
   line-height: 1.75;
   font-size: 0.93rem;
   color: var(--text);
 }
 
-.lesson-summary p {
-  margin: 0.55em 0;
-  line-height: 1.75;
+/* ── KaTeX inline : espace de part et d'autre pour ne pas coller au texte ── */
+.lesson-summary .katex,
+.qcm-question .katex,
+.qcm-choice .katex,
+.qcm-feedback .katex,
+.course-summary-content .katex,
+.course-chat-bubble .katex,
+.detail-section .katex,
+.correction-section .katex,
+#assistant-answer .katex,
+.example-card .katex {
+  margin: 0 0.15em;
+  display: inline-block; /* évite le chevauchement avec le texte adjacent */
 }
 
-.lesson-summary strong {
-  font-weight: 700;
-  color: var(--text);
-  padding: 0 0.05em;
-}
-
-.lesson-summary em {
-  font-style: italic;
-  padding: 0 0.05em;
-}
-
-/* QCM : meilleur espacement des questions et choix */
-.qcm-question {
-  line-height: 1.6;
-  margin-bottom: 0.6rem;
-}
-
-.qcm-choice {
-  line-height: 1.55;
-}
-
-/* Formules display-mode : centrage et marges */
+/* ── KaTeX display (formules centrées, sur leur propre ligne) ── */
 .lesson-summary .katex-display,
+.qcm-question .katex-display,
 .course-summary-content .katex-display,
-#assistant-answer .katex-display {
-  margin: 0.8em 0;
+.correction-section .katex-display,
+#assistant-answer .katex-display,
+.detail-section .katex-display,
+.example-card .katex-display {
+  margin: 0.9em auto;
   overflow-x: auto;
   overflow-y: hidden;
+  text-align: center;
+  padding: 0.2em 0;
 }
 
-/* Éviter le débordement des longues formules */
-.lesson-summary,
-.qcm-question,
-.qcm-choice,
-.course-summary-content,
-#assistant-answer {
-  overflow-wrap: break-word;
-  word-break: break-word;
+/* ── Texte gras : bien visible, pas "collé" ── */
+.lesson-summary strong,
+.course-summary-content strong,
+#assistant-answer strong,
+.detail-section strong,
+.correction-section strong,
+.qcm-question strong,
+.course-chat-bubble strong {
+  font-weight: 700;
+  color: var(--text);
+  /* Espace optique de 0.1em de chaque côté pour séparer visuellement du texte adjacent */
+  letter-spacing: 0.005em;
 }
 
-/* AI responses : meilleur espacement headings */
-.lesson-summary .ai-h3,
-.lesson-summary .ai-h4,
-#assistant-answer .ai-h3,
-#assistant-answer .ai-h4 {
-  margin-top: 1.1em;
-  margin-bottom: 0.4em;
+/* ── Texte en italique ── */
+.lesson-summary em,
+.course-summary-content em,
+#assistant-answer em,
+.detail-section em {
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ── Paragraphes dans les contenus générés ── */
+.lesson-summary p,
+.course-summary-content p,
+#assistant-answer p,
+.detail-section p,
+.correction-section p,
+.example-card p {
+  margin: 0.5em 0;
+  line-height: 1.75;
+}
+.lesson-summary p:first-child,
+.course-summary-content p:first-child,
+#assistant-answer p:first-child { margin-top: 0; }
+.lesson-summary p:last-child,
+.course-summary-content p:last-child,
+#assistant-answer p:last-child { margin-bottom: 0; }
+
+/* ── Titres générés par l'IA (ai-h3, ai-h4) ── */
+.ai-h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1em 0 0.35em;
+  color: var(--primary);
+  border-left: 3px solid var(--primary);
+  padding-left: 0.5em;
+  line-height: 1.4;
+}
+.ai-h4 {
+  font-size: 0.93rem;
+  font-weight: 700;
+  margin: 0.8em 0 0.25em;
+  color: var(--text);
   line-height: 1.4;
 }
 
-/* Code inline dans les formules */
+/* ── Listes ── */
+.ai-list {
+  margin: 0.4em 0 0.5em 1.4em;
+  padding: 0;
+}
+.ai-list li {
+  margin: 0.3em 0;
+  line-height: 1.65;
+}
+
+/* ── Code inline ── */
 .lesson-summary code,
 .qcm-question code,
-#assistant-answer code {
+#assistant-answer code,
+.detail-section code,
+.correction-section code {
   background: var(--surface-tint);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 0.1em 0.35em;
-  font-size: 0.88em;
-  font-family: 'SFMono-Regular', 'Menlo', monospace;
+  font-size: 0.87em;
+  font-family: 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  color: var(--primary-dark, var(--primary));
+}
+
+/* ── QCM : espacement questions et choix ── */
+.qcm-question {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin-bottom: 0.6rem;
+}
+.qcm-choice {
+  line-height: 1.55;
+}
+
+/* ── Résumé IA cours (course-summary-content) ── */
+.course-summary-content {
+  font-size: 0.9rem;
+}
+
+/* ── Dark mode : KaTeX hérite bien de la couleur du texte ── */
+[data-theme="dark"] .katex,
+[data-theme="dark"] .katex *,
+[data-theme="dark"] .katex-display,
+[data-theme="dark"] .katex-display * {
+  color: var(--text) !important;
+}
+[data-theme="dark"] .katex-error { color: #f87171 !important; }
+
+/* ── Formules dans les bulles de chat IA cours ── */
+.course-chat-bubble .ai-h3,
+.course-chat-bubble .ai-h4 {
+  font-size: 0.88rem;
+  margin: 0.6em 0 0.2em;
+  border-left: none;
+  padding-left: 0;
+  color: inherit;
+}
+
+/* ── Contenu Prof (vue élève) ──────────────────────────────────────────────── */
+.pc-total-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2em 0.75em;
+}
+
+/* Listes pleine largeur */
+.pc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Grille 2 colonnes pour cours/exercices */
+.pc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* Carte générique */
+.pc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: box-shadow 0.15s;
+}
+.pc-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.pc-devoir-card { border-left: 3px solid var(--primary); }
+
+.pc-card-header { display: flex; flex-direction: column; gap: 0.3rem; }
+.pc-card-title-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.pc-card-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.pc-card-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.15rem; }
+.pc-card-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  line-height: 1.6;
+}
+
+/* Pills (topic, level, class) */
+.pc-pill {
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: var(--surface-tint);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.15em 0.6em;
+  white-space: nowrap;
+}
+
+/* Urgency badges */
+.pc-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.18em 0.65em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.pc-badge--ok   { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+.pc-badge--soon { background: #fef9c3; color: #b45309; border-color: #fde047; }
+.pc-badge--today { background: #fef3c7; color: #d97706; border-color: #fbbf24; font-style: italic; }
+.pc-badge--past { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+[data-theme="dark"] .pc-badge--ok   { background: #166534; color: #86efac; border-color: #16a34a; }
+[data-theme="dark"] .pc-badge--soon { background: #713f12; color: #fde047; border-color: #b45309; }
+[data-theme="dark"] .pc-badge--today { background: #78350f; color: #fbbf24; border-color: #d97706; }
+[data-theme="dark"] .pc-badge--past { background: #7f1d1d; color: #fca5a5; border-color: #dc2626; }
+
+/* Bouton "Ouvrir / Voir" */
+.pc-open-btn {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: transparent;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 0.3em 0.85em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.pc-open-btn:hover { background: var(--primary); color: #fff; }
+
+/* Fichiers partagés */
+.pc-file-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+}
+.pc-file-icon { font-size: 1.6rem; flex-shrink: 0; }
+.pc-file-info { flex: 1; min-width: 0; }
+.pc-file-name { font-size: 0.88rem; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-file-meta { font-size: 0.75rem; color: var(--muted); }
+.pc-download-btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.3em 0.85em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.pc-download-btn:hover { background: var(--primary); color: #fff; }
+
+/* Empty / loading states */
+.pc-empty, .pc-loading {
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 0.75rem 0;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .pc-grid { grid-template-columns: 1fr; }
+  .pc-file-card { flex-wrap: wrap; }
 }

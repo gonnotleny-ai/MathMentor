@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mathmentor-v20';
+const CACHE_NAME = 'mathmentor-v21';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -28,6 +28,7 @@ const STATIC_ASSETS = [
   '/modules/pomodoro.js',
   '/modules/stats.js',
   '/modules/themes.js',
+  '/modules/prof-content.js',
 ];
 
 self.addEventListener('install', event => {

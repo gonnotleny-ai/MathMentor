@@ -24,6 +24,7 @@ import { renderThemesHub, init as initThemes } from './modules/themes.js';
 import { hooks as navHooks } from './modules/navigation.js';
 import { initFormulas } from './modules/formulas.js';
 import { initPomodoro } from './modules/pomodoro.js';
+import { init as initProfContent, renderProfContent } from './modules/prof-content.js';
 
 // ── Dark mode ─────────────────────────────────────────────────────────────────
 
@@ -521,6 +522,7 @@ async function init() {
     renderDashboard();
     renderTeacherSpace();
     renderAccountPanel();
+    renderProfContent();
     setTabAvailability();
     loadStudentFiles();
     loadAppearanceFromServer();
@@ -569,6 +571,12 @@ async function init() {
 
   // 20. Pomodoro timer
   initPomodoro();
+
+  // 22. Contenu prof (vue élève)
+  initProfContent();
+  navHooks.onTabOpen.push((tabName) => {
+    if (tabName === "prof-content") renderProfContent();
+  });
 
   // 21. Clavier mathématique (lazy — ne bloque pas l'init si erreur)
   import('./modules/mathkeyboard.js').then(({ initMathKeyboard }) => initMathKeyboard()).catch(() => {});

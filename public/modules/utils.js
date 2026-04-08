@@ -172,9 +172,14 @@ export function mathTextToHtml(text) {
   function applyInline(str) {
     return str
       .replace(/`([^`\n]+?)`/g, '<code>$1</code>')
-      .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/g, '$1<em>$2</em>');
+      // Bold+italic : ensure a space-like boundary before **
+      // The zero-width word boundary trick : add a thin space around the tags
+      // so bold text is never visually "collé" to adjacent text
+      .replace(/\*\*\*(.+?)\*\*\*/g, ' <strong><em>$1</em></strong> ')
+      .replace(/\*\*(.+?)\*\*/g, ' <strong>$1</strong> ')
+      .replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/g, '$1<em>$2</em>')
+      // Collapse double spaces introduced above (never trim — breaks list items)
+      .replace(/  +/g, ' ');
   }
 
   const lines = s.split('\n');
@@ -250,19 +255,20 @@ export function mathTextInline(text) {
   return result;
 }
 
-// Wrap isolated Unicode math symbols that appear in plain text inside \(...\)
-// so KaTeX picks them up, without wrapping the whole line.
+// Wrap Unicode math symbols in \(...\) so KaTeX renders them.
+// KEY FIX: starts ONLY from a math symbol — never from a preceding word.
+// The old version started with [\w\s]* which greedily captured French words
+// (e.g. "partielle ∂f") and rendered them in KaTeX italic/no-space mode.
+// The tail class includes math symbols so "∂f/∂x" is one token, not two.
 function inlineUnicodeMath(line) {
-  // Replace sequences of unicode math mixed with letters/digits/operators
-  return line.replace(/([\w\s]*[∂∫∑∏∞√∇∬∭≤≥≠≡≈∝→←⟹⟺∈∉⊂⊆⊇⊃∩∪∅∀∃∧∨¬ℝℂℤℕℚ±×÷·α-ωΑ-Ω]+[\w\s=+\-*/^_.,()]*)/g, (segment) => {
-    const t = segment.trim();
-    if (!t) return segment;
-    // Only wrap if it actually contains a math symbol
-    if (/[∂∫∑∏∞√∇∬∭≤≥≠≡≈∝→←⟹⟺∈∉⊂⊆⊇⊃∩∪∅∀∃∧∨¬ℝℂℤℕℚ±×÷·α-ωΑ-Ω]/.test(t)) {
+  return line.replace(
+    /([∂∫∑∏∞√∇∬∭≤≥≠≡≈∝→←⟹⟺∈∉⊂⊆⊇⊃∩∪∅∀∃∧∨¬ℝℂℤℕℚ±×÷α-ωΑ-Ω][∂∫∑∏∞√∇∬∭≤≥≠≡≈∝→←⟹⟺∈∉⊂⊆⊇⊃∩∪∅∀∃∧∨¬ℝℂℤℕℚ±×÷·α-ωΑ-Ω\w=+\-*\/^_.,(){}|⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻₀₁₂₃₄₅₆₇₈₉]*)/g,
+    (match) => {
+      const t = match.trim();
+      if (!t) return match;
       return `\\(${unicodeToLatex(t)}\\)`;
     }
-    return segment;
-  });
+  );
 }
 
 // Convert Unicode math symbols to LaTeX equivalents for KaTeX rendering.

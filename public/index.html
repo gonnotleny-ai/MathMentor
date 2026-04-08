@@ -88,6 +88,7 @@
         <button type="button" class="tab-button" data-tab="stats">Statistiques</button>
         <button type="button" class="tab-button" data-tab="assistant">Assistant IA</button>
         <button id="teacher-tab-button" type="button" class="tab-button is-hidden" data-tab="teacher">Espace prof</button>
+        <button type="button" class="tab-button is-hidden" data-tab="prof-content">Contenu prof</button>
         <button type="button" class="tab-button" data-tab="account">Compte</button>
       </nav>
 
@@ -1275,6 +1276,70 @@
             </div>
             <div id="exercise-stats-list"></div>
           </section>
+        </section>
+
+        <!-- ── Contenu Prof (vue élève) ── -->
+        <section class="tab-panel" data-view="prof-content">
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Ressources pédagogiques</p>
+                <h2>Contenu de mes professeurs</h2>
+              </div>
+              <span id="pc-total-count" class="pc-total-badge"></span>
+            </div>
+            <p class="stats-section-desc">Retrouvez ici tout ce que vos professeurs ont publié pour votre classe : devoirs à rendre, cours complémentaires, exercices personnalisés et fichiers partagés.</p>
+          </section>
+
+          <!-- Devoirs -->
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">À rendre</p>
+                <h2>📋 Devoirs</h2>
+              </div>
+            </div>
+            <p class="stats-section-desc">Liste des devoirs assignés par vos professeurs. La pastille de couleur indique l'urgence : <span class="pc-badge pc-badge--ok" style="font-size:0.78rem">Dans X j.</span> = dans les temps, <span class="pc-badge pc-badge--soon" style="font-size:0.78rem">Bientôt</span> = moins de 3 jours, <span class="pc-badge pc-badge--past" style="font-size:0.78rem">Dépassé</span> = date passée.</p>
+            <div id="pc-devoirs-list" class="pc-list"></div>
+          </section>
+
+          <!-- Cours du prof -->
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Cours complémentaires</p>
+                <h2>📝 Cours publiés</h2>
+              </div>
+            </div>
+            <p class="stats-section-desc">Cours et compléments de cours publiés par vos enseignants, réservés à votre classe. Cliquez sur "Ouvrir le cours" pour accéder au contenu détaillé.</p>
+            <div id="pc-courses-list" class="pc-grid"></div>
+          </section>
+
+          <!-- Exercices du prof -->
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Entraînement</p>
+                <h2>✏️ Exercices publiés</h2>
+              </div>
+            </div>
+            <p class="stats-section-desc">Exercices personnalisés créés par vos professeurs. Cliquez sur "Voir l'exercice" pour l'ouvrir dans l'onglet Exercices avec la correction disponible.</p>
+            <div id="pc-exercises-list" class="pc-grid"></div>
+          </section>
+
+          <!-- Fichiers partagés -->
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Documents</p>
+                <h2>📁 Fichiers partagés</h2>
+              </div>
+            </div>
+            <p class="stats-section-desc">Fichiers PDF, images ou documents déposés par vos professeurs. Disponibles uniquement si vous êtes inscrit dans une classe (onglet Compte).</p>
+            <div id="pc-files-list" class="pc-list"></div>
+          </section>
+
         </section>
 
         <section class="tab-panel" data-view="account">
