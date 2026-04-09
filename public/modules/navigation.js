@@ -72,6 +72,8 @@ export function setTabAvailability() {
   const teacher = isTeacherUser();
   const preview = _teacherPreviewMode;
 
+  const user = getCurrentUser();
+
   ui.tabButtons.forEach((button) => {
     const tabName = button.dataset.tab;
     let hidden = false;
@@ -82,8 +84,11 @@ export function setTabAvailability() {
     } else if (teacher && !preview) {
       // Prof hors aperçu : masquer les onglets élève
       hidden = !TEACHER_TABS.has(tabName);
+    } else if (AUTH_REQUIRED_TABS.has(tabName) && !user) {
+      // Onglets nécessitant une connexion : masqués si non connecté
+      hidden = true;
     }
-    // Sinon (élève, ou prof en mode aperçu) : tout visible
+    // Sinon (élève connecté, ou prof en mode aperçu) : tout visible
 
     button.classList.toggle("is-hidden", hidden);
     button.disabled = false;
@@ -213,6 +218,10 @@ export function init() {
     button.addEventListener("click", () => {
       const tabName = button.dataset.jump;
       openTab(tabName);
+      // Si un data-lib-open est présent, ouvrir la vue correspondante dans la bibliothèque
+      if (button.dataset.libOpen) {
+        openLibView(button.dataset.libOpen);
+      }
     });
   });
 
@@ -224,6 +233,19 @@ export function init() {
       if (btn.dataset.libView === "grapher") {
         setTimeout(() => window.dispatchEvent(new Event("resize")), 50);
       }
+    });
+  });
+
+  // Mini-onglets internes du panneau "Générer" (Exercice IA / QCM IA)
+  document.querySelectorAll(".gen-tab-btn[data-gen-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.genTab;
+      document.querySelectorAll(".gen-tab-btn").forEach((b) =>
+        b.classList.toggle("is-active", b.dataset.genTab === key)
+      );
+      document.querySelectorAll(".gen-tab-panel").forEach((p) =>
+        p.classList.toggle("is-active", p.dataset.genPanel === key)
+      );
     });
   });
 

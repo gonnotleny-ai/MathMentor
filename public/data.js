@@ -77,10 +77,10 @@ window.APP_DATA = {
             explanation: "On peut : multiplier une ligne par un scalaire non nul, ajouter un multiple d'une ligne à une autre, et permuter deux lignes. Ces opérations préservent les solutions."
           },
           {
-            question: "Dans l'exemple 3×3 du cours, après réduction gaussienne, quelle est la valeur de z ?",
-            choices: ["z = 2", "z = 1", "z = 3", "z = −2"],
+            question: "Dans l'exemple 3×3 du cours (x + 2y + 2z = 2, x + 3y − 2z = −1, 3x + 5y + 8z = 8), quelle est la valeur de z après réduction gaussienne ?",
+            choices: ["\\(z = \\dfrac{1}{2}\\)", "z = 2", "z = 1", "z = −1"],
             answer: 0,
-            explanation: "L3' ← L3' + L2' donne −5z = −10 → z = 2. Puis remontée : y = 3, x = 1."
+            explanation: "L₂' ← L₂ − L₁ donne y − 4z = −3 ; L₃'' ← L₃' + L₂' donne −2z = −1, soit \\(z = \\frac{1}{2}\\). Remontée : y = −3 + 4·½ = −1, puis x = 2 − 2(−1) − 2·½ = 3."
           }
         ]
       },
@@ -89,10 +89,10 @@ window.APP_DATA = {
         summary: "Le changement de variable s'applique quand le système ne fait pas intervenir les inconnues directement mais des expressions de celles-ci : x², |x|, √x, etc. On pose alors de nouvelles inconnues pour se ramener à un système linéaire classique. Exemple du cours : x² + y² = 5 et x² − y² = 3. On pose u = x² et v = y², ce qui donne le système linéaire u + v = 5 et u − v = 3. Résolution : u = 4 et v = 1, d'où x = ±2 et y = ±1. Remarque importante : dans les problèmes concrets, toutes les solutions mathématiques ne sont pas forcément acceptables (quantités positives imposées, domaines de définition à respecter). Il faut donc systématiquement vérifier la validité de chaque solution obtenue dans le contexte physique du problème.",
         qcm: [
           {
-            question: "Pourquoi introduit-on parfois un paramètre libre t ∈ ℝ dans la solution ?",
-            choices: ["Parce qu'une inconnue est libre (infinité de solutions)", "Pour simplifier les calculs numériques", "Pour rendre le système incompatible", "Parce que le déterminant vaut 1"],
+            question: "Dans l'exemple du cours, pourquoi pose-t-on u = x² et v = y² pour résoudre x² + y² = 5 et x² − y² = 3 ?",
+            choices: ["Pour se ramener à un système linéaire u + v = 5 et u − v = 3, plus facile à résoudre", "Parce que x et y sont forcément positifs", "Pour calculer les dérivées de x et y", "Pour trouver le déterminant du système"],
             answer: 0,
-            explanation: "Quand une colonne ne contient pas de pivot, l'inconnue correspondante est libre : on la note t et on exprime les autres en fonction de t."
+            explanation: "Le système n'est pas linéaire en x et y (présence de x², y²), mais il est linéaire en u = x² et v = y². Le changement de variable le transforme en système 2×2 classique : u + v = 5, u − v = 3 → u = 4, v = 1 → x = ±2, y = ±1."
           },
           {
             question: "Si u = x + y et v = x − y simplifient le système, comment s'appelle cette technique ?",
@@ -157,38 +157,7 @@ window.APP_DATA = {
         ]
       },
     ],
-    examples: [
-      {
-        title: "Mélange de deux courants",
-        problem: "Un courant de 10 kg/h à 30% en A est mélangé à un courant de 20 kg/h à 10% en A. Quelle est la composition du mélange ?",
-        solution: "Bilan global : F = 10 + 20 = 30 kg/h. Bilan sur A : 10×0.3 + 20×0.1 = 3 + 2 = 5 kg/h. Composition : 5/30 = 16.7% en A.",
-        applicationNote: "Ce type de calcul est omniprésent dans les procédés de mélange, dilution et conditionnement."
-      },
-      {
-        title: "Pivot de Gauss 2×2",
-        problem: "Résoudre : 2x + y = 7 et x − y = 2.",
-        solution: "L2 ← L2 − (1/2)·L1 : −(3/2)y = −3/2 → y = 1. Substitution : 2x = 7 − 1 = 6 → x = 3.",
-        applicationNote: "En génie des procédés, x et y représentent souvent des débits inconnus dans deux branches d'un réseau."
-      },
-      {
-        title: "Pivot de Gauss 3×3 — bilan sur échangeur",
-        problem: "Résoudre le système 3×3 représentant les bilans matière sur un nœud à trois flux (x, y, z en kg/h) : x + y + z = 6 (L1), 2x + y − z = 3 (L2), x + 2y − z = 5 (L3).",
-        solution: "Étape 1 — Triangularisation. L2 ← L2 − 2·L1 : (2−2)x + (1−2)y + (−1−2)z = 3−12 → −y − 3z = −9 (L2'). L3 ← L3 − L1 : (1−1)x + (2−1)y + (−1−1)z = 5−6 → y − 2z = −1 (L3'). Étape 2 — Élimination de y. L3' ← L3' + L2' : (y−y) + (−2z−3z) = −1+(−9) → −5z = −10 → z = 2. Étape 3 — Remontée. Depuis L2' : −y − 6 = −9 → y = 3. Depuis L1 : x = 6 − 3 − 2 = 1. Vérification complète : L1 : 1+3+2=6 ✓ ; L2 : 2+3−2=3 ✓ ; L3 : 1+6−2=5 ✓.",
-        applicationNote: "Le pivot de Gauss 3×3 est la méthode standard pour les bilans matière couplés sur les procédés à trois composants ou trois flux."
-      },
-      {
-        title: "Système avec infinité de solutions — paramètre libre",
-        problem: "Résoudre : x + 2y − z = 3 (L1), 2x + 4y − 2z = 6 (L2), x − y + z = 1 (L3).",
-        solution: "L2 ← L2 − 2·L1 : 0 = 0 (ligne nulle). L3 ← L3 − L1 : −3y + 2z = −2. Posons z = t (paramètre libre). Depuis L3' : y = (2t + 2)/3. Depuis L1 : x = 3 − 2y + z = 3 − 2(2t+2)/3 + t = 3 − (4t+4)/3 + t = (9 − 4t − 4 + 3t)/3 = (5 − t)/3. Solution : (x, y, z) = ((5−t)/3, (2t+2)/3, t) pour tout t ∈ ℝ. L2 est redondante : le système a un degré de liberté.",
-        applicationNote: "Un degré de liberté en procédé signifie qu'une mesure supplémentaire (pression différentielle, composition…) est nécessaire pour fermer le bilan."
-      },
-      {
-        title: "Système incompatible — détection de mesures contradictoires",
-        problem: "Un opérateur mesure des débits : x + y = 50 (L1), 3x + 3y = 180 (L2). Détecter l'incohérence.",
-        solution: "L2 ← L2 − 3·L1 : 0·x + 0·y = 180 − 150 = 30 → 0 = 30. Contradiction : le système est incompatible. L2 devrait être 3×50 = 150, mais les mesures donnent 180. Cela indique soit une erreur de facteur (L2 ≠ 3·L1 physiquement), soit une mesure erronée. Le bilan global devrait satisfaire 3×50 = 150 ≠ 180 : il y a 30 unités de débit non comptabilisées (fuite, erreur de capteur).",
-        applicationNote: "En analyse de procédé, la détection d'un système incompatible après réduction gaussienne est la première étape du diagnostic de cohérence des mesures (data reconciliation)."
-      }
-    ]
+    examples: []
   },
   {
     code: "POLY",
@@ -222,16 +191,16 @@ window.APP_DATA = {
         summary: "Un polynôme à coefficients dans K est P(X) = Σ_{k≥0} aₖXᵏ avec aₖ ∈ K, les termes étant nuls à partir d'un certain rang. Le degré est le plus grand entier n tel que aₙ ≠ 0. Par convention, le polynôme nul a pour degré −∞. Deux polynômes A et B sont égaux si et seulement si pour tout k, aₖ = bₖ (même coefficients à chaque degré). Vocabulaire : X est l'indéterminée, aₖ est le coefficient du terme de degré k, aₖXᵏ est un monôme de degré k, et K[X] désigne l'ensemble de tous les polynômes à coefficients dans K. Exemple du cours : P(X) = 1 + 3X² + 5X⁴ est de degré 4 dans ℝ[X] ; le coefficient de degré 2 est 3 ; le coefficient de degré 3 est nul (terme absent) ; le monôme de degré 4 est 5X⁴.",
         qcm: [
           {
-            question: "Quelle est la liste de coefficients de P(X) = 2X³ − X + 3 pour l'algorithme de Horner ?",
-            choices: ["[2, 0, −1, 3]", "[2, −1, 3]", "[2, 1, −1, 3]", "[3, −1, 0, 2]"],
+            question: "Quel est le degré du polynôme P(X) = 1 + 3X² + 5X⁴ ?",
+            choices: ["4, car le coefficient de X⁴ vaut 5 ≠ 0", "2, car le terme 3X² est le plus visible", "1, car le terme de plus bas degré non nul est le terme constant", "5, car c'est le coefficient dominant"],
             answer: 0,
-            explanation: "Le terme X² est absent : son coefficient est 0. On écrit toujours tous les coefficients, y compris les nuls, par ordre décroissant."
+            explanation: "Le degré est le plus grand entier n tel que le coefficient aₙ ≠ 0. Ici a₄ = 5 ≠ 0 et il n'y a pas de terme de degré supérieur : deg P = 4. Le terme X³ et le terme X sont absents (coefficients nuls)."
           },
           {
-            question: "En appliquant Horner à P(X) = 2X³ − X + 3 pour X = 2, quel est P(2) ?",
-            choices: ["17", "15", "13", "21"],
+            question: "Deux polynômes A(X) et B(X) sont égaux si et seulement si :",
+            choices: ["Tous leurs coefficients sont identiques : aₖ = bₖ pour tout k ≥ 0", "Ils ont le même degré", "A(0) = B(0)", "Ils ont les mêmes racines"],
             answer: 0,
-            explanation: "b₃=2 ; b₂=2×2+0=4 ; b₁=4×2+(−1)=7 ; b₀=7×2+3=17. Vérification : 2×8−2+3=17 ✓."
+            explanation: "L'égalité polynomiale est une égalité terme à terme : aₖ = bₖ pour tout k. Par exemple, 2(X−1) et (X−1) ont la même racine x = 1, mais leurs coefficients diffèrent, donc ils ne sont pas égaux."
           },
           {
             question: "Par convention, quel est le degré d'un polynôme constant non nul, par exemple P(X) = 5 ?",
@@ -314,38 +283,7 @@ window.APP_DATA = {
         ]
       },
     ],
-    examples: [
-      {
-        title: "Évaluation par Horner",
-        problem: "Évaluer P(X) = 2X³ − X² + 3X − 4 en X = 2.",
-        solution: "Coefficients : [2, −1, 3, −4]. b₃=2. b₂=2×2+(−1)=3. b₁=3×2+3=9. b₀=9×2+(−4)=14. P(2)=14.",
-        applicationNote: "Très utilisé pour évaluer rapidement des corrélations polynomiales de Cp(T) à une température donnée."
-      },
-      {
-        title: "Factorisation complète",
-        problem: "Factoriser P(X) = X³ − 6X² + 11X − 6.",
-        solution: "P(1) = 1−6+11−6 = 0 ✓. Division par (X−1) : Q(X) = X²−5X+6. Δ = 1. x₂ = 3, x₃ = 2. Factorisation : (X−1)(X−2)(X−3).",
-        applicationNote: "La factorisation permet d'identifier les points d'équilibre d'un procédé décrits par une équation polynomiale."
-      },
-      {
-        title: "Addition et multiplication de polynômes",
-        problem: "Soit A(X) = 3X² − 2X + 1 et B(X) = X² + X − 3. Calculer S(X) = A + B et P(X) = A·B.",
-        solution: "S(X) = (3+1)X² + (−2+1)X + (1−3) = 4X² − X − 2. Pour P(X) : (3X²)(X²) = 3X⁴ ; (3X²)(X) = 3X³ ; (3X²)(−3) = −9X² ; (−2X)(X²) = −2X³ ; (−2X)(X) = −2X² ; (−2X)(−3) = 6X ; (1)(X²) = X² ; (1)(X) = X ; (1)(−3) = −3. Regroupement : P(X) = 3X⁴ + (3−2)X³ + (−9−2+1)X² + (6+1)X − 3 = 3X⁴ + X³ − 10X² + 7X − 3. Vérification : P(1) = 3+1−10+7−3 = −2 = A(1)·B(1) = 2·(−1) = −2 ✓.",
-        applicationNote: "La multiplication polynomiale est l'opération clé pour développer des équations d'état factorisées ou des fonctions de transfert de systèmes en série."
-      },
-      {
-        title: "Division euclidienne complète",
-        problem: "Diviser P(X) = 2X³ + 3X² − 5X + 1 par D(X) = X² − X + 2.",
-        solution: "Étape 1 : 2X³ ÷ X² = 2X. Soustraire 2X·(X²−X+2) = 2X³−2X²+4X de P : reste (3X²+2X²) + (−5X−4X) + 1 = 5X² − 9X + 1. Étape 2 : 5X² ÷ X² = 5. Soustraire 5·(X²−X+2) = 5X²−5X+10 du reste : (−9X+5X) + (1−10) = −4X − 9. Résultat : P(X) = (2X + 5)·(X²−X+2) + (−4X − 9). Vérification : deg(R) = 1 < deg(D) = 2 ✓. Vérification numérique en X=0 : P(0) = 1 ; Q(0)·D(0)+R(0) = 5·2+(−9) = 1 ✓.",
-        applicationNote: "La division euclidienne est le premier pas de la décomposition en éléments simples des fractions rationnelles (chapitre FRAT)."
-      },
-      {
-        title: "Racines d'un polynôme de degré 3 — application Van der Waals",
-        problem: "Trouver toutes les racines de P(X) = X³ − 3X² − X + 3.",
-        solution: "Racines entières candidates : ±1, ±3. P(1) = 1−3−1+3 = 0 ✓. Division par (X−1) : P(X) = (X−1)(X²−2X−3). Discriminant de X²−2X−3 : Δ = 4+12 = 16. Racines : x = (2±4)/2, donc x₂ = 3 et x₃ = −1. Factorisation complète : P(X) = (X−1)(X−3)(X+1). Vérification : P(3) = 27−27−3+3 = 0 ✓ et P(−1) = −1−3+1+3 = 0 ✓.",
-        applicationNote: "Pour l'équation de Van der Waals cubique en V, on cherche de même les racines réelles positives, qui représentent les volumes molaires possibles (liquide, vapeur ou état intermédiaire)."
-      }
-    ]
+    examples: []
   },
   {
     code: "FVAR",
@@ -382,10 +320,10 @@ window.APP_DATA = {
             explanation: "Le logarithme est défini uniquement pour des valeurs strictement positives. Il faut donc x + y > 0."
           },
           {
-            question: "Que représentent les courbes de niveau f(x, y) = c pour f = P(T, V) = nRT/V ?",
-            choices: ["Des isothermes (T constant), appelées isothermes de Boyle", "Des isobares (P constant)", "Des isochores (V constant)", "Des courbes de chaleur spécifique"],
+            question: "Que représentent les courbes de niveau f(T, V) = c pour f = P(T, V) = nRT/V ?",
+            choices: ["Des isobares (pression constante P = c)", "Des isothermes (T constant), appelées isothermes de Boyle", "Des isochores (V constant)", "Des courbes de chaleur spécifique"],
             answer: 0,
-            explanation: "Les courbes de niveau de P(T,V) = const correspondent à T constant : ce sont les isothermes de Boyle PV = const."
+            explanation: "Les courbes de niveau de P(T,V) = nRT/V = c signifient que P = c est constante : ce sont des isobares. Dans le plan (T,V) elles s'écrivent T = (c/nR)·V, des droites passant par l'origine. Les isothermes de Boyle (PV = const) se représentent dans le plan (P,V), pas ici."
           },
           {
             question: "En combien de dimensions vit le graphe d'une fonction f(x, y) ?",
@@ -492,38 +430,7 @@ window.APP_DATA = {
         ]
       },
     ],
-    examples: [
-      {
-        title: "Dérivées partielles d'un polynôme",
-        problem: "Soit f(x,y) = 2x²y + 3xy². Calculer ∂f/∂x et ∂f/∂y.",
-        solution: "∂f/∂x = 4xy + 3y² (y traité comme constante) ; ∂f/∂y = 2x² + 6xy (x traité comme constante).",
-        applicationNote: "Même méthode pour les équations d'état thermodynamiques."
-      },
-      {
-        title: "Gradient et gaz parfait",
-        problem: "P(V,T) = nRT/V avec n = 1 mol, R = 8.314. Calculer ∇P en (V=0.025 m³, T=300 K).",
-        solution: "∂P/∂T = R/V = 8.314/0.025 = 332.6 Pa/K ; ∂P/∂V = −RT/V² = −8.314×300/0.025² = −2494.2/6.25×10⁻⁴ = −3 990 720 Pa/m³. Gradient ∇P = (332.6, −3 990 720).",
-        applicationNote: "La grande valeur de ∂P/∂V montre la forte sensibilité de la pression au volume."
-      },
-      {
-        title: "Domaine de définition d'une fonction de deux variables",
-        problem: "Déterminer le domaine de définition de f(x, y) = ln(x + y − 1) / √(4 − x² − y²).",
-        solution: "Condition 1 (logarithme) : x + y − 1 > 0 ↔ y > 1 − x (demi-plan strictement au-dessus de la droite x + y = 1). Condition 2 (racine carrée au dénominateur) : 4 − x² − y² > 0 (strict car dénominateur ≠ 0) ↔ x² + y² < 4 (intérieur strict du disque de rayon 2). Domaine D : {(x, y) ∈ ℝ² | x² + y² < 4 ET x + y > 1}. C'est l'intersection d'un disque ouvert et d'un demi-plan ouvert.",
-        applicationNote: "En thermodynamique, déterminer le domaine de définition d'une équation d'état (P, V, T) revient à identifier les plages physiquement accessibles (volume > b, T > 0, etc.)."
-      },
-      {
-        title: "Dérivées partielles d'ordre 2 et matrice hessienne",
-        problem: "Soit f(x, y) = x³ + xy² − 3x. Calculer toutes les dérivées partielles d'ordre 2 et la matrice hessienne en (1, 0).",
-        solution: "∂f/∂x = 3x² + y² − 3 ; ∂f/∂y = 2xy. Dérivées d'ordre 2 : ∂²f/∂x² = 6x ; ∂²f/∂y² = 2x ; ∂²f/∂x∂y = 2y ; ∂²f/∂y∂x = 2y (Schwarz ✓). Hessienne : H(x,y) = [[6x, 2y],[2y, 2x]]. En (1, 0) : H(1,0) = [[6, 0],[0, 2]]. det(H) = 12 > 0 et ∂²f/∂x²|_(1,0) = 6 > 0 → (1, 0) est un minimum local. Vérification : ∇f(1,0) = (3+0−3, 0) = (0, 0) ✓, c'est bien un point critique.",
-        applicationNote: "La matrice hessienne est l'outil standard pour l'optimisation de fonctions de coût ou de rendement dépendant de plusieurs paramètres opératoires."
-      },
-      {
-        title: "Intégrale double sur domaine triangulaire",
-        problem: "Calculer ∬_D (x + y) dA où D est le triangle de sommets (0,0), (1,0), (0,1).",
-        solution: "Le domaine D est défini par : 0 ≤ x ≤ 1 et 0 ≤ y ≤ 1 − x. Intégrale intérieure : ∫_0^{1−x} (x+y) dy = [xy + y²/2]_0^{1−x} = x(1−x) + (1−x)²/2 = (1−x)(x + (1−x)/2) = (1−x)(x/2 + 1/2) = (1−x)(1+x)/2 = (1−x²)/2. Intégrale extérieure : ∫_0^1 (1−x²)/2 dx = (1/2)[x − x³/3]_0^1 = (1/2)(1 − 1/3) = (1/2)(2/3) = 1/3. Résultat : ∬_D (x+y) dA = 1/3.",
-        applicationNote: "Les intégrales sur domaines triangulaires apparaissent dans le calcul de flux thermiques sur des surfaces d'échange de géométrie complexe."
-      }
-    ],
+    examples: [],
   },
   {
     code: "FRAT",
@@ -614,10 +521,15 @@ window.APP_DATA = {
             explanation: "∫(X−r)^(−2) dX = (X−r)^(−1)/(−1) = −1/(X−r). Donc ∫B/(X−r)² dX = −B/(X−r) + C."
           },
           {
-            question: "En transformée de Laplace inverse, L⁻¹{A/(s − r)} vaut :",
-            choices: ["A·e^(rt) pour t ≥ 0", "A·r·t", "A·e^(−rt)", "A·sin(rt)"],
+            question: "Comment intègre-t-on un élément de 2ᵉ espèce (aX + b)/(X² + pX + q) avec Δ < 0 ?",
+            choices: [
+              "On décompose en (a/2)·ln|X²+pX+q| + (b−ap/2)/δ · arctan((X+p/2)/δ) + C, avec δ = √(q−p²/4)",
+              "Directement ln|X² + pX + q| + C",
+              "On factorise X²+pX+q et on applique la formule des pôles simples",
+              "On dérive le numérateur et on intègre le quotient obtenu"
+            ],
             answer: 0,
-            explanation: "L{e^(rt)} = 1/(s−r), donc L⁻¹{A/(s−r)} = A·e^(rt)·1(t). Si r < 0, ce terme s'amortit (stable)."
+            explanation: "Quand Δ < 0, X²+pX+q est irréductible dans ℝ. On complète le carré : (X+p/2)²+δ². La partie en ln provient du terme proportionnel à la dérivée du dénominateur ; la partie en arctan gère le reste constant au numérateur."
           }
         ]
       },
@@ -670,42 +582,697 @@ window.APP_DATA = {
         ]
       },
     ],
-    examples: [
-      {
-        title: "DES pôles simples",
-        problem: "F(X) = 3/((X − 2)(X + 1)). Décomposer.",
-        solution: "A = 3/(2+1) = 1 (couverture en X=2) ; B = 3/(−1−2) = −1 (couverture en X=−1). F(X) = 1/(X−2) − 1/(X+1). Vérification : [1·(X+1) − 1·(X−2)] / [(X−2)(X+1)] = 3/[(X−2)(X+1)]. ✓",
-        applicationNote: "Méthode des résidus directement applicable à l'inversion de Laplace en automatique."
-      },
-      {
-        title: "Inversion Laplace avec pôles complexes",
-        problem: "F(s) = (2s + 3)/((s+1)² + 4). Trouver f(t) = L⁻¹{F(s)}.",
-        solution: "Réécrire : (2s+3) = 2(s+1) + 1. Donc F(s) = 2(s+1)/((s+1)²+4) + (1/2)·2/((s+1)²+4). f(t) = 2e^(−t)cos(2t) + (1/2)e^(−t)sin(2t).",
-        applicationNote: "Technique essentielle pour la réponse temporelle des systèmes du 2nd ordre sous-amortis."
-      },
-      {
-        title: "DES fraction propre — pôles simples — intégration complète",
-        problem: "Décomposer F(X) = (X + 4)/((X − 1)(X + 3)) puis calculer ∫F(X) dX.",
-        solution: "Résidu en X=1 : A = (1+4)/((1+3)) = 5/4. Résidu en X=−3 : B = (−3+4)/((−3−1)) = 1/(−4) = −1/4. DES : F(X) = (5/4)/(X−1) − (1/4)/(X+3). Vérification en X=0 : F(0) = 4/(−1·3) = −4/3. DES(0) : (5/4)/(−1) − (1/4)/(3) = −5/4 − 1/12 = −15/12 − 1/12 = −16/12 = −4/3 ✓. Intégrale : ∫F dX = (5/4)·ln|X−1| − (1/4)·ln|X+3| + C.",
-        applicationNote: "Ce type d'intégrale apparaît dans la résolution analytique de bilans de procédé en régime transitoire et dans le calcul de temps de résidence."
-      },
-      {
-        title: "DES avec pôle double — identification complète",
-        problem: "Décomposer G(X) = (2X + 1)/((X−2)²·(X+1)).",
-        solution: "Forme : A/(X−2) + B/(X−2)² + C/(X+1). Résidu B en X=2 : B = (2·2+1)/((2+1)) = 5/3. Résidu C en X=−1 : C = (2·(−1)+1)/(((−1)−2)²) = (−1)/(9) = −1/9. Pour A : multiplier par (X−2)² et différencier par rapport à X, évaluer en X=2. G·(X−2)² = (2X+1)/(X+1). Sa dérivée : [(2)(X+1) − (2X+1)(1)]/(X+1)² = [2X+2−2X−1]/(X+1)² = 1/(X+1)². En X=2 : A = 1/(3)² = 1/9. Vérification en X=0 : G(0) = 1/((−2)²·1) = 1/4. DES(0) : (1/9)/(−2) + (5/3)/(4) + (−1/9)/(1) = −1/18 + 5/12 − 1/9 = −2/36 + 15/36 − 4/36 = 9/36 = 1/4 ✓.",
-        applicationNote: "Les pôles doubles en Laplace correspondent à des termes t·e^(at) dans la réponse temporelle, caractéristiques d'un système à amortissement critique."
-      },
-      {
-        title: "Inversion de Laplace par DES — système du 2ᵉ ordre",
-        problem: "Calculer f(t) = L⁻¹{F(s)} pour F(s) = 4/(s(s² + 4s + 4)).",
-        solution: "Factoriser : s²+4s+4 = (s+2)². Forme DES : A/s + B/(s+2) + C/(s+2)². Résidu A en s=0 : A = 4/(4) = 1. Résidu C (pôle double s=−2) : C = 4/(−2) = −2. Pour B : multiplier par (s+2)² → 4/s ; différencier → −4/s² ; évaluer en s=−2 : −4/4 = −1. Donc F(s) = 1/s − 1/(s+2) − 2/(s+2)². Inversion : f(t) = 1(t) − e^(−2t) − 2t·e^(−2t) = 1 − e^(−2t)(1 + 2t) pour t ≥ 0. Vérification f(0) : 1 − 1·(1+0) = 0 ✓. Valeur finale f(∞) : 1 (la réponse converge vers 1).",
-        applicationNote: "Un pôle double en s=−2 correspond à un système du 2ᵉ ordre à amortissement critique (ζ=1) : la réponse monte sans osciller mais plus lentement qu'un pôle simple."
-      }
-    ],
+    examples: [],
   },
 ],
 
   exercises: [
+  // ─── SYSLIN — exercices tirés des exemples du cours ─────────────────────────
+  {
+    id: "exo-syslin-ex01",
+    title: "Bilan de mélange — composition massique",
+    topic: "SYSLIN",
+    semester: "S2",
+    level: "facile",
+    duration: "10 min",
+    statement: `Un courant de 10 kg/h à 30 % massique en composant A est mélangé à un courant de 20 kg/h à 10 % massique en A.
+
+1. Écrire le bilan global (kg/h) et le bilan sur le composant A.
+2. Résoudre et donner le débit total et la composition massique du mélange.`,
+    correction: [
+      "Bilan global : F = 10 + 20 = 30 kg/h.",
+      "Bilan sur A : 10 × 0.30 + 20 × 0.10 = 3 + 2 = 5 kg/h.",
+      "Composition du mélange : 5 / 30 ≈ 16.7 % massique en A.",
+    ],
+    keywords: ["bilan matière", "mélange", "composition massique", "substitution"],
+  },
+  {
+    id: "exo-syslin-ex02",
+    title: "Pivot de Gauss 2×2 — débits en réseau",
+    topic: "SYSLIN",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `Résoudre le système suivant par pivot de Gauss (x et y sont des débits en m³/h) :
+
+  2x + y = 7   (L1)
+   x − y = 2   (L2)
+
+1. Appliquer l'opération L2 ← L2 − (1/2)·L1.
+2. Trouver y puis x par remontée.
+3. Vérifier dans les deux équations.`,
+    correction: [
+      "L2 ← L2 − (1/2)·L1 : (1 − 1)x + (−1 − 1/2)y = 2 − 7/2 → −(3/2)y = −3/2 → y = 1 m³/h.",
+      "Substitution dans L1 : 2x + 1 = 7 → x = 3 m³/h.",
+      "Vérification : 2×3 + 1 = 7 ✓ ; 3 − 1 = 2 ✓.",
+    ],
+    keywords: ["pivot de Gauss", "substitution arrière", "débit", "système 2×2"],
+  },
+  {
+    id: "exo-syslin-ex03",
+    title: "Pivot de Gauss 3×3 — nœud à trois flux",
+    topic: "SYSLIN",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "25 min",
+    statement: `Les bilans matière sur un nœud de procédé à trois flux (x, y, z en kg/h) donnent :
+
+  x + y + z = 6   (L1)
+  2x + y − z = 3  (L2)
+  x + 2y − z = 5  (L3)
+
+1. Triangulariser par pivot de Gauss (L2 ← L2 − 2·L1, puis L3 ← L3 − L1).
+2. Éliminer y entre les nouvelles L2 et L3.
+3. Remonter pour trouver z, y, puis x.
+4. Vérifier dans les trois équations initiales.`,
+    correction: [
+      "L2 ← L2 − 2·L1 : −y − 3z = −9 (L2'). L3 ← L3 − L1 : y − 2z = −1 (L3').",
+      "L3' ← L3' + L2' : −5z = −10 → z = 2 kg/h.",
+      "Depuis L2' : −y − 6 = −9 → y = 3 kg/h. Depuis L1 : x = 6 − 3 − 2 = 1 kg/h.",
+      "Vérification : L1 : 1+3+2=6 ✓ ; L2 : 2+3−2=3 ✓ ; L3 : 1+6−2=5 ✓.",
+    ],
+    keywords: ["pivot de Gauss", "système 3×3", "bilan nœud", "remontée"],
+  },
+  {
+    id: "exo-syslin-ex04",
+    title: "Système avec infinité de solutions — paramètre libre",
+    topic: "SYSLIN",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "25 min",
+    statement: `Résoudre le système :
+
+  x + 2y − z = 3   (L1)
+  2x + 4y − 2z = 6  (L2)
+  x − y + z = 1    (L3)
+
+1. Appliquer L2 ← L2 − 2·L1 et L3 ← L3 − L1. Que remarquez-vous sur L2 ?
+2. Poser z = t (paramètre libre) et exprimer y puis x en fonction de t.
+3. Écrire l'ensemble des solutions S.
+4. Quelle interprétation physique peut-on donner au degré de liberté ?`,
+    correction: [
+      "L2 ← L2 − 2·L1 : 0 = 0 (ligne nulle — L2 est redondante). L3 ← L3 − L1 : −3y + 2z = −2 (L3').",
+      "z = t (libre). Depuis L3' : y = (2t + 2)/3. Depuis L1 : x = 3 − 2y + z = (5 − t)/3.",
+      "S = { ((5−t)/3 , (2t+2)/3 , t) | t ∈ ℝ }. Le système a un degré de liberté (une inconnue libre).",
+      "En procédé : un degré de liberté signifie qu'une mesure supplémentaire est nécessaire (pression différentielle, composition…) pour fermer le bilan.",
+    ],
+    keywords: ["système indéterminé", "paramètre libre", "degré de liberté", "ligne nulle"],
+  },
+  {
+    id: "exo-syslin-ex05",
+    title: "Système incompatible — détection de mesures contradictoires",
+    topic: "SYSLIN",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "20 min",
+    statement: `Un opérateur enregistre les mesures de débit suivantes :
+
+  x + y = 50    (L1)
+  3x + 3y = 180  (L2)
+
+1. Appliquer L2 ← L2 − 3·L1. Que se passe-t-il ?
+2. Conclure sur la nature du système.
+3. Expliquer l'incohérence physique : quel aurait dû être le second membre de L2 ?`,
+    correction: [
+      "L2 ← L2 − 3·L1 : 0·x + 0·y = 180 − 150 = 30 → 0 = 30. Contradiction.",
+      "Le système est incompatible : il n'admet aucune solution.",
+      "Si L1 est correcte (x + y = 50), alors 3·L1 devrait donner 3×50 = 150 ≠ 180. Il y a 30 unités non comptabilisées : fuite, erreur de capteur ou erreur de saisie.",
+    ],
+    keywords: ["système incompatible", "contradiction", "cohérence des mesures", "pivot de Gauss"],
+  },
+  // ─── POLY — exercices tirés des exemples du cours ────────────────────────────
+  {
+    id: "exo-poly-ex01",
+    title: "Évaluation par schéma de Horner",
+    topic: "POLY",
+    semester: "S2",
+    level: "facile",
+    duration: "10 min",
+    statement: `Soit P(X) = 2X³ − X² + 3X − 4.
+
+1. Lister les coefficients dans l'ordre décroissant des degrés (inclure les termes nuls).
+2. Appliquer le schéma de Horner pour évaluer P(2), en détaillant chaque étape.
+3. Vérifier par calcul direct.`,
+    correction: [
+      "Coefficients : [2, −1, 3, −4] pour les degrés 3, 2, 1, 0.",
+      "b₃ = 2. b₂ = 2×2 + (−1) = 3. b₁ = 3×2 + 3 = 9. b₀ = 9×2 + (−4) = 14. P(2) = 14.",
+      "Vérification : 2×8 − 4 + 6 − 4 = 16 − 4 + 6 − 4 = 14 ✓.",
+    ],
+    keywords: ["schéma de Horner", "évaluation", "algorithme", "coefficients"],
+  },
+  {
+    id: "exo-poly-ex02",
+    title: "Factorisation complète d'un polynôme de degré 3",
+    topic: "POLY",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `Soit P(X) = X³ − 6X² + 11X − 6.
+
+1. Tester x = 1 comme racine candidate (diviseurs du terme constant 6 : ±1, ±2, ±3, ±6).
+2. Diviser P(X) par (X − 1) pour obtenir le quotient Q(X).
+3. Factoriser Q(X) par discriminant.
+4. Écrire la factorisation complète de P(X) dans ℝ.`,
+    correction: [
+      "P(1) = 1 − 6 + 11 − 6 = 0 ✓. x = 1 est racine.",
+      "Division par (X − 1) : Q(X) = X² − 5X + 6 (vérification : (X−1)(X²−5X+6) = X³−6X²+11X−6 ✓).",
+      "Δ = 25 − 24 = 1. x₂ = (5+1)/2 = 3, x₃ = (5−1)/2 = 2.",
+      "P(X) = (X − 1)(X − 2)(X − 3).",
+    ],
+    keywords: ["factorisation", "racines entières", "division euclidienne", "discriminant"],
+  },
+  {
+    id: "exo-poly-ex03",
+    title: "Addition et multiplication de polynômes",
+    topic: "POLY",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `Soient A(X) = 3X² − 2X + 1 et B(X) = X² + X − 3.
+
+1. Calculer S(X) = A(X) + B(X).
+2. Calculer R(X) = A(X) × B(X) en développant complètement et en regroupant par degré.
+3. Vérifier R(1) = A(1) × B(1).`,
+    correction: [
+      "S(X) = (3+1)X² + (−2+1)X + (1−3) = 4X² − X − 2.",
+      "R(X) = 3X⁴ + 3X³ − 9X² − 2X³ − 2X² + 6X + X² + X − 3 = 3X⁴ + X³ − 10X² + 7X − 3.",
+      "A(1) = 3 − 2 + 1 = 2 ; B(1) = 1 + 1 − 3 = −1. A(1)×B(1) = −2. R(1) = 3 + 1 − 10 + 7 − 3 = −2 ✓.",
+    ],
+    keywords: ["addition", "multiplication", "polynômes", "développement"],
+  },
+  {
+    id: "exo-poly-ex04",
+    title: "Division euclidienne par puissances décroissantes",
+    topic: "POLY",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "20 min",
+    statement: `Diviser P(X) = 2X³ + 3X² − 5X + 1 par D(X) = X² − X + 2.
+
+1. Effectuer la division euclidienne (puissances décroissantes) étape par étape.
+2. Écrire la relation A = B·Q + R et vérifier deg(R) < deg(D).
+3. Vérifier numériquement en X = 0.`,
+    correction: [
+      "2X³ ÷ X² = 2X → soustraire 2X·(X²−X+2) = 2X³−2X²+4X → reste = 5X² − 9X + 1.",
+      "5X² ÷ X² = 5 → soustraire 5·(X²−X+2) = 5X²−5X+10 → reste = −4X − 9.",
+      "P(X) = (2X + 5)·(X²−X+2) + (−4X − 9). deg(R) = 1 < 2 = deg(D) ✓.",
+      "X=0 : P(0) = 1 ; Q(0)·D(0)+R(0) = 5·2 + (−9) = 1 ✓.",
+    ],
+    keywords: ["division euclidienne", "quotient", "reste", "puissances décroissantes"],
+  },
+  {
+    id: "exo-poly-ex05",
+    title: "Racines d'un polynôme de degré 3 — candidats entiers",
+    topic: "POLY",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "20 min",
+    statement: `Soit P(X) = X³ − 3X² − X + 3.
+
+1. Identifier les candidats racines entières (diviseurs du terme constant).
+2. Tester x = 1 et conclure.
+3. Diviser P(X) par (X − 1) et factoriser le quotient.
+4. Écrire la factorisation complète dans ℝ et vérifier deux racines.`,
+    correction: [
+      "Terme constant : 3. Candidats : ±1, ±3.",
+      "P(1) = 1 − 3 − 1 + 3 = 0 ✓. x = 1 est racine.",
+      "Division par (X−1) : Q(X) = X² − 2X − 3. Δ = 4 + 12 = 16. x₂ = (2+4)/2 = 3, x₃ = (2−4)/2 = −1.",
+      "P(X) = (X−1)(X−3)(X+1). Vérification : P(3) = 27−27−3+3 = 0 ✓ ; P(−1) = −1−3+1+3 = 0 ✓.",
+    ],
+    keywords: ["racines entières", "candidats", "division euclidienne", "factorisation"],
+  },
+  // ─── FVAR — exercices tirés des exemples du cours ────────────────────────────
+  {
+    id: "exo-fvar-ex01",
+    title: "Dérivées partielles d'un polynôme en deux variables",
+    topic: "FVAR",
+    semester: "S2",
+    level: "facile",
+    duration: "10 min",
+    statement: `Soit f(x, y) = 2x²y + 3xy².
+
+1. Calculer ∂f/∂x en traitant y comme une constante.
+2. Calculer ∂f/∂y en traitant x comme une constante.
+3. Évaluer ∂f/∂x et ∂f/∂y au point (1, 1).`,
+    correction: [
+      "∂f/∂x = 4xy + 3y² (y est traité comme constante).",
+      "∂f/∂y = 2x² + 6xy (x est traité comme constante).",
+      "En (1, 1) : ∂f/∂x = 4 + 3 = 7 ; ∂f/∂y = 2 + 6 = 8.",
+    ],
+    keywords: ["dérivées partielles", "polynôme", "constante partielle"],
+  },
+  {
+    id: "exo-fvar-ex02",
+    title: "Gradient et sensibilité — gaz parfait",
+    topic: "FVAR",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `La pression d'un gaz parfait est P(V, T) = nRT/V avec n = 1 mol et R = 8.314 J/(mol·K).
+
+1. Calculer ∂P/∂T et ∂P/∂V (expressions symboliques).
+2. Évaluer numériquement le gradient ∇P au point (V = 0.025 m³, T = 300 K).
+3. Interpréter physiquement la grande valeur de |∂P/∂V|.`,
+    correction: [
+      "∂P/∂T = nR/V = R/V ; ∂P/∂V = −nRT/V² = −RT/V².",
+      "∂P/∂T = 8.314 / 0.025 = 332.6 Pa/K ; ∂P/∂V = −8.314 × 300 / (0.025)² = −2494.2 / 6.25×10⁻⁴ ≈ −3 990 720 Pa/m³.",
+      "∇P = (332.6 ; −3 990 720). La très grande valeur de |∂P/∂V| montre que la pression est extrêmement sensible au volume : une petite variation de volume entraîne une grande variation de pression.",
+    ],
+    keywords: ["gradient", "gaz parfait", "dérivées partielles", "sensibilité", "thermodynamique"],
+  },
+  {
+    id: "exo-fvar-ex03",
+    title: "Domaine de définition — intersection de contraintes",
+    topic: "FVAR",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "20 min",
+    statement: `Déterminer le domaine de définition de f(x, y) = ln(x + y − 1) / √(4 − x² − y²).
+
+1. Identifier les contraintes imposées par le logarithme.
+2. Identifier les contraintes imposées par la racine carrée au dénominateur (attention : dénominateur ≠ 0).
+3. Écrire le domaine D comme intersection des deux régions et le décrire géométriquement.`,
+    correction: [
+      "Logarithme : x + y − 1 > 0 ↔ x + y > 1 (demi-plan strictement au-dessus de la droite x + y = 1).",
+      "Racine carrée au dénominateur : 4 − x² − y² > 0 (strict, car dénominateur ≠ 0) ↔ x² + y² < 4 (intérieur du disque de centre O et de rayon 2).",
+      "D = { (x, y) ∈ ℝ² | x² + y² < 4 ET x + y > 1 }. C'est l'intersection d'un disque ouvert de rayon 2 et d'un demi-plan ouvert.",
+    ],
+    keywords: ["domaine de définition", "logarithme", "racine carrée", "disque", "demi-plan"],
+  },
+  {
+    id: "exo-fvar-ex04",
+    title: "Dérivées d'ordre 2 et matrice hessienne",
+    topic: "FVAR",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "25 min",
+    statement: `Soit f(x, y) = x³ + xy² − 3x.
+
+1. Calculer les dérivées partielles d'ordre 1 : ∂f/∂x et ∂f/∂y.
+2. Trouver les points critiques (∇f = 0).
+3. Calculer toutes les dérivées d'ordre 2 et écrire la matrice hessienne H(x, y).
+4. Évaluer H au point (1, 0) et classifier ce point critique (min, max ou col ?).`,
+    correction: [
+      "∂f/∂x = 3x² + y² − 3 ; ∂f/∂y = 2xy.",
+      "∇f = 0 : 2xy = 0 → x = 0 ou y = 0. Si y = 0 : 3x² − 3 = 0 → x = ±1. Points critiques : (1, 0) et (−1, 0).",
+      "∂²f/∂x² = 6x ; ∂²f/∂y² = 2x ; ∂²f/∂x∂y = 2y. H(x, y) = [[6x, 2y], [2y, 2x]].",
+      "H(1, 0) = [[6, 0], [0, 2]]. det(H) = 12 > 0 et ∂²f/∂x²|_(1,0) = 6 > 0 → minimum local en (1, 0).",
+    ],
+    keywords: ["hessienne", "points critiques", "minimum", "dérivées d'ordre 2", "Schwarz"],
+  },
+  {
+    id: "exo-fvar-ex05",
+    title: "Intégrale double sur domaine triangulaire",
+    topic: "FVAR",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "25 min",
+    statement: `Calculer ∬_D (x + y) dA où D est le triangle de sommets O(0,0), A(1,0) et B(0,1).
+
+1. Décrire le domaine D avec des inégalités sur x et y.
+2. Écrire l'intégrale double itérée (Fubini) en intégrant d'abord par rapport à y.
+3. Calculer l'intégrale intérieure (en x fixé), puis l'intégrale extérieure.`,
+    correction: [
+      "D : 0 ≤ x ≤ 1 et 0 ≤ y ≤ 1 − x (hypoténuse d'équation y = 1 − x).",
+      "I = ∫₀¹ [ ∫₀^{1−x} (x + y) dy ] dx.",
+      "Intégrale intérieure : [xy + y²/2]₀^{1−x} = x(1−x) + (1−x)²/2 = (1−x²)/2.",
+      "Intégrale extérieure : ∫₀¹ (1−x²)/2 dx = (1/2)[x − x³/3]₀¹ = (1/2)(2/3) = 1/3.",
+    ],
+    keywords: ["intégrale double", "Fubini", "domaine triangulaire", "intégrales itérées"],
+  },
+  // ─── FRAT — exercices tirés des exemples du cours ────────────────────────────
+  {
+    id: "exo-frat-ex01",
+    title: "DES — pôles simples par méthode des résidus",
+    topic: "FRAT",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `Décomposer F(X) = 3 / ((X − 2)(X + 1)) en éléments simples.
+
+1. Vérifier que la fraction est propre.
+2. Poser la forme F(X) = A/(X−2) + B/(X+1).
+3. Calculer A et B par la méthode de couverture (résidus).
+4. Vérifier la décomposition en un point test (par ex. X = 0).`,
+    correction: [
+      "deg(numérateur) = 0 < deg(dénominateur) = 2 → fraction propre, pas de partie entière.",
+      "A = [(X−2)·F(X)]_{X=2} = 3/(2+1) = 1. B = [(X+1)·F(X)]_{X=−1} = 3/(−1−2) = −1.",
+      "F(X) = 1/(X−2) − 1/(X+1).",
+      "Vérification en X=0 : F(0) = 3/((−2)(1)) = −3/2. DES(0) = 1/(−2) − 1/(1) = −1/2 − 1 = −3/2 ✓.",
+    ],
+    keywords: ["DES", "pôles simples", "résidus", "méthode de couverture"],
+  },
+  {
+    id: "exo-frat-ex02",
+    title: "DES — pôles simples et intégration",
+    topic: "FRAT",
+    semester: "S2",
+    level: "facile",
+    duration: "20 min",
+    statement: `Décomposer F(X) = (X + 4) / ((X − 1)(X + 3)) puis calculer ∫F(X) dX.
+
+1. Calculer les résidus A (pôle X=1) et B (pôle X=−3).
+2. Vérifier la DES en X = 0.
+3. Intégrer terme à terme.`,
+    correction: [
+      "A = (1+4)/(1+3) = 5/4. B = (−3+4)/(−3−1) = 1/(−4) = −1/4.",
+      "F(X) = (5/4)/(X−1) − (1/4)/(X+3). Vérification X=0 : F(0) = 4/(−3) = −4/3 ; DES(0) = 5/4·(−1) − 1/4·(1/3) = −5/4 − 1/12 = −16/12 = −4/3 ✓.",
+      "∫F(X) dX = (5/4)·ln|X−1| − (1/4)·ln|X+3| + C.",
+    ],
+    keywords: ["DES", "pôles simples", "intégration", "logarithme"],
+  },
+  {
+    id: "exo-frat-ex03",
+    title: "DES — pôle double",
+    topic: "FRAT",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "25 min",
+    statement: `Décomposer G(X) = (2X + 1) / ((X−2)²·(X+1)).
+
+1. Poser la forme G(X) = A/(X−2) + B/(X−2)² + C/(X+1).
+2. Calculer B (pôle double X=2) et C (pôle simple X=−1) par couverture.
+3. Calculer A par dérivation de (X−2)²·G(X) évalué en X=2.
+4. Vérifier la DES en X = 0.`,
+    correction: [
+      "Forme : A/(X−2) + B/(X−2)² + C/(X+1).",
+      "B = (2·2+1)/(2+1) = 5/3. C = (2·(−1)+1)/((−1−2)²) = (−1)/9 = −1/9.",
+      "A = d/dX[(2X+1)/(X+1)]|_{X=2} = [(2)(X+1)−(2X+1)]/(X+1)²|_{X=2} = 1/9.",
+      "Vérification X=0 : G(0) = 1/(4·1) = 1/4. DES(0) = (1/9)/(−2) + (5/3)/4 + (−1/9)/1 = −1/18 + 15/36 − 4/36 = 9/36 = 1/4 ✓.",
+    ],
+    keywords: ["DES", "pôle double", "dérivation", "identification"],
+  },
+  {
+    id: "exo-frat-ex04",
+    title: "Inversion de Laplace — pôles complexes conjugués",
+    topic: "FRAT",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "20 min",
+    statement: `Trouver f(t) = L⁻¹{F(s)} pour F(s) = (2s + 3) / ((s+1)² + 4).
+
+1. Réécrire le numérateur 2s + 3 en faisant apparaître (s+1).
+2. Séparer F(s) en deux termes de la forme (s+a)/((s+a)²+b²) et b/((s+a)²+b²).
+3. Appliquer les formules inverses et donner f(t).`,
+    correction: [
+      "2s + 3 = 2(s + 1) + 1.",
+      "F(s) = 2·(s+1)/((s+1)²+4) + (1/2)·2/((s+1)²+4).",
+      "L⁻¹{(s+1)/((s+1)²+4)} = e^(−t)cos(2t) ; L⁻¹{2/((s+1)²+4)} = e^(−t)sin(2t).",
+      "f(t) = 2e^(−t)cos(2t) + (1/2)e^(−t)sin(2t).",
+    ],
+    keywords: ["Laplace inverse", "pôles complexes", "compléter le carré", "exponentielle amortie"],
+  },
+  {
+    id: "exo-frat-ex05",
+    title: "Inversion de Laplace — pôle double — amortissement critique",
+    topic: "FRAT",
+    semester: "S2",
+    level: "avancé",
+    duration: "30 min",
+    statement: `Calculer f(t) = L⁻¹{F(s)} pour F(s) = 4 / (s(s² + 4s + 4)).
+
+1. Factoriser s² + 4s + 4 et identifier le type de pôles.
+2. Poser la forme DES appropriée.
+3. Calculer les coefficients A, B, C.
+4. Donner f(t) et vérifier la valeur initiale f(0) ainsi que la valeur finale f(+∞).`,
+    correction: [
+      "s² + 4s + 4 = (s+2)². Pôles : s=0 (simple) et s=−2 (double).",
+      "F(s) = A/s + B/(s+2) + C/(s+2)².",
+      "A = [s·F(s)]_{s=0} = 4/4 = 1. C = [(s+2)²·F(s)]_{s=−2} = 4/(−2) = −2. B = d/ds[4/s]|_{s=−2} = −4/s²|_{s=−2} = −1.",
+      "F(s) = 1/s − 1/(s+2) − 2/(s+2)². Inversion : f(t) = 1 − e^(−2t) − 2t·e^(−2t) = 1 − e^(−2t)(1 + 2t). Vérification : f(0) = 1 − 1 = 0 ✓ ; f(+∞) = 1 ✓.",
+    ],
+    keywords: ["Laplace inverse", "pôle double", "amortissement critique", "valeur finale"],
+  },
+  // ─── Exercices corrigés du polycopié ─────────────────────────────────────────
+  {
+    id: "exo-ec-fvar-01",
+    title: "EC 1.1 — Aire d'un disque par intégrale double en polaires",
+    topic: "FVAR",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "20 min",
+    statement: `Calculer l'aire d'un disque de rayon R en utilisant une intégrale double en coordonnées polaires.
+
+1. Rappeler la relation entre les coordonnées cartésiennes (x, y) et polaires (r, θ).
+2. Écrire l'intégrale double ∬_D dA en coordonnées polaires (penser au jacobien r).
+3. Calculer l'intégrale itérée et retrouver A = πR².`,
+    correction: [
+      "x = r·cos θ, y = r·sin θ. Le jacobien de la transformation est r, donc dA = r dr dθ.",
+      "Le disque de rayon R : D = { (r,θ) | 0 ≤ r ≤ R, 0 ≤ θ ≤ 2π }. A = ∫₀^{2π} ∫₀^R r dr dθ.",
+      "Intégrale intérieure : ∫₀^R r dr = R²/2. Intégrale extérieure : ∫₀^{2π} (R²/2) dθ = 2π·(R²/2) = πR². On retrouve bien A = πR².",
+    ],
+    keywords: ["intégrale double", "coordonnées polaires", "jacobien", "aire", "Fubini"],
+  },
+  {
+    id: "exo-ec-fvar-02",
+    title: "EC 1.2 — Vérification solution de l'équation de la chaleur",
+    topic: "FVAR",
+    semester: "S2",
+    level: "avancé",
+    duration: "25 min",
+    statement: `On donne la fonction T(x, t) = T₀ e^{−αx} sin(ωt − αx) avec α = √(ωρc / 2λ).
+
+Montrer que T vérifie l'équation de la chaleur : ∂²T/∂x² = (ρc/λ)·∂T/∂t.
+
+1. Calculer ∂T/∂t.
+2. Calculer ∂T/∂x puis ∂²T/∂x².
+3. Vérifier que ∂²T/∂x² = (ρc/λ)·∂T/∂t en utilisant α² = ωρc/(2λ).`,
+    correction: [
+      "∂T/∂t = T₀ e^{−αx} · ω·cos(ωt − αx).",
+      "∂T/∂x = T₀ [−α e^{−αx} sin(ωt−αx) + e^{−αx}(−α)cos(ωt−αx)] = −αT₀ e^{−αx}[sin(ωt−αx) + cos(ωt−αx)].",
+      "∂²T/∂x² = −α · ∂/∂x {T₀ e^{−αx}[sin+cos]} = α²T₀ e^{−αx}[sin+cos] − α·T₀ e^{−αx}[cos−sin] = 2α²T₀ e^{−αx}(−sin(ωt−αx)... [calcul complet] → ∂²T/∂x² = −2α²T₀ e^{−αx}sin(ωt−αx) + 2α²T₀ e^{−αx}(... On utilise α² = ωρc/(2λ) pour vérifier l'égalité avec (ρc/λ)·∂T/∂t = (ρc/λ)·ωT₀ e^{−αx}cos(ωt−αx) = 2α²T₀ e^{−αx}cos(ωt−αx). En développant ∂²T/∂x² on obtient bien le même résultat ✓.",
+    ],
+    keywords: ["équation de la chaleur", "EDP", "dérivées partielles", "vérification", "diffusion thermique"],
+  },
+  {
+    id: "exo-ec-syslin-01",
+    title: "EC 2.1 — Système 2×2 : écarts de salaires",
+    topic: "SYSLIN",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `Jean gagne 5 800 € de plus que Jacques par an. Ensemble, ils gagnent 43 600 € par an.
+
+Soient j le salaire annuel de Jean et k celui de Jacques (en €).
+
+1. Écrire le système de deux équations.
+2. Résoudre par substitution.
+3. Vérifier le résultat.`,
+    correction: [
+      "Système : j − k = 5 800 (L1) ; j + k = 43 600 (L2).",
+      "L1 + L2 : 2j = 49 400 → j = 24 700 €. Depuis L1 : k = 24 700 − 5 800 = 18 900 €.",
+      "Vérification : j − k = 24 700 − 18 900 = 5 800 ✓ ; j + k = 43 600 ✓.",
+    ],
+    keywords: ["substitution", "système 2×2", "écart", "salaire"],
+  },
+  {
+    id: "exo-ec-syslin-02",
+    title: "EC 2.2 — Rayons d'une bibliothèque",
+    topic: "SYSLIN",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `Une bibliothèque possède 38 livres rangés sur des rayons de 1,5 m de longueur. Les livres occupent exactement tous les rayons disponibles. Les livres en format poche font 2 cm d'épaisseur, les livres grand format font 4 cm.
+
+Soient p le nombre de livres poche et g le nombre de livres grand format.
+
+1. Écrire le système (équation sur le nombre total de livres et équation sur la longueur totale occupée).
+2. Résoudre par pivot de Gauss ou substitution.
+3. Vérifier.`,
+    correction: [
+      "Système : p + g = 38 (L1) ; 2p + 4g = 150 (longueur en cm : 1.5 m = 150 cm) (L2).",
+      "L2 ← L2 − 2·L1 : 2g = 74 → g = 37. Depuis L1 : p = 38 − 37 = 1.",
+      "Vérification : 1 + 37 = 38 ✓ ; 2×1 + 4×37 = 2 + 148 = 150 cm ✓.",
+    ],
+    keywords: ["substitution", "pivot de Gauss", "système 2×2", "longueur"],
+  },
+  {
+    id: "exo-ec-poly-01",
+    title: "EC 3.1 — Divisibilité par (X−1)²",
+    topic: "POLY",
+    semester: "S2",
+    level: "avancé",
+    duration: "25 min",
+    statement: `Montrer que le polynôme P(X) = nX^{n+1} − (n+1)Xⁿ + 1 est divisible par (X − 1)².
+
+1. Calculer P(1) pour montrer que 1 est racine de P.
+2. Calculer P'(X) puis P'(1) pour montrer que 1 est racine de P' (donc racine double de P).
+3. Conclure que (X−1)² | P(X).`,
+    correction: [
+      "P(1) = n·1 − (n+1)·1 + 1 = n − n − 1 + 1 = 0. Donc 1 est racine de P.",
+      "P'(X) = n(n+1)X^n − n(n+1)X^{n−1} = n(n+1)X^{n−1}(X − 1). Donc P'(1) = n(n+1)·1·0 = 0. 1 est aussi racine de P'.",
+      "1 est racine d'ordre ≥ 2 de P (P(1) = P'(1) = 0), donc (X−1)² | P(X). ■",
+    ],
+    keywords: ["divisibilité", "racine double", "dérivée", "ordre de multiplicité"],
+  },
+  {
+    id: "exo-ec-poly-02",
+    title: "EC 3.2 — Trouver m pour que (X+1) divise P",
+    topic: "POLY",
+    semester: "S2",
+    level: "facile",
+    duration: "15 min",
+    statement: `Trouver la valeur de m pour que (X + 1) soit un facteur de P(X) = 6X³ − 2X² − mX − 2.
+
+1. Utiliser le théorème du facteur : si (X+1) | P(X) alors P(−1) = 0.
+2. Calculer P(−1) et résoudre pour m.
+3. Vérifier en effectuant la division de P par (X+1) avec la valeur de m trouvée.`,
+    correction: [
+      "P(−1) = 6·(−1)³ − 2·(−1)² − m·(−1) − 2 = −6 − 2 + m − 2 = m − 10.",
+      "P(−1) = 0 → m = 10.",
+      "Avec m = 10 : P(X) = 6X³ − 2X² − 10X − 2. Division par (X+1) : Q(X) = 6X² − 8X − 2 (vérification : (X+1)(6X²−8X−2) = 6X³ − 8X² − 2X + 6X² − 8X − 2 = 6X³ − 2X² − 10X − 2 ✓).",
+    ],
+    keywords: ["théorème du facteur", "divisibilité", "paramètre", "racine"],
+  },
+  {
+    id: "exo-ec-poly-03",
+    title: "EC 3.3 — pH d'un mélange d'acides par polynôme",
+    topic: "POLY",
+    semester: "S2",
+    level: "avancé",
+    duration: "30 min",
+    statement: `Un mélange d'acide chlorhydrique (fort) et d'acide acétique (faible, Ka = 1.8×10⁻⁵) conduit à l'équation :
+
+  c² + 0.01·c − 1.8×10⁻⁶ = 0
+
+où c = [H⁺] est la concentration en ions hydronium.
+
+1. Identifier les coefficients a, b, d du trinôme du second degré.
+2. Calculer le discriminant Δ.
+3. Sélectionner la racine physiquement acceptable (c > 0) et calculer le pH = −log₁₀(c).`,
+    correction: [
+      "a = 1, b = 0.01, d = −1.8×10⁻⁶.",
+      "Δ = (0.01)² + 4×1.8×10⁻⁶ = 10⁻⁴ + 7.2×10⁻⁶ = 1.072×10⁻⁴.",
+      "c = (−0.01 + √(1.072×10⁻⁴))/2 = (−0.01 + 0.01035)/2 ≈ 1.75×10⁻⁴ mol/L. (Racine négative rejetée car c > 0.) pH = −log₁₀(1.75×10⁻⁴) ≈ 3.76.",
+    ],
+    keywords: ["second degré", "discriminant", "pH", "acide", "chimie"],
+  },
+  {
+    id: "exo-ec-poly-04",
+    title: "EC 3.4 — Factorisation dans ℝ",
+    topic: "POLY",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "25 min",
+    statement: `Factoriser dans ℝ les polynômes suivants :
+
+(a) −X² + 2X − 1
+(b) X² − 1
+(c) X⁴ − 1
+(d) −X⁸ + 2X⁴ − 1
+
+Pour chacun, identifier les racines réelles et écrire la factorisation complète.`,
+    correction: [
+      "(a) −X² + 2X − 1 = −(X² − 2X + 1) = −(X − 1)². Racine double : X = 1.",
+      "(b) X² − 1 = (X − 1)(X + 1). Racines : X = 1 et X = −1.",
+      "(c) X⁴ − 1 = (X² − 1)(X² + 1) = (X−1)(X+1)(X²+1). Dans ℝ : X²+1 est irréductible. Factorisation : (X−1)(X+1)(X²+1).",
+      "(d) −X⁸ + 2X⁴ − 1 = −(X⁴ − 1)² = −[(X−1)(X+1)(X²+1)]². Factorisation : −(X−1)²(X+1)²(X²+1)².",
+    ],
+    keywords: ["factorisation", "ℝ", "racines réelles", "irréductible"],
+  },
+  {
+    id: "exo-ec-poly-05",
+    title: "EC 3.5 — Factorisation dans ℂ avec j = e^{i2π/3}",
+    topic: "POLY",
+    semester: "S2",
+    level: "avancé",
+    duration: "35 min",
+    statement: `Soit P(x) = (x+1)⁷ − x⁷ − 1 et j = e^{i2π/3} (racine cubique de l'unité).
+
+1. Montrer que j³ = 1 et 1 + j + j² = 0.
+2. Vérifier que j et j² sont racines de P.
+3. Montrer que −1 est aussi racine de P.
+4. En déduire une factorisation de P dans ℂ.`,
+    correction: [
+      "j = e^{i2π/3} → j³ = e^{i2π} = 1. Somme géométrique : 1 + j + j² = (j³−1)/(j−1) = 0.",
+      "P(j) = (j+1)⁷ − j⁷ − 1. Or j+1 = −j² (car 1+j+j²=0 → j+1 = −j²). Donc (j+1)⁷ = (−j²)⁷ = −j¹⁴ = −j². Ainsi P(j) = −j² − j⁷ − 1 = −j² − j − 1 = −(1+j+j²) = 0 ✓. De même P(j²) = 0 par conjugaison.",
+      "P(−1) = 0⁷ − (−1)⁷ − 1 = 0 + 1 − 1 = 0 ✓.",
+      "P a les racines j, j², −1 (au moins). P est de degré 6 : P(x) = 7x(x+1)(x²+x+1)² après factorisation complète.",
+    ],
+    keywords: ["racines complexes", "racines de l'unité", "factorisation dans ℂ", "j"],
+  },
+  {
+    id: "exo-ec-poly-06",
+    title: "EC 3.6 — Division euclidienne par différents diviseurs",
+    topic: "POLY",
+    semester: "S2",
+    level: "intermédiaire",
+    duration: "30 min",
+    statement: `Effectuer la division euclidienne de A(x) = 7x⁴ − 3x³ − 2x² + x − 5 par chacun des diviseurs suivants. Pour chaque division, donner le quotient Q et le reste R.
+
+(a) x − 3
+(b) x + 2
+(c) 2x − 3
+(d) 3x + 1`,
+    correction: [
+      "(a) Horner en x=3 : [7, −3, −2, 1, −5] → 7 | 21−3=18 | 54−2=52 | 156+1=157 | 471−5=466. R = 466, Q = 7x³+18x²+52x+157.",
+      "(b) Horner en x=−2 : 7 | −14−3=−17 | 34−2=32 | −64+1=−63 | 126−5=121. R = 121, Q = 7x³−17x²+32x−63.",
+      "(c) Diviseur 2x−3, racine x=3/2 : Horner en 3/2 → R = A(3/2) = 7·(81/16)−3·(27/8)−2·(9/4)+3/2−5. Calcul : 567/16−81/8−9/2+3/2−5 = 567/16−162/16−72/16+24/16−80/16 = 277/16. Q obtenu par division longue.",
+      "(d) Diviseur 3x+1, racine x=−1/3 : R = A(−1/3) = 7/81+3/27−2/9−1/3−5. Calcul : 7/81+9/81−18/81−27/81−405/81 = (7+9−18−27−405)/81 = −434/81.",
+    ],
+    keywords: ["division euclidienne", "Horner", "reste", "quotient"],
+  },
+  {
+    id: "exo-ec-poly-07",
+    title: "EC 3.7 — Division de x²⁸ + a²⁸ par x⁴ − a⁴",
+    topic: "POLY",
+    semester: "S2",
+    level: "avancé",
+    duration: "20 min",
+    statement: `On souhaite effectuer la division euclidienne de A(x) = x²⁸ + a²⁸ par B(x) = x⁴ − a⁴ (a ∈ ℝ fixé).
+
+1. Écrire x²⁸ = (x⁴)⁷ et a²⁸ = (a⁴)⁷. En posant u = x⁴ et v = a⁴, exprimer A en fonction de u et v.
+2. Rappeler la factorisation de u⁷ + v⁷ en utilisant que −v est racine de t⁷ + v⁷.
+3. En déduire le quotient Q(x) et le reste R.`,
+    correction: [
+      "A(x) = (x⁴)⁷ + (a⁴)⁷. Posons u = x⁴, v = a⁴ : A = u⁷ + v⁷.",
+      "u⁷ + v⁷ = (u + v)(u⁶ − u⁵v + u⁴v² − u³v³ + u²v⁴ − uv⁵ + v⁶) (factorisation somme de puissances impaires).",
+      "x⁴ + a⁴ divise x²⁸ + a²⁸ car (u+v)|(u⁷+v⁷). Mais B = x⁴ − a⁴ ≠ x⁴ + a⁴. On effectue la division directe : x²⁸ = B·Q₀ + R₀ puis reste : R₀ + a²⁸ = R. Après calcul : R = 2a²⁸ si x⁴ = a⁴ → r = a²⁸ + a²⁸ = 2a²⁸... [la division donne reste R = 2a²⁸ car les racines de x⁴−a⁴ annulent x²⁸−a²⁸, donc A = x²⁸+a²⁸ = (x²⁸−a²⁸) + 2a²⁸ = B·Q + 2a²⁸].",
+    ],
+    keywords: ["division euclidienne", "somme de puissances", "reste", "polynôme paramétré"],
+  },
+  {
+    id: "exo-ec-frat-01",
+    title: "EC 4.1 — DES de 5 fractions rationnelles dans ℝ",
+    topic: "FRAT",
+    semester: "S2",
+    level: "avancé",
+    duration: "40 min",
+    statement: `Décomposer en éléments simples dans ℝ les fractions suivantes :
+
+(a) F(X) = X / (X² − 4)
+(b) G(X) = (X² + X + 1) / (X³ − X)
+(c) H(X) = (2X² + 3) / ((X−1)²(X+2))
+(d) K(X) = (X³ + 2X + 1) / (X² − 1)   [fraction impropre]
+(e) L(X) = 1 / (X²(X² + 1))`,
+    correction: [
+      "(a) X²−4 = (X−2)(X+2). Résidus : A = 2/(4) = 1/2 ; B = −2/(−4) = 1/2. F(X) = (1/2)/(X−2) + (1/2)/(X+2).",
+      "(b) X³−X = X(X−1)(X+1). G = A/X + B/(X−1) + C/(X+1). A = 1/((−1)(1)) = −1 ; B = 3/(1·2) = 3/2 ; C = 3/(−1·(−2)) = ... → G = −1/X + (3/2)/(X−1) − (1/2)/(X+1).",
+      "(c) H = A/(X−1) + B/(X−1)² + C/(X+2). B = (1+1+3)/3 = 5/3 ; C = (4+3)/(9) = 7/9 ; A = dérivation → A = 1/9. H = (1/9)/(X−1) + (5/3)/(X−1)² + (7/9)/(X+2).",
+      "(d) deg(num)=3 > deg(den)=2 → division : X³+2X+1 = (X²−1)·X + (3X+1). Donc K = X + (3X+1)/(X²−1). DES de (3X+1)/((X−1)(X+1)) : résidus 2/(X−1) + 1/(X+1). K = X + 2/(X−1) + 1/(X+1).",
+      "(e) L = A/X + B/X² + (CX+D)/(X²+1). Identification : B = 1, A = 0, C = 0, D = −1. L = 1/X² − 1/(X²+1).",
+    ],
+    keywords: ["DES", "pôle double", "fraction impropre", "pôle complexe", "ℝ"],
+  },
+  {
+    id: "exo-ec-frat-02",
+    title: "EC 4.2 — DES puis intégrale de 2 à 3",
+    topic: "FRAT",
+    semester: "S2",
+    level: "avancé",
+    duration: "35 min",
+    statement: `Soit F(x) = (2x⁴ + 2x³ + 2x² − 3x − 1) / (x³(x² − 1)).
+
+1. Vérifier que la fraction est impropre, effectuer la division euclidienne et extraire la partie entière.
+2. Décomposer la partie propre en éléments simples dans ℝ.
+3. Calculer ∫₂³ F(x) dx.`,
+    correction: [
+      "deg(num)=4 > deg(den)=5... vérifier : dénominateur x³(x²−1) est de degré 5, numérateur de degré 4 → fraction propre en fait. Factoriser : x³(x−1)(x+1). Pôles : 0 (ordre 3), 1 (simple), −1 (simple).",
+      "Forme : A/x + B/x² + C/x³ + D/(x−1) + E/(x+1). C = num(0)/dén_réduit(0) = (−1)/((−1)(1)) = 1. D = num(1)/((1)(2)) = (2+2+2−3−1)/2 = 2/2 = 1. E = num(−1)/(1·(−2)) = (2−2+2+3−1)/(−2) = 4/(−2) = −2. Pour A et B : développement en x=0 par puissances croissantes ou système d'équations.",
+      "∫₂³ F(x) dx = [A·ln|x| − B/x − C/(2x²) + D·ln|x−1| + E·ln|x+1|]₂³. Calculer numériquement avec les valeurs de A, B, C, D, E trouvées.",
+    ],
+    keywords: ["DES", "pôle multiple", "intégrale définie", "partie entière"],
+  },
   // ─── SYSLIN ──────────────────────────────────────────────────────────────────
   {
     id: "exo-syslin-01",

@@ -3,7 +3,7 @@
 import { getStudentState, setSelectedExercise } from './state.js';
 import { getAllExercises } from './library.js';
 import { escapeHtml, mathTextToHtml, renderMath } from './utils.js';
-import { openTab, openHubSection } from './navigation.js';
+import { openTab, openHubSection, openLibView } from './navigation.js';
 
 const TOPICS = [
   { code: "SYSLIN", label: "Systèmes linéaires",       icon: "⚖️", color: "#2563eb", semester: "S2" },
@@ -77,7 +77,8 @@ export function renderThemeDetail(topicCode) {
     genBtn.onclick = () => {
       const sel = document.getElementById("generator-topic");
       if (sel) sel.value = topicCode;
-      openTab("generator");
+      openTab("library");
+      openLibView("generate");
     };
   }
 

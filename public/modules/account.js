@@ -2,13 +2,7 @@
 
 import { getCurrentUser, getAuthToken } from './state.js';
 import { isTeacherUser } from './navigation.js';
-import { renderStats, renderHistoryList } from './progress.js';
 import { escapeHtml } from './utils.js';
-
-export function renderAccountPanel() {
-  renderStats();
-  renderHistoryList();
-}
 
 export async function renderLeaderboard(classId) {
   const container = document.getElementById("leaderboard-section");
@@ -66,37 +60,6 @@ export function refreshLeaderboardSelect() {
 }
 
 export function init() {
-  const resetProgress = document.getElementById("reset-progress");
-  if (resetProgress) {
-    resetProgress.addEventListener("click", async () => {
-      const { defaultState } = await import('./state.js');
-      const { setStudentState } = await import('./state.js');
-      const { saveState, apiUpdateProgress } = await import('./progress.js');
-      const { renderExerciseList } = await import('./library.js');
-      const { renderDashboard } = await import('./dashboard.js');
-      const { setChipState } = await import('./utils.js');
-      const { setSelectedExercise } = await import('./state.js');
-
-      setStudentState({ ...defaultState });
-      saveState();
-      apiUpdateProgress();
-      setSelectedExercise((window.APP_DATA?.exercises || [])[0] || null);
-
-      const generatedExercise = document.getElementById("generated-exercise");
-      if (generatedExercise) {
-        generatedExercise.classList.add("empty-state");
-        generatedExercise.textContent = "Choisissez vos paramètres puis lancez une génération.";
-      }
-
-      renderExerciseList();
-      renderAccountPanel();
-      renderDashboard();
-      setChipState(document.getElementById("generator-status"), "Prêt", "success");
-      const generatorFeedback = document.getElementById("generator-feedback");
-      if (generatorFeedback) generatorFeedback.textContent = "Les données locales ont été réinitialisées.";
-    });
-  }
-
   // Leaderboard interactions
   const leaderboardSelect = document.getElementById("leaderboard-class-select");
   const leaderboardRefreshBtn = document.getElementById("leaderboard-refresh-btn");

@@ -38,6 +38,7 @@ export function normalizeTeacherResources(payload) {
     exercises: safeArray(payload?.exercises),
     teacherClasses: safeArray(payload?.teacherClasses),
     joinedClasses: safeArray(payload?.joinedClasses),
+    exams: safeArray(payload?.exams),
   };
 }
 
@@ -75,6 +76,9 @@ function applyTeacherResources(payload) {
 
   const availableCourses = getAllCourses();
   const availableExercises = getAllExercises();
+
+  // Refresh student exams panel when resources reload
+  import('./exam.js').then(({ renderStudentExams }) => renderStudentExams()).catch(() => {});
 
   import('./state.js').then(({ getSelectedCourse, setSelectedCourse, getSelectedExercise, setSelectedExercise }) => {
     const sel = getSelectedCourse();
@@ -374,7 +378,9 @@ async function handleTeacherClassCreate(event) {
     await loadTeacherResources();
     document.getElementById("teacher-class-form")?.reset();
     renderTeacherClassSelects();
-    if (feedback) feedback.textContent = `Classe créée. Code à transmettre aux élèves : ${payload.classroom.code}.`;
+    renderTeacherClassList();
+    renderExamManagerList();
+    if (feedback) feedback.textContent = `✅ Classe créée. Code à transmettre aux élèves : ${payload.classroom.code}.`;
     setTeacherFormButtons();
   } catch (error) {
     if (feedback) feedback.textContent = error.message;
@@ -397,9 +403,12 @@ async function handleStudentClassJoin(event) {
     const payload = await apiRequest("/api/student/class/join", { code }, true);
     await loadTeacherResources();
     document.getElementById("student-class-form")?.reset();
-    if (feedback) feedback.textContent = `Classe rejointe : ${payload.joinedClass.name}.`;
+    if (feedback) feedback.textContent = `✅ Classe rejointe : ${payload.joinedClass.name}. Les contenus de votre professeur sont maintenant visibles.`;
     renderExerciseList();
     renderCourseList();
+    renderJoinedClassesPanel();
+    import('./prof-content.js').then(({ renderProfContent }) => renderProfContent()).catch(() => {});
+    import('./exam.js').then(({ renderStudentExams }) => renderStudentExams()).catch(() => {});
   } catch (error) {
     if (feedback) feedback.textContent = error.message;
   }
@@ -1142,6 +1151,7 @@ export function renderTeacherSpace() {
   setTeacherFormButtons();
   // Load files
   loadSharedFiles();
+  renderExamManagerList();
 }
 
 function renderTeacherHighlightsEnhanced() {
@@ -1646,6 +1656,125 @@ export function init() {
   }
 
   // loadStudentFiles is exported separately — no window bridge needed
+
+  // Exam manager form
+  const examPublishBtn = document.getElementById("exam-mgr-publish-btn");
+  if (examPublishBtn && !examPublishBtn.dataset.teacherBound) {
+    examPublishBtn.addEventListener("click", handleExamPublish);
+    examPublishBtn.dataset.teacherBound = "true";
+  }
+
+  // Populate exam-mgr-topic select
+  const examMgrTopic = document.getElementById("exam-mgr-topic");
+  if (examMgrTopic && !examMgrTopic.dataset.teacherBound) {
+    const curriculum = window.APP_DATA?.curriculum || [];
+    curriculum.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c.code;
+      opt.textContent = `${c.code} — ${c.title}`;
+      examMgrTopic.appendChild(opt);
+    });
+    examMgrTopic.dataset.teacherBound = "true";
+  }
+}
+
+async function handleExamPublish() {
+  const titleEl = document.getElementById("exam-mgr-title");
+  const classEl = document.getElementById("exam-mgr-class");
+  const topicEl = document.getElementById("exam-mgr-topic");
+  const countEl = document.getElementById("exam-mgr-count");
+  const durationEl = document.getElementById("exam-mgr-duration");
+  const feedbackEl = document.getElementById("exam-mgr-feedback");
+  const btn = document.getElementById("exam-mgr-publish-btn");
+
+  const title = titleEl?.value.trim() || "";
+  const classId = parseInt(classEl?.value || "0", 10);
+  const topicCode = topicEl?.value || "";
+  const count = parseInt(countEl?.value || "5", 10);
+  const durationMin = parseInt(durationEl?.value || "30", 10);
+
+  if (!title) { if (feedbackEl) feedbackEl.textContent = "Saisissez un titre pour l'examen."; return; }
+  if (!classId) { if (feedbackEl) feedbackEl.textContent = "Sélectionnez une classe."; return; }
+
+  // Pick random exercises matching topic filter
+  const all = getAllExercises().filter((e) => !topicCode || e.topic === topicCode);
+  const shuffled = all.slice().sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, count);
+
+  if (!selected.length) {
+    if (feedbackEl) feedbackEl.textContent = "Aucun exercice disponible pour ce chapitre.";
+    return;
+  }
+
+  const exerciseIds = selected.map((e) => e.id);
+
+  if (btn) { btn.disabled = true; btn.textContent = "Publication…"; }
+  if (feedbackEl) feedbackEl.textContent = "";
+
+  try {
+    await apiRequest("/api/teacher/exam", {
+      title, class_id: classId, topic_code: topicCode,
+      duration_min: durationMin, exercise_ids: exerciseIds,
+    }, true);
+    if (feedbackEl) feedbackEl.textContent = `✅ Examen "${title}" publié avec ${selected.length} exercice(s).`;
+    if (titleEl) titleEl.value = "";
+    await loadTeacherResources();
+    renderExamManagerList();
+    // Refresh student exams panel
+    import('./exam.js').then(({ renderStudentExams }) => renderStudentExams()).catch(() => {});
+  } catch (err) {
+    if (feedbackEl) feedbackEl.textContent = `Erreur : ${err.message}`;
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Publier l'examen →"; }
+  }
+}
+
+function renderExamManagerList() {
+  const listEl = document.getElementById("exam-mgr-list");
+  if (!listEl) return;
+
+  // Populate class select
+  renderTeacherClassSelect(document.getElementById("exam-mgr-class"), document.getElementById("exam-mgr-class")?.value || "");
+
+  const resources = getTeacherResources();
+  const exams = safeArray(resources.exams);
+
+  if (!exams.length) {
+    listEl.innerHTML = '<p class="helper-text">Aucun examen publié pour le moment.</p>';
+    return;
+  }
+
+  listEl.innerHTML = exams.map((exam) => {
+    let ids = exam.exercise_ids;
+    if (typeof ids === "string") { try { ids = JSON.parse(ids); } catch { ids = []; } }
+    const count = Array.isArray(ids) ? ids.length : 0;
+    const topicLabel = exam.topic_code ? ` · ${exam.topic_code}` : "";
+    return `
+      <article class="history-item" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <strong>${escapeHtml(exam.title)}</strong>
+          <p class="helper-text">${escapeHtml(exam.class_name)}${escapeHtml(topicLabel)} · ${count} exercice${count > 1 ? "s" : ""} · ${exam.duration_min} min</p>
+        </div>
+        <button type="button" class="ghost-button exam-mgr-delete-btn" data-exam-id="${exam.id}" style="flex-shrink:0">Supprimer</button>
+      </article>
+    `;
+  }).join("");
+
+  // Bind delete buttons
+  listEl.querySelectorAll(".exam-mgr-delete-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const examId = parseInt(btn.dataset.examId || "0", 10);
+      if (!examId || !confirm("Supprimer cet examen ? Les élèves ne pourront plus y accéder.")) return;
+      try {
+        await apiRequest("/api/teacher/exam/delete", { id: examId }, true);
+        await loadTeacherResources();
+        renderExamManagerList();
+        import('./exam.js').then(({ renderStudentExams }) => renderStudentExams()).catch(() => {});
+      } catch (err) {
+        alert(`Erreur : ${err.message}`);
+      }
+    });
+  });
 }
 
 async function handleFromPdf() {

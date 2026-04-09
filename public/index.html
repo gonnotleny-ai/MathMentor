@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MathMentor</title>
-    <link rel="stylesheet" href="/styles.css?v=20260407c" />
+    <link rel="stylesheet" href="/styles.css?v=20260409d" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
@@ -25,32 +25,64 @@
     </div>
     <!-- ── Écran de connexion (visible par défaut, caché après auth) ── -->
     <div id="login-screen" class="login-screen">
-      <div class="login-card">
-        <div class="login-card-brand">
-          <div class="brand-mark login-brand-mark">MM</div>
-          <div>
-            <p class="login-app-name">MathMentor</p>
-            <p class="login-app-sub">Assistant IA pour BUT Génie Chimique</p>
+      <!-- Décors de fond -->
+      <div class="login-bg-blob login-bg-blob--1"></div>
+      <div class="login-bg-blob login-bg-blob--2"></div>
+      <div class="login-bg-blob login-bg-blob--3"></div>
+
+      <div class="login-layout">
+        <!-- Côté gauche : branding -->
+        <div class="login-hero">
+          <div class="login-hero-mark">MM</div>
+          <h1 class="login-hero-title">MathMentor</h1>
+          <p class="login-hero-sub">Votre assistant IA pour les maths<br>BUT Génie Chimique — S2</p>
+          <ul class="login-feature-list">
+            <li><span class="lfl-icon">📚</span> Bibliothèque d'exercices corrigés</li>
+            <li><span class="lfl-icon">🤖</span> Génération IA personnalisée</li>
+            <li><span class="lfl-icon">📈</span> Suivi de progression</li>
+            <li><span class="lfl-icon">🎯</span> QCM et examens blancs</li>
+          </ul>
+        </div>
+
+        <!-- Côté droit : formulaire -->
+        <div class="login-card">
+          <div class="login-tabs-row">
+            <button type="button" class="login-tab-btn is-active" data-login-tab="login">Se connecter</button>
+            <button type="button" class="login-tab-btn" data-login-tab="register">Créer un compte</button>
           </div>
+
+          <!-- Formulaire connexion -->
+          <form id="login-screen-form" class="login-form" data-login-panel="login">
+            <div class="login-input-group">
+              <span class="login-input-icon">✉️</span>
+              <input type="email" id="ls-login-email" placeholder="Adresse e-mail" required autocomplete="email" inputmode="email" class="login-input" />
+            </div>
+            <div class="login-input-group">
+              <span class="login-input-icon">🔒</span>
+              <input type="password" id="ls-login-password" placeholder="Mot de passe" required autocomplete="current-password" class="login-input" />
+            </div>
+            <button type="submit" class="login-submit-btn">Se connecter →</button>
+          </form>
+
+          <!-- Formulaire inscription -->
+          <form id="register-screen-form" class="login-form is-hidden" data-login-panel="register">
+            <div class="login-input-group">
+              <span class="login-input-icon">👤</span>
+              <input type="text" id="ls-register-name" placeholder="Nom complet" class="login-input" />
+            </div>
+            <div class="login-input-group">
+              <span class="login-input-icon">✉️</span>
+              <input type="email" id="ls-register-email" placeholder="Adresse e-mail" required autocomplete="email" inputmode="email" class="login-input" />
+            </div>
+            <div class="login-input-group">
+              <span class="login-input-icon">🔒</span>
+              <input type="password" id="ls-register-password" placeholder="Mot de passe" required autocomplete="new-password" class="login-input" />
+            </div>
+            <button type="submit" class="login-submit-btn">Créer mon compte →</button>
+          </form>
+
+          <p id="login-screen-feedback" class="login-feedback"></p>
         </div>
-        <div class="login-tabs-row">
-          <button type="button" class="login-tab-btn is-active" data-login-tab="login">Se connecter</button>
-          <button type="button" class="login-tab-btn" data-login-tab="register">Créer un compte</button>
-        </div>
-        <!-- Formulaire connexion -->
-        <form id="login-screen-form" class="login-form" data-login-panel="login">
-          <input type="email" id="ls-login-email" placeholder="Adresse e-mail" required autocomplete="email" inputmode="email" class="login-input" />
-          <input type="password" id="ls-login-password" placeholder="Mot de passe" required autocomplete="current-password" class="login-input" />
-          <button type="submit" class="primary-button login-submit-btn">Se connecter</button>
-        </form>
-        <!-- Formulaire inscription -->
-        <form id="register-screen-form" class="login-form is-hidden" data-login-panel="register">
-          <input type="text" id="ls-register-name" placeholder="Nom complet" class="login-input" />
-          <input type="email" id="ls-register-email" placeholder="Adresse e-mail" required autocomplete="email" inputmode="email" class="login-input" />
-          <input type="password" id="ls-register-password" placeholder="Mot de passe" required autocomplete="new-password" class="login-input" />
-          <button type="submit" class="primary-button login-submit-btn">Créer mon compte</button>
-        </form>
-        <p id="login-screen-feedback" class="login-feedback"></p>
       </div>
     </div>
 
@@ -80,8 +112,6 @@
 
       <nav class="tab-bar" aria-label="Navigation principale">
         <button type="button" class="tab-button is-active" data-tab="dashboard">Tableau de bord</button>
-        <button type="button" class="tab-button" data-tab="generator">Générateur</button>
-        <button type="button" class="tab-button" data-tab="qcm-generator">QCM</button>
         <button type="button" class="tab-button" data-tab="library">Exercices<span class="tab-due-badge is-hidden" id="tab-due-badge"></span></button>
         <button type="button" class="tab-button" data-tab="courses">Cours</button>
         <button type="button" class="tab-button" data-tab="themes">Thèmes</button>
@@ -89,6 +119,7 @@
         <button type="button" class="tab-button" data-tab="assistant">Assistant IA</button>
         <button id="teacher-tab-button" type="button" class="tab-button is-hidden" data-tab="teacher">Espace prof</button>
         <button type="button" class="tab-button is-hidden" data-tab="prof-content">Contenu prof</button>
+        <button type="button" class="tab-button is-hidden" data-tab="student-exams">🎯 Examens</button>
         <button type="button" class="tab-button" data-tab="account">Compte</button>
       </nav>
 
@@ -115,7 +146,7 @@
 
           <!-- Accès rapide -->
           <div class="dashboard-quick-grid">
-            <button type="button" class="dashboard-quick-card" data-jump="generator">
+            <button type="button" class="dashboard-quick-card" data-jump="library" data-lib-open="generate">
               <span class="dashboard-quick-icon">✨</span>
               <strong>Générateur</strong>
               <span>Créer un exercice IA</span>
@@ -164,146 +195,13 @@
 
         </section>
 
-        <section class="tab-panel" data-view="generator">
-          <div class="panel-grid two-columns">
-            <section class="panel generator-panel">
-              <div class="panel-head">
-                <div>
-                  <p class="section-label">Exercices Personnalisés</p>
-                  <h2>Générer un exercice</h2>
-                </div>
-                <span id="generator-status" class="chip">Prêt</span>
-              </div>
-              <p class="panel-text">
-                Choisissez un chapitre, un niveau, un type d'exercice et un mode de travail. Vous pouvez maintenant générer soit un exercice de maths pures, soit un exercice contextualisé en procédés.
-              </p>
-              <form id="generator-form" class="form-stack generator-form-shell">
-                <label>
-                  Chapitre
-                  <select id="generator-topic"></select>
-                </label>
-                <div class="form-split">
-                  <label>
-                    Niveau
-                    <select id="generator-level">
-                      <option value="facile">Facile</option>
-                      <option value="intermediaire" selected>Intermédiaire</option>
-                      <option value="avance">Avancé</option>
-                    </select>
-                  </label>
-                  <label>
-                    Type d'exercice
-                    <select id="generator-type">
-                      <option value="pure">Maths pures</option>
-                      <option value="procede">Application procédé</option>
-                    </select>
-                  </label>
-                </div>
-                <label>
-                  Mode pédagogique
-                  <select id="generator-mode">
-                    <option value="guide" selected>Mode guidé</option>
-                    <option value="examen">Mode examen</option>
-                  </select>
-                </label>
-                <p id="generator-mode-text" class="helper-text">
-                  Mode guidé : ajoute des repères de méthode et un accompagnement plus progressif.
-                </p>
-                <label>
-                  Contexte ou objectif visé
-                  <textarea
-                    id="generator-goal"
-                    rows="4"
-                    placeholder="Exemple : demander une vérification finale, insister sur la méthode, ou rester proche d'un exercice de TD"
-                  ></textarea>
-                </label>
-                <div class="button-row">
-                  <button type="submit" class="secondary-button">Générer localement</button>
-                  <button id="generator-ai-button" type="button" class="primary-button">Générer avec l'IA</button>
-                </div>
-                <article class="status-note status-note-info">
-                  L'IA enrichit la génération quand elle est disponible. Si elle est indisponible, MathMentor bascule automatiquement vers un exercice local détaillé.
-                </article>
-                <p id="generator-feedback" class="helper-text">
-                  L'exercice généré apparaîtra dans le panneau de droite et sera ajouté à votre bibliothèque locale.
-                </p>
-              </form>
-            </section>
-
-            <section class="panel">
-              <div class="panel-head">
-                <div>
-                  <p class="section-label">Sortie</p>
-                  <h2>Exercice généré</h2>
-                </div>
-              </div>
-              <article id="generated-exercise" class="detail-card empty-state">
-                Choisissez vos paramètres puis lancez une génération.
-              </article>
-            </section>
-          </div>
-        </section>
-
-        <!-- QCM Generator section -->
-        <section class="tab-panel" data-view="qcm-generator">
-          <div class="panel-grid two-columns">
-            <section class="panel generator-panel">
-              <div class="panel-head">
-                <div>
-                  <p class="section-label">QCM</p>
-                  <h2>Générer un QCM</h2>
-                </div>
-                <span id="qcm-status" class="chip">Prêt</span>
-              </div>
-              <p class="panel-text">Générez des questions à choix multiples sur un thème mathématique. Répondez puis consultez les corrections.</p>
-              <form id="qcm-form" class="form-stack">
-                <label>
-                  Chapitre
-                  <select id="qcm-topic"></select>
-                </label>
-                <label>
-                  Niveau
-                  <select id="qcm-level">
-                    <option value="facile">Facile</option>
-                    <option value="intermediaire" selected>Intermédiaire</option>
-                    <option value="avance">Avancé</option>
-                  </select>
-                </label>
-                <label>
-                  Nombre de questions
-                  <select id="qcm-count">
-                    <option value="3">3 questions</option>
-                    <option value="5" selected>5 questions</option>
-                    <option value="8">8 questions</option>
-                    <option value="10">10 questions</option>
-                  </select>
-                </label>
-                <button type="submit" class="primary-button">Générer le QCM avec l'IA</button>
-                <p id="qcm-feedback" class="helper-text">Le QCM apparaîtra dans le panneau de droite.</p>
-              </form>
-            </section>
-            <section class="panel">
-              <div class="panel-head">
-                <div>
-                  <p class="section-label">QCM</p>
-                  <h2>Questions générées</h2>
-                </div>
-              </div>
-              <div id="qcm-output" class="qcm-output">
-                <article class="detail-card empty-state">Choisissez un chapitre et lancez la génération.</article>
-              </div>
-            </section>
-          </div>
-        </section>
-
         <section class="tab-panel" data-view="library">
 
           <!-- Barre de navigation interne de la bibliothèque -->
           <div class="lib-navbar">
             <button type="button" class="lib-nav-btn is-active" data-lib-view="all">📚 Tous les exercices</button>
             <button type="button" class="lib-nav-btn" data-lib-view="favorites">⭐ Favoris</button>
-            <button type="button" class="lib-nav-btn" data-lib-view="generated">🤖 Mes exercices IA</button>
-            <button type="button" class="lib-nav-btn" id="exam-hub-card">🎯 Simuler un examen</button>
+            <button type="button" class="lib-nav-btn" data-lib-view="generate">✨ Générer</button>
             <button type="button" class="lib-nav-btn" data-lib-view="grapher">📈 Grapheur</button>
           </div>
 
@@ -345,6 +243,10 @@
                     <label class="lib-chip-label">
                       <input type="checkbox" id="library-failed" />
                       <span>À retravailler</span>
+                    </label>
+                    <label class="lib-chip-label">
+                      <input type="checkbox" id="library-ia-only" />
+                      <span>🤖 Mes exercices IA</span>
                     </label>
                     <button type="button" id="revision-mode-btn" class="lib-revision-btn">▶ Mode révision</button>
                   </div>
@@ -409,6 +311,147 @@
                   </div>
                 </article>
               </section>
+            </div>
+          </div>
+
+          <!-- Vue : Générer (Exercice IA + QCM regroupés) -->
+          <div class="lib-view" data-lib-panel="generate">
+            <!-- Mini-onglets internes -->
+            <div class="gen-tab-bar">
+              <button type="button" class="gen-tab-btn is-active" data-gen-tab="exercise">✨ Exercice IA</button>
+              <button type="button" class="gen-tab-btn" data-gen-tab="qcm">📝 QCM IA</button>
+            </div>
+
+            <!-- Sous-panneau : Exercice -->
+            <div class="gen-tab-panel is-active" data-gen-panel="exercise">
+              <div class="panel-grid two-columns">
+                <section class="panel generator-panel">
+                  <div class="panel-head">
+                    <div>
+                      <p class="section-label">Exercices Personnalisés</p>
+                      <h2>Générer un exercice</h2>
+                    </div>
+                    <span id="generator-status" class="chip">Prêt</span>
+                  </div>
+                  <p class="panel-text">
+                    Choisissez un chapitre, un niveau, un type d'exercice et un mode de travail. Vous pouvez maintenant générer soit un exercice de maths pures, soit un exercice contextualisé en procédés.
+                  </p>
+                  <form id="generator-form" class="form-stack generator-form-shell">
+                    <label>
+                      Chapitre
+                      <select id="generator-topic"></select>
+                    </label>
+                    <div class="form-split">
+                      <label>
+                        Niveau
+                        <select id="generator-level">
+                          <option value="facile">Facile</option>
+                          <option value="intermediaire" selected>Intermédiaire</option>
+                          <option value="avance">Avancé</option>
+                        </select>
+                      </label>
+                      <label>
+                        Type d'exercice
+                        <select id="generator-type">
+                          <option value="pure">Maths pures</option>
+                          <option value="procede">Application procédé</option>
+                        </select>
+                      </label>
+                    </div>
+                    <label>
+                      Mode pédagogique
+                      <select id="generator-mode">
+                        <option value="guide" selected>Mode guidé</option>
+                        <option value="examen">Mode examen</option>
+                      </select>
+                    </label>
+                    <p id="generator-mode-text" class="helper-text">
+                      Mode guidé : ajoute des repères de méthode et un accompagnement plus progressif.
+                    </p>
+                    <label>
+                      Contexte ou objectif visé
+                      <textarea
+                        id="generator-goal"
+                        rows="4"
+                        placeholder="Exemple : demander une vérification finale, insister sur la méthode, ou rester proche d'un exercice de TD"
+                      ></textarea>
+                    </label>
+                    <div class="button-row">
+                      <button type="submit" class="secondary-button">Générer localement</button>
+                      <button id="generator-ai-button" type="button" class="primary-button">Générer avec l'IA</button>
+                    </div>
+                    <article class="status-note status-note-info">
+                      L'IA enrichit la génération quand elle est disponible. Si elle est indisponible, MathMentor bascule automatiquement vers un exercice local détaillé.
+                    </article>
+                    <p id="generator-feedback" class="helper-text">
+                      L'exercice généré apparaîtra dans le panneau de droite et sera ajouté à votre bibliothèque locale.
+                    </p>
+                  </form>
+                </section>
+                <section class="panel">
+                  <div class="panel-head">
+                    <div>
+                      <p class="section-label">Sortie</p>
+                      <h2>Exercice généré</h2>
+                    </div>
+                  </div>
+                  <article id="generated-exercise" class="detail-card empty-state">
+                    Choisissez vos paramètres puis lancez une génération.
+                  </article>
+                </section>
+              </div>
+            </div>
+
+            <!-- Sous-panneau : QCM -->
+            <div class="gen-tab-panel" data-gen-panel="qcm">
+              <div class="panel-grid two-columns">
+                <section class="panel generator-panel">
+                  <div class="panel-head">
+                    <div>
+                      <p class="section-label">QCM</p>
+                      <h2>Générer un QCM</h2>
+                    </div>
+                    <span id="qcm-status" class="chip">Prêt</span>
+                  </div>
+                  <p class="panel-text">Générez des questions à choix multiples sur un thème mathématique. Répondez puis consultez les corrections.</p>
+                  <form id="qcm-form" class="form-stack">
+                    <label>
+                      Chapitre
+                      <select id="qcm-topic"></select>
+                    </label>
+                    <label>
+                      Niveau
+                      <select id="qcm-level">
+                        <option value="facile">Facile</option>
+                        <option value="intermediaire" selected>Intermédiaire</option>
+                        <option value="avance">Avancé</option>
+                      </select>
+                    </label>
+                    <label>
+                      Nombre de questions
+                      <select id="qcm-count">
+                        <option value="3">3 questions</option>
+                        <option value="5" selected>5 questions</option>
+                        <option value="8">8 questions</option>
+                        <option value="10">10 questions</option>
+                      </select>
+                    </label>
+                    <button type="submit" class="primary-button">Générer le QCM avec l'IA</button>
+                    <p id="qcm-feedback" class="helper-text">Le QCM apparaîtra dans le panneau de droite.</p>
+                  </form>
+                </section>
+                <section class="panel">
+                  <div class="panel-head">
+                    <div>
+                      <p class="section-label">QCM</p>
+                      <h2>Questions générées</h2>
+                    </div>
+                  </div>
+                  <div id="qcm-output" class="qcm-output">
+                    <article class="detail-card empty-state">Choisissez un chapitre et lancez la génération.</article>
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
 
@@ -831,6 +874,12 @@
                   <span class="hub-card-icon">📄</span>
                   <h3>Générer depuis un PDF</h3>
                   <p>Importez votre polycopié de cours et laissez l'IA générer des exercices alignés sur votre contenu.</p>
+                  <span class="hub-card-action">Accéder →</span>
+                </article>
+                <article class="hub-card" data-hub-tab="teacher" data-hub-section="exam-manager">
+                  <span class="hub-card-icon">🎯</span>
+                  <h3>Gérer les examens</h3>
+                  <p>Créez des examens blancs à partir de la bibliothèque ou via l'IA, et publiez-les pour vos élèves.</p>
                   <span class="hub-card-action">Accéder →</span>
                 </article>
               </div>
@@ -1259,6 +1308,75 @@
             </section>
           </div>
 
+          <!-- Section : Gérer les examens -->
+          <div class="tab-section" data-section="exam-manager" data-hub-parent="teacher">
+            <div class="section-back-bar">
+              <button type="button" class="ghost-button back-button" data-back-hub="teacher">← Retour</button>
+            </div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Évaluations</p>
+                  <h2>Gérer les examens</h2>
+                </div>
+              </div>
+              <p class="panel-text">Publiez un examen blanc pour votre classe. Les élèves le verront dans leur onglet <strong>Examens</strong> et pourront le passer en conditions d'examen.</p>
+
+              <!-- Formulaire de création d'examen -->
+              <div class="form-stack" id="exam-manager-form-wrap">
+                <h3>Publier un nouvel examen</h3>
+                <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap">
+                  <div style="flex:1;min-width:200px">
+                    <label for="exam-mgr-title">Titre de l'examen</label>
+                    <input type="text" id="exam-mgr-title" class="form-input" placeholder="Ex. : Examen blanc S2 – POLY" />
+                  </div>
+                  <div style="flex:0 0 180px">
+                    <label for="exam-mgr-class">Classe</label>
+                    <select id="exam-mgr-class" class="form-select"></select>
+                  </div>
+                </div>
+                <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap">
+                  <div style="flex:1;min-width:160px">
+                    <label for="exam-mgr-topic">Chapitre <span class="helper-text">(optionnel)</span></label>
+                    <select id="exam-mgr-topic" class="form-select">
+                      <option value="">Tous les chapitres</option>
+                    </select>
+                  </div>
+                  <div style="flex:0 0 130px">
+                    <label for="exam-mgr-count">Nb d'exercices</label>
+                    <select id="exam-mgr-count" class="form-select">
+                      <option value="3">3</option>
+                      <option value="5" selected>5</option>
+                      <option value="8">8</option>
+                      <option value="10">10</option>
+                    </select>
+                  </div>
+                  <div style="flex:0 0 130px">
+                    <label for="exam-mgr-duration">Durée</label>
+                    <select id="exam-mgr-duration" class="form-select">
+                      <option value="20">20 min</option>
+                      <option value="30" selected>30 min</option>
+                      <option value="45">45 min</option>
+                      <option value="60">1 h</option>
+                      <option value="90">1 h 30</option>
+                      <option value="120">2 h</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="button" class="primary-button" id="exam-mgr-publish-btn">Publier l'examen →</button>
+                <p id="exam-mgr-feedback" class="helper-text" style="margin-top:8px"></p>
+              </div>
+
+              <!-- Liste des examens publiés -->
+              <div style="margin-top:28px">
+                <h3>Examens publiés</h3>
+                <div id="exam-mgr-list" class="card-list">
+                  <p class="helper-text">Aucun examen publié pour le moment.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+
           <!-- Exercise stats panel (inside analytics section) -->
           <section class="panel" id="teacher-exercise-stats-panel">
             <div class="panel-head">
@@ -1342,6 +1460,23 @@
 
         </section>
 
+        <!-- ── Examens publiés par les profs (vue élève) ── -->
+        <section class="tab-panel" data-view="student-exams">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Évaluations</p>
+                <h2>🎯 Examens blancs</h2>
+              </div>
+            </div>
+            <p class="stats-section-desc">Examens publiés par vos professeurs. Passez-les en conditions réelles : correction masquée, minuteur actif. Vos résultats sont enregistrés dans votre progression.</p>
+            <div id="student-exams-empty" class="detail-card muted-card is-hidden">
+              Aucun examen disponible pour le moment. Votre professeur n'en a pas encore publié.
+            </div>
+            <div id="student-exams-list" class="pc-grid"></div>
+          </section>
+        </section>
+
         <section class="tab-panel" data-view="account">
           <!-- Hub grid -->
           <div class="tab-hub-wrap" data-hub="account">
@@ -1353,12 +1488,6 @@
                 </div>
               </div>
               <div class="hub-grid">
-                <article class="hub-card" data-hub-tab="account" data-hub-section="activity">
-                  <span class="hub-card-icon">📈</span>
-                  <h3>Mon activité</h3>
-                  <p>Consultez vos statistiques : exercices vus, générés, favoris et questions posées.</p>
-                  <span class="hub-card-action">Accéder →</span>
-                </article>
                 <article class="hub-card" data-hub-tab="account" data-hub-section="auth">
                   <span class="hub-card-icon">🔑</span>
                   <h3>Connexion &amp; compte</h3>
@@ -1377,27 +1506,6 @@
                   <p>Choisissez un thème de couleur et personnalisez l'interface.</p>
                   <span class="hub-card-action">Accéder →</span>
                 </article>
-              </div>
-            </section>
-          </div>
-
-          <!-- Section : Mon activité -->
-          <div class="tab-section" data-section="activity" data-hub-parent="account">
-            <div class="section-back-bar">
-              <button type="button" class="ghost-button back-button" data-back-hub="account">← Retour</button>
-            </div>
-            <section class="panel">
-              <div class="panel-head">
-                <div>
-                  <p class="section-label">Suivi local</p>
-                  <h2>Votre activité</h2>
-                </div>
-                <button id="reset-progress" type="button" class="ghost-button">Réinitialiser</button>
-              </div>
-              <div id="stats-grid" class="stats-grid"></div>
-              <div class="history-block">
-                <h3>Dernières questions</h3>
-                <div id="history-list" class="history-list"></div>
               </div>
             </section>
           </div>
@@ -1464,41 +1572,114 @@
                   <h2>Apparence</h2>
                 </div>
               </div>
+              <p class="panel-text">Personnalisez l'interface à votre goût. Toutes les modifications sont sauvegardées automatiquement sur votre compte.</p>
+
+              <!-- Thème clair/sombre -->
               <div class="appearance-block">
-                <p class="section-label" style="margin-bottom:10px">Thème</p>
+                <p class="appearance-block-title">Mode d'affichage</p>
                 <div class="appearance-theme-row">
                   <button type="button" class="appearance-theme-btn is-active" data-appearance-theme="light">
                     <span class="appearance-theme-preview appearance-preview-light"></span>
-                    Clair
+                    ☀️ Clair
                   </button>
                   <button type="button" class="appearance-theme-btn" data-appearance-theme="dark">
                     <span class="appearance-theme-preview appearance-preview-dark"></span>
-                    Sombre
+                    🌙 Sombre
+                  </button>
+                  <button type="button" class="appearance-theme-btn" data-appearance-theme="system">
+                    <span class="appearance-theme-preview appearance-preview-system"></span>
+                    💻 Système
                   </button>
                 </div>
               </div>
+
+              <!-- Préréglages de thème complets -->
               <div class="appearance-block">
-                <p class="section-label" style="margin-bottom:10px">Couleur principale</p>
+                <p class="appearance-block-title">Préréglages</p>
+                <p class="appearance-block-desc">Applique en un clic une combinaison couleur + mode cohérente.</p>
+                <div class="appearance-preset-row" id="appearance-preset-row">
+                  <button type="button" class="appearance-preset-btn" data-preset-color="#2563eb" data-preset-theme="light" title="Indigo Clair">
+                    <span class="appearance-preset-swatch" style="background:linear-gradient(135deg,#eff6ff,#2563eb)"></span>
+                    <span>Indigo</span>
+                  </button>
+                  <button type="button" class="appearance-preset-btn" data-preset-color="#7c3aed" data-preset-theme="dark" title="Violet Nuit">
+                    <span class="appearance-preset-swatch" style="background:linear-gradient(135deg,#1e1b4b,#7c3aed)"></span>
+                    <span>Violet nuit</span>
+                  </button>
+                  <button type="button" class="appearance-preset-btn" data-preset-color="#059669" data-preset-theme="light" title="Forêt Clair">
+                    <span class="appearance-preset-swatch" style="background:linear-gradient(135deg,#ecfdf5,#059669)"></span>
+                    <span>Forêt</span>
+                  </button>
+                  <button type="button" class="appearance-preset-btn" data-preset-color="#ea580c" data-preset-theme="light" title="Coucher de soleil">
+                    <span class="appearance-preset-swatch" style="background:linear-gradient(135deg,#fff7ed,#ea580c)"></span>
+                    <span>Coucher de soleil</span>
+                  </button>
+                  <button type="button" class="appearance-preset-btn" data-preset-color="#0891b2" data-preset-theme="dark" title="Océan Nuit">
+                    <span class="appearance-preset-swatch" style="background:linear-gradient(135deg,#0c1a2e,#0891b2)"></span>
+                    <span>Océan nuit</span>
+                  </button>
+                  <button type="button" class="appearance-preset-btn" data-preset-color="#be185d" data-preset-theme="light" title="Rose Clair">
+                    <span class="appearance-preset-swatch" style="background:linear-gradient(135deg,#fdf2f8,#be185d)"></span>
+                    <span>Rose</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Couleur principale -->
+              <div class="appearance-block">
+                <p class="appearance-block-title">Couleur principale</p>
                 <div class="appearance-color-row" id="appearance-color-row">
-                  <button type="button" class="appearance-color-btn is-active" data-color="#2563eb" style="background:#2563eb" title="Bleu (défaut)"></button>
+                  <button type="button" class="appearance-color-btn is-active" data-color="#2563eb" style="background:#2563eb" title="Bleu indigo"></button>
                   <button type="button" class="appearance-color-btn" data-color="#7c3aed" style="background:#7c3aed" title="Violet"></button>
                   <button type="button" class="appearance-color-btn" data-color="#0891b2" style="background:#0891b2" title="Cyan"></button>
-                  <button type="button" class="appearance-color-btn" data-color="#059669" style="background:#059669" title="Vert"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#059669" style="background:#059669" title="Vert émeraude"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#16a34a" style="background:#16a34a" title="Vert"></button>
                   <button type="button" class="appearance-color-btn" data-color="#dc2626" style="background:#dc2626" title="Rouge"></button>
                   <button type="button" class="appearance-color-btn" data-color="#ea580c" style="background:#ea580c" title="Orange"></button>
                   <button type="button" class="appearance-color-btn" data-color="#be185d" style="background:#be185d" title="Rose"></button>
+                  <button type="button" class="appearance-color-btn" data-color="#64748b" style="background:#64748b" title="Gris ardoise"></button>
                   <div class="appearance-custom-color">
-                    <label for="appearance-custom-input">Personnalisée</label>
-                    <input type="color" id="appearance-custom-input" value="#2563eb" />
+                    <label for="appearance-custom-input">🎨</label>
+                    <input type="color" id="appearance-custom-input" value="#2563eb" title="Couleur personnalisée" />
                   </div>
                 </div>
               </div>
+
+              <!-- Taille du texte -->
               <div class="appearance-block">
-                <p class="section-label" style="margin-bottom:10px">Taille du texte</p>
+                <p class="appearance-block-title">Taille du texte</p>
                 <div class="appearance-fontsize-row" id="appearance-fontsize-row">
-                  <button type="button" class="appearance-fontsize-btn" data-fontsize="14" style="font-size:13px">Petit</button>
-                  <button type="button" class="appearance-fontsize-btn is-active" data-fontsize="16" style="font-size:15px">Normal</button>
-                  <button type="button" class="appearance-fontsize-btn" data-fontsize="18" style="font-size:17px">Grand</button>
+                  <button type="button" class="appearance-fontsize-btn" data-fontsize="13">
+                    <span style="font-size:11px;display:block;margin-bottom:2px">Aa</span>
+                    Compact
+                  </button>
+                  <button type="button" class="appearance-fontsize-btn is-active" data-fontsize="15">
+                    <span style="font-size:14px;display:block;margin-bottom:2px">Aa</span>
+                    Normal
+                  </button>
+                  <button type="button" class="appearance-fontsize-btn" data-fontsize="17">
+                    <span style="font-size:17px;display:block;margin-bottom:2px">Aa</span>
+                    Grand
+                  </button>
+                  <button type="button" class="appearance-fontsize-btn" data-fontsize="19">
+                    <span style="font-size:20px;display:block;margin-bottom:2px">Aa</span>
+                    Très grand
+                  </button>
+                </div>
+              </div>
+
+              <!-- Densité de l'interface -->
+              <div class="appearance-block">
+                <p class="appearance-block-title">Densité de l'interface</p>
+                <div class="appearance-density-row" id="appearance-density-row">
+                  <button type="button" class="appearance-density-btn is-active" data-density="normal">
+                    <span class="appearance-density-icon">▬▬▬</span>
+                    Normale
+                  </button>
+                  <button type="button" class="appearance-density-btn" data-density="compact">
+                    <span class="appearance-density-icon" style="letter-spacing:-2px">▬▬▬▬▬</span>
+                    Compacte
+                  </button>
                 </div>
               </div>
             </section>

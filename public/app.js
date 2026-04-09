@@ -14,7 +14,7 @@ import { openHubSection } from './modules/navigation.js';
 import { renderFlashcards } from './modules/flashcards.js';
 import { init as initDashboard, renderDashboard } from './modules/dashboard.js';
 import { init as initAssistant, checkServer, renderChatHistory } from './modules/assistant.js';
-import { init as initAccount, renderAccountPanel } from './modules/account.js';
+import { init as initAccount } from './modules/account.js';
 import { init as initTeacher, loadTeacherResources, renderTeacherSpace, loadStudentFiles } from './modules/teacher.js';
 import { initExam } from './modules/exam.js';
 import { initGrapher } from './modules/grapher.js';
@@ -31,13 +31,42 @@ import { init as initProfContent, renderProfContent } from './modules/prof-conte
 const THEME_KEY    = "maths-gcgp-theme";
 const COLOR_KEY    = "maths-gcgp-primary-color";
 const FONTSIZE_KEY = "maths-gcgp-fontsize";
+const DENSITY_KEY  = "maths-gcgp-density";
+
+// System theme media query listener
+let _systemThemeQuery = null;
+function _resolveTheme(theme) {
+  if (theme === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return theme;
+}
 
 function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
+  const resolved = _resolveTheme(theme);
+  document.documentElement.setAttribute("data-theme", resolved);
   const btn = document.getElementById("theme-toggle-btn");
-  if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  if (btn) btn.textContent = resolved === "dark" ? "☀️" : "🌙";
   document.querySelectorAll(".appearance-theme-btn").forEach(b => {
     b.classList.toggle("is-active", b.dataset.appearanceTheme === theme);
+  });
+  // System mode: update when OS preference changes
+  if (_systemThemeQuery) {
+    _systemThemeQuery.removeEventListener("change", _onSystemThemeChange);
+  }
+  if (theme === "system") {
+    _systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    _systemThemeQuery.addEventListener("change", _onSystemThemeChange);
+  }
+}
+function _onSystemThemeChange(e) {
+  document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+}
+
+function applyDensity(density) {
+  document.documentElement.setAttribute("data-density", density || "normal");
+  document.querySelectorAll(".appearance-density-btn").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.density === (density || "normal"));
   });
 }
 
@@ -95,6 +124,11 @@ export async function loadAppearanceFromServer() {
       localStorage.setItem(FONTSIZE_KEY, String(a.fontSize));
       syncAppearancePanelFontSize(a.fontSize);
     }
+    if (a.density) {
+      applyDensity(a.density);
+      localStorage.setItem(DENSITY_KEY, a.density);
+      syncAppearancePanelDensity(a.density);
+    }
   } catch (_) { /* silently ignore */ }
 }
 
@@ -111,6 +145,12 @@ function syncAppearancePanelColor(color) {
 function syncAppearancePanelFontSize(size) {
   document.querySelectorAll(".appearance-fontsize-btn").forEach(b => {
     b.classList.toggle("is-active", parseInt(b.dataset.fontsize, 10) === size);
+  });
+}
+
+function syncAppearancePanelDensity(density) {
+  document.querySelectorAll(".appearance-density-btn").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.density === (density || "normal"));
   });
 }
 
@@ -135,11 +175,14 @@ function initDarkMode() {
 
 function initAppearance() {
   // Restore from localStorage (instant, before server responds)
-  const savedColor = localStorage.getItem(COLOR_KEY);
+  const savedColor   = localStorage.getItem(COLOR_KEY);
+  const savedSize    = parseInt(localStorage.getItem(FONTSIZE_KEY) || "15", 10);
+  const savedDensity = localStorage.getItem(DENSITY_KEY) || "normal";
+
   if (savedColor) applyPrimaryColor(savedColor);
-  const savedSize = parseInt(localStorage.getItem(FONTSIZE_KEY) || "16", 10);
   applyFontSize(savedSize);
   applyTheme(localStorage.getItem(THEME_KEY) || "light");
+  applyDensity(savedDensity);
 
   // Theme buttons
   document.querySelectorAll(".appearance-theme-btn").forEach(btn => {
@@ -150,6 +193,25 @@ function initAppearance() {
       saveAppearanceToServer({ theme });
     });
   });
+
+  // Preset buttons
+  const presetRow = document.getElementById("appearance-preset-row");
+  if (presetRow) {
+    presetRow.querySelectorAll(".appearance-preset-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const color = btn.dataset.presetColor;
+        const theme = btn.dataset.presetTheme;
+        presetRow.querySelectorAll(".appearance-preset-btn").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        applyPrimaryColor(color);
+        applyTheme(theme);
+        localStorage.setItem(COLOR_KEY, color);
+        localStorage.setItem(THEME_KEY, theme);
+        syncAppearancePanelColor(color);
+        saveAppearanceToServer({ primaryColor: color, theme });
+      });
+    });
+  }
 
   // Color swatches
   const colorRow = document.getElementById("appearance-color-row");
@@ -192,6 +254,21 @@ function initAppearance() {
         applyFontSize(size);
         localStorage.setItem(FONTSIZE_KEY, String(size));
         saveAppearanceToServer({ fontSize: size });
+      });
+    });
+  }
+
+  // Density buttons
+  const densityRow = document.getElementById("appearance-density-row");
+  if (densityRow) {
+    densityRow.querySelectorAll(".appearance-density-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const density = btn.dataset.density;
+        densityRow.querySelectorAll(".appearance-density-btn").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        applyDensity(density);
+        localStorage.setItem(DENSITY_KEY, density);
+        saveAppearanceToServer({ density });
       });
     });
   }
@@ -521,7 +598,6 @@ async function init() {
     renderHistoryList();
     renderDashboard();
     renderTeacherSpace();
-    renderAccountPanel();
     renderProfContent();
     setTabAvailability();
     loadStudentFiles();
