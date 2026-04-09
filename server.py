@@ -323,6 +323,23 @@ def init_db():
                 """
             )
 
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS teacher_exams (
+                    id BIGSERIAL PRIMARY KEY,
+                    teacher_id BIGINT NOT NULL,
+                    class_id BIGINT NOT NULL,
+                    title TEXT NOT NULL,
+                    topic_code TEXT NOT NULL DEFAULT '',
+                    duration_min INTEGER NOT NULL DEFAULT 30,
+                    exercise_ids TEXT NOT NULL DEFAULT '[]',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(teacher_id) REFERENCES users(id),
+                    FOREIGN KEY(class_id) REFERENCES teacher_classes(id)
+                )
+                """
+            )
+
         connection.commit()
 
 
@@ -828,6 +845,37 @@ def get_devoirs_for_student(connection, student_id):
     return [dict(r) for r in rows]
 
 
+def get_exams_for_teacher(connection, teacher_id):
+    with connection.cursor() as cur:
+        cur.execute(
+            """SELECT e.id, e.title, e.topic_code, e.duration_min, e.exercise_ids, e.created_at,
+                      tc.name as class_name, tc.code as class_code
+               FROM teacher_exams e
+               JOIN teacher_classes tc ON tc.id = e.class_id
+               WHERE e.teacher_id = %s
+               ORDER BY e.created_at DESC""",
+            (teacher_id,),
+        )
+        rows = cur.fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_exams_for_student(connection, student_id):
+    with connection.cursor() as cur:
+        cur.execute(
+            """SELECT e.id, e.title, e.topic_code, e.duration_min, e.exercise_ids, e.created_at,
+                      tc.name as class_name, u.name as teacher_name
+               FROM teacher_exams e
+               JOIN teacher_classes tc ON tc.id = e.class_id
+               JOIN class_memberships cm ON cm.class_id = tc.id AND cm.student_id = %s
+               JOIN users u ON u.id = e.teacher_id
+               ORDER BY e.created_at DESC""",
+            (student_id,),
+        )
+        rows = cur.fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_resources_bundle(connection, user):
     if user["role"] == "teacher":
         return {
@@ -836,6 +884,7 @@ def get_resources_bundle(connection, user):
             "teacherClasses": get_teacher_classes(connection, user["id"]),
             "joinedClasses": [],
             "devoirs": get_devoirs_for_teacher(connection, user["id"]),
+            "exams": get_exams_for_teacher(connection, user["id"]),
         }
     return {
         "courses": get_teacher_courses_for_student(connection, user["id"]),
@@ -843,6 +892,7 @@ def get_resources_bundle(connection, user):
         "teacherClasses": [],
         "joinedClasses": get_joined_classes(connection, user["id"]),
         "devoirs": get_devoirs_for_student(connection, user["id"]),
+        "exams": get_exams_for_student(connection, user["id"]),
     }
 
 
@@ -1496,6 +1546,12 @@ class AppHandler(SimpleHTTPRequestHandler):
             return
         if route == "/api/teacher/devoir/delete":
             self.handle_devoir_delete()
+            return
+        if route == "/api/teacher/exam":
+            self.handle_exam_create()
+            return
+        if route == "/api/teacher/exam/delete":
+            self.handle_exam_delete()
             return
         if route == "/api/self-eval":
             self.handle_self_eval()
@@ -2154,6 +2210,67 @@ class AppHandler(SimpleHTTPRequestHandler):
                 cur.execute(
                     "DELETE FROM teacher_devoirs WHERE id = %s AND teacher_id = %s",
                     (devoir_id, user["id"]),
+                )
+            connection.commit()
+
+        self.send_json(200, {"ok": True})
+
+    def handle_exam_create(self):
+        user = self.require_teacher()
+        if not user:
+            return
+
+        body = self.parse_json_body()
+        if body is None:
+            return
+
+        title = str(body.get("title", "")).strip()
+        class_id = parse_int(body.get("class_id"))
+        topic_code = str(body.get("topic_code", "")).strip()
+        duration_min = parse_int(body.get("duration_min")) or 30
+        exercise_ids = body.get("exercise_ids", [])
+
+        if not title or not class_id:
+            self.send_json(400, {"error": "Titre et classe obligatoires."})
+            return
+        if not isinstance(exercise_ids, list):
+            exercise_ids = []
+
+        import json as _json
+        exercise_ids_json = _json.dumps(exercise_ids)
+        now = utc_now()
+
+        with db_connection() as connection:
+            with connection.cursor() as cur:
+                cur.execute(
+                    """INSERT INTO teacher_exams (teacher_id, class_id, title, topic_code, duration_min, exercise_ids, created_at)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+                    (user["id"], class_id, title, topic_code, duration_min, exercise_ids_json, now),
+                )
+                exam_id = cur.fetchone()["id"]
+            connection.commit()
+
+        self.send_json(201, {"ok": True, "id": exam_id})
+
+    def handle_exam_delete(self):
+        user = self.require_teacher()
+        if not user:
+            return
+
+        body = self.parse_json_body()
+        if body is None:
+            return
+
+        exam_id = parse_int(body.get("id"))
+        if not exam_id:
+            self.send_json(400, {"error": "Identifiant manquant."})
+            return
+
+        with db_connection() as connection:
+            with connection.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM teacher_exams WHERE id = %s AND teacher_id = %s",
+                    (exam_id, user["id"]),
                 )
             connection.commit()
 
@@ -3095,31 +3212,86 @@ class AppHandler(SimpleHTTPRequestHandler):
             "Interdiction de générer un énoncé sans équations."
         ))
 
+        # ── Polycopié-anchored style guides per topic ──────────────────────────────
+        topic_style_guides = {
+            "SYSLIN": (
+                "STYLE DU POLYCOPIÉ (BUT GCGP S2 — Systèmes linéaires) : "
+                "Les exercices types du cours sont : (a) mélange de deux courants (bilan global + bilan sur composant), "
+                "(b) pivot de Gauss 2×2 sur débits ou prix (ex. Jean gagne 5800 € de plus que Jacques, salaires totaux 43600 €), "
+                "(c) pivot 3×3 sur nœuds de procédé avec vérification dans les trois équations, "
+                "(d) système avec paramètre libre t ∈ ℝ (ligne nulle → degré de liberté), "
+                "(e) système incompatible révélant une incohérence de mesure (0 = c ≠ 0). "
+                "Pour procédé : bilans matière sur réacteur, séparateur, échangeur, réseau de conduites, mélange de solutions. "
+                "Le système doit TOUJOURS apparaître en LaTeX display : \\[\\begin{cases} ... \\end{cases}\\]. "
+                "Conclure proprement : solution unique S={(x,y,z)}, S=∅, ou S={(expr_t, ...) | t ∈ ℝ}."
+            ),
+            "POLY": (
+                "STYLE DU POLYCOPIÉ (BUT GCGP S2 — Polynômes) : "
+                "Les exercices types sont : (a) évaluation par schéma de Horner (lister tous les coefficients, y compris 0), "
+                "(b) trouver m pour que (X+a) divise P — utiliser le théorème du facteur P(racine)=0, "
+                "(c) calcul de pH via un trinôme du second degré (acide fort + acide faible, Ka donné, c²+αc-Ka=0, rejeter racine négative), "
+                "(d) factorisation complète dans ℝ : (X-a)² si Δ=0, irréductible si Δ<0, produit de facteurs du premier degré si Δ>0, "
+                "(e) factorisation dans ℂ avec j=e^{i2π/3} (EC 3.5), "
+                "(f) division euclidienne par (X-a) — toujours vérifier par développement, "
+                "(g) polynôme caractéristique de l'équation de Van der Waals (cubique en V). "
+                "Pour procédé : Cp(T)=aT³+bT²+cT+d évalué par Horner, équation d'état cubique, équation de pH. "
+                "Toujours donner la factorisation finale complète et vérifier une racine."
+            ),
+            "FVAR": (
+                "STYLE DU POLYCOPIÉ (BUT GCGP S2 — Fonctions de plusieurs variables) : "
+                "Les exercices types sont : (a) dérivées partielles ∂f/∂x, ∂f/∂y en traitant l'autre variable comme constante, "
+                "(b) gradient ∇P de l'équation d'état des gaz parfaits PV=nRT ou Van der Waals, "
+                "(c) domaine de définition avec intersection de contraintes (ln, racine carrée au dénominateur, conditions physiques), "
+                "(d) dérivées d'ordre 2 et matrice hessienne pour classifier un point critique (min/max/col), "
+                "(e) vérification qu'une fonction T(x,t)=T₀e^{-αx}sin(ωt-αx) satisfait ∂²T/∂x²=(ρc/λ)∂T/∂t, "
+                "(f) intégrale double sur domaine rectangulaire ou triangulaire par Fubini, "
+                "(g) calcul de l'aire d'un disque ∬r dr dθ = πR² en polaires. "
+                "Pour procédé : sensibilité de P à V et T dans l'équation d'état, diffusion thermique dans une paroi, optimisation de coût."
+            ),
+            "FRAT": (
+                "STYLE DU POLYCOPIÉ (BUT GCGP S2 — Fractions rationnelles) : "
+                "Les exercices types sont : (a) DES à pôles simples par méthode des résidus (couverture : A=[(X-r)F(X)]_{X=r}), "
+                "(b) DES à pôle double : résidu B par couverture, résidu A par dérivation de (X-r)²F(X) en r, "
+                "(c) DES avec facteur irréductible X²+pX+q (Δ<0) : terme (AX+B)/(X²+pX+q) identifié par valeurs particulières, "
+                "(d) fraction impropre (deg P ≥ deg Q) : division euclidienne d'abord, DES de la partie propre ensuite, "
+                "(e) intégration après DES : A·ln|X-r| + (-B/(X-r)) + (a/2)ln(X²+pX+q) + (b'/δ)arctan((X+p/2)/δ), "
+                "(f) inversion de Laplace : L⁻¹{A/(s-r)}=Ae^{rt}, L⁻¹{(s+a)/((s+a)²+b²)}=e^{-at}cos(bt), "
+                "L⁻¹{b/((s+a)²+b²)}=e^{-at}sin(bt). Toujours vérifier la DES en un point test."
+            ),
+        }
+        topic_style = topic_style_guides.get(topic, "")
+
         system_prompt = (
             "IMPORTANT : ta réponse doit commencer DIRECTEMENT par { et se terminer par }. "
             "Aucun texte, titre, explication ou markdown avant ou après le JSON. "
-            "Tu génères uniquement du JSON valide pour une application de soutien en mathématiques du BUT GCGP. "
+            "Tu génères uniquement du JSON valide pour une application de soutien en mathématiques du BUT GCGP (IUT Lyon 1, Génie Chimique). "
             "Retourne un objet JSON avec exactement les clés suivantes : title, statement, correction, keywords, duration"
             + (", graphData" if needs_graph else "") + ". "
-            "correction doit être un tableau de exactement 3 chaînes, keywords un tableau de chaînes, duration une chaîne courte. "
+            "correction doit être un tableau de exactement 3 chaînes, keywords un tableau de chaînes, duration une chaîne courte (ex. '20 min'). "
+            + topic_style + " "
             + (
-                "Type 'application procédés' : l'énoncé doit s'ancrer dans une situation industrielle concrète "
-                "(réacteur, colonne, échangeur, bilan matière, procédé pharmaceutique…) avec des données chiffrées et leurs unités. "
+                "Type 'application procédés' : l'énoncé doit s'ancrer dans une situation industrielle concrète du génie des procédés "
+                "(réacteur continu, colonne de distillation, échangeur de chaleur, bilan matière sur nœud, "
+                "mélange de solutions, calcul de débit, bilan thermique, pH de procédé, corrélation Cp(T)…) "
+                "avec des données chiffrées réalistes et leurs unités SI. "
                 if is_procede else
-                "Type 'maths pures' : énoncé direct centré sur les calculs, sans mise en situation industrielle. "
+                "Type 'maths pures' : énoncé direct centré sur les calculs mathématiques, "
+                "sans mise en situation industrielle, dans le style des exercices corrigés du polycopié. "
             )
-            + "RÈGLE ABSOLUE : un énoncé sans équations LaTeX est INVALIDE. "
+            + "RÈGLE ABSOLUE : un énoncé sans équations LaTeX est INVALIDE et sera rejeté. "
             + topic_math_req + " "
             "Les environnements LaTeX (cases, pmatrix, bmatrix, array) doivent TOUJOURS être encadrés dans \\[...\\]. "
-            "Le niveau de difficulté doit guider librement la complexité : nombre de questions, imbrication des calculs, richesse des données. "
-            "Les questions doivent être numérotées et progressives. "
-            "Si le mode est 'guide', ajouter une courte aide après chaque question. "
-            "La correction (3 blocs) doit : (1) rappeler la méthode, (2) résoudre entièrement avec calculs détaillés et justifiés en LaTeX, "
-            "(3) vérifier le résultat" + (" et l'interpréter dans le contexte procédé." if is_procede else ".") + " "
-            "Rédige des paragraphes logiques, jamais de liste 'Étape 1, Étape 2'. "
-            "Emploie un langage mathématique rigoureux : ∈, ⟹, ⟺, ℝ, ℂ. "
+            "Le niveau de difficulté guide la complexité : facile=1-2 questions directes, intermédiaire=3 questions avec vérification, avancé=4-5 questions avec interprétation. "
+            "Les questions doivent être numérotées et progressives (du plus simple au plus élaboré). "
+            "Si le mode est 'guide', ajouter une courte aide méthodologique après chaque question (ex. 'Rappel : la méthode des résidus donne A=[(X-r)F(X)]_{X=r}'). "
+            "La correction (3 blocs) doit : "
+            "(1) rappeler la stratégie et la méthode choisie avec justification, "
+            "(2) résoudre entièrement chaque question avec calculs détaillés et justifiés en LaTeX (pas de sauts de raisonnement), "
+            "(3) vérifier le résultat et l'interpréter" + (" dans le contexte procédé avec les unités." if is_procede else ".") + " "
+            "Rédige des phrases complètes et logiques, jamais de liste sèche 'Étape 1, Étape 2'. "
+            "Emploie le vocabulaire mathématique rigoureux du polycopié : ∈, ⟹, ⟺, ℝ, ℂ, deg, 'partie entière', 'résidu', 'pôle simple/double', 'paramètre libre t'. "
             "Notation LaTeX OBLIGATOIRE : \\(...\\) pour l'inline, \\[...\\] pour les blocs et environnements. Jamais de formule en texte brut. "
-            "Caractères accentués directement (é, è, à, ç…), jamais de commandes LaTeX d'accent."
+            "Caractères accentués directement (é, è, à, ç…), jamais de commandes LaTeX d'accent (\\'{e} interdit)."
             + (
                 " graphData : {\"axes\":{\"xMin\":n,\"xMax\":n,\"yMin\":n,\"yMax\":n,\"xLabel\":str,\"yLabel\":str},"
                 "\"points\":[{\"id\":str,\"label\":str,\"x\":n,\"y\":n,\"hint\":str}],"
@@ -3131,11 +3303,12 @@ class AppHandler(SimpleHTTPRequestHandler):
 
         user_prompt = (
             f"Theme: {topic}\nSemestre: {semester}\nNiveau: {level}\nType: {exercise_type_expectation}\n"
-            f"Mode: {mode}\nObjectif: {goal or 'application procede'}\n"
+            f"Mode: {mode}\nObjectif specifique: {goal or 'exercice de révision complet'}\n"
             f"Methode attendue: {method_expectation}\n"
-            "Genere un exercice original et varié, adapté au niveau demandé. "
-            "La correction doit être explicative et traiter chaque question avec les calculs complets."
-            + (" Inclure graphData si pertinent." if needs_graph else "")
+            "Génère un exercice ORIGINAL (pas une copie des exemples du polycopié, mais même style et niveau). "
+            "Varie les valeurs numériques, les fonctions et les contextes par rapport aux exemples types. "
+            "La correction doit traiter chaque question avec les calculs complets, sans raccourcis ni étapes sautées."
+            + (" Inclure graphData si la visualisation aide à comprendre la solution." if needs_graph else "")
         )
         try:
             raw_text = _repair_json_strings(_clean_ai_text(ai_request(system_prompt, user_prompt)))
@@ -3194,21 +3367,64 @@ class AppHandler(SimpleHTTPRequestHandler):
             self.send_json(400, {"error": "topic requis."})
             return
 
+        # Guides spécifiques par chapitre pour QCM
+        qcm_topic_guides = {
+            "SYSLIN": (
+                "Les questions portent sur : la forme matricielle [A|b], le critère det(A)≠0 (système de Cramer), "
+                "les opérations élémentaires autorisées (Lᵢ←Lᵢ+k·Lⱼ), l'interprétation géométrique (droites parallèles=incompatible), "
+                "la détection d'un système indéterminé (ligne nulle 0=0), la notation S=∅ ou S={(expr_t)|t∈ℝ}."
+            ),
+            "POLY": (
+                "Les questions portent sur : le schéma de Horner (liste des coefficients incluant les 0), "
+                "le théorème du reste (reste = P(a)), le théorème du facteur (P(a)=0 ⟺ (X-a)|P), "
+                "l'ordre de multiplicité (ν : P(a)=P'(a)=...=P^{ν-1}(a)=0), "
+                "le discriminant Δ=b²-4ac et les trois cas, "
+                "la factorisation dans ℝ (facteurs irréductibles du 2nd degré si Δ<0), "
+                "les racines entières candidates (diviseurs du terme constant)."
+            ),
+            "FVAR": (
+                "Les questions portent sur : le calcul de ∂f/∂x (y constante) et ∂f/∂y (x constante), "
+                "le théorème de Schwarz (∂²f/∂x∂y=∂²f/∂y∂x si f∈C²), "
+                "la différentielle df=(∂f/∂x)dx+(∂f/∂y)dy, "
+                "la règle de la chaîne df/dt=(∂f/∂x)(dx/dt)+(∂f/∂y)(dy/dt), "
+                "la condition d'exactitude ∂M/∂y=∂N/∂x, "
+                "le théorème de Fubini pour les intégrales doubles itérées, "
+                "le jacobien en coordonnées polaires (dA=r·dr·dθ)."
+            ),
+            "FRAT": (
+                "Les questions portent sur : la définition d'une fraction propre (deg P < deg Q), "
+                "les pôles (racines de Q), la méthode de couverture A=[(X-r)F(X)]_{X=r} pour pôle simple, "
+                "les formes de DES (A/(X-r) pour pôle simple, A/(X-r)+B/(X-r)² pour pôle double, "
+                "(AX+B)/(X²+pX+q) pour facteur irréductible), "
+                "les primitives (A·ln|X-r|, -B/(X-r), arctan…), "
+                "les transformées de Laplace usuelles L{e^{at}}=1/(s-a), L{sin(ωt)}=ω/(s²+ω²)."
+            ),
+        }
+        qcm_guide = qcm_topic_guides.get(topic, "")
+
         system_prompt = (
             "IMPORTANT : ta réponse doit commencer DIRECTEMENT par [ et se terminer par ]. "
             "Aucun texte avant ou après le JSON. "
-            "Tu génères uniquement du JSON valide. "
-            "Retourne un tableau JSON de questions QCM avec exactement les clés suivantes par question : "
-            "question (string), options (tableau de 4 strings étiquetés A/B/C/D), correct (string 'A', 'B', 'C' ou 'D'), explanation (string). "
-            "Le contenu doit être en français, adapté au niveau BUT Génie Chimique, rigoureux mathématiquement. "
-            "Les distracteurs (mauvaises réponses) doivent être plausibles et correspondre à des erreurs classiques. "
-            "L'explication doit justifier la bonne réponse et pointer l'erreur des distracteurs. "
-            "Notation LaTeX OBLIGATOIRE : entoure chaque formule avec \\(...\\) pour l'inline et \\[...\\] pour le bloc. Ne jamais écrire de formule sans délimiteurs."
+            "Tu génères uniquement du JSON valide pour une application de QCM en mathématiques BUT GCGP (IUT Lyon 1, Génie Chimique). "
+            "Retourne un tableau JSON de questions QCM avec exactement les clés : "
+            "question (string), options (tableau de 4 strings), correct (string 'A', 'B', 'C' ou 'D'), explanation (string). "
+            + qcm_guide + " "
+            "Chaque question doit tester UN concept précis du cours (pas plusieurs à la fois). "
+            "Les distracteurs (mauvaises réponses) doivent correspondre aux ERREURS CLASSIQUES des étudiants "
+            "(ex. oublier les termes nuls dans Horner, confondre pôle et zéro, inverser l'ordre d'intégration, "
+            "omettre la partie entière avant une DES, oublier le jacobien r en polaires, "
+            "confondre S=∅ et S={(0,0,0)}, se tromper de signe dans la méthode des résidus). "
+            "L'explication doit : (1) justifier la bonne réponse avec la règle ou la formule, "
+            "(2) pointer l'erreur commise dans au moins un distracteur. "
+            "Notation LaTeX OBLIGATOIRE dans les formules : \\(...\\) inline, \\[...\\] bloc. "
+            "Jamais de formule mathématique en texte brut. "
+            "Caractères accentués directement (é, è, à, ç…)."
         )
         user_prompt = (
-            f"Theme: {topic}\nNiveau: {level}\n"
-            f"Genere exactement {count} questions QCM sur ce theme mathematique. "
-            "Chaque question doit avoir 4 propositions (A, B, C, D), une seule bonne reponse, et une explication courte."
+            f"Chapitre: {topic}\nNiveau: {level}\n"
+            f"Génère exactement {count} questions QCM originales et variées sur ce chapitre. "
+            "Couvre des notions différentes (définition, application, cas particulier, piège classique). "
+            "Chaque question : 4 propositions A/B/C/D, une seule bonne réponse, explication courte et pédagogique."
         )
 
         logger.info("Génération QCM IA demandée par user id=%s (topic=%s, level=%s, count=%s)", user["id"], topic, level, count)

@@ -11,7 +11,7 @@ export function userKey(base) {
 export const TOKEN_KEY = "maths-gcgp-token";
 export const USER_KEY = "maths-gcgp-user";
 export const REFRESH_KEY = "maths-gcgp-refresh-token";
-export const AUTH_REQUIRED_TABS = new Set(["assistant", "teacher", "prof-content"]);
+export const AUTH_REQUIRED_TABS = new Set(["assistant", "teacher", "prof-content", "student-exams"]);
 
 export const EMPTY_TEACHER_RESOURCES = {
   courses: [],
@@ -19,6 +19,7 @@ export const EMPTY_TEACHER_RESOURCES = {
   teacherClasses: [],
   joinedClasses: [],
   devoirs: [],
+  exams: [],
 };
 
 export const defaultState = {

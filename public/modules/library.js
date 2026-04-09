@@ -498,6 +498,7 @@ export function getFilteredExercises() {
   const sourceFilter   = document.getElementById("library-source")?.value   || "all";
   const unseenOnly     = document.getElementById("library-unseen")?.checked  || false;
   const failedOnly     = document.getElementById("library-failed")?.checked  || false;
+  const iaOnly         = document.getElementById("library-ia-only")?.checked || false;
 
   const state = getStudentState();
   const viewed = state.viewedExercises || [];
@@ -516,6 +517,10 @@ export function getFilteredExercises() {
 
     if (unseenOnly && viewed.includes(exercise.id)) return false;
     if (failedOnly && ![1, 2].includes(evals[exercise.id])) return false;
+    if (iaOnly) {
+      const origin = getExerciseOrigin(exercise);
+      if (origin.className !== "is-ia" && origin.className !== "is-local") return false;
+    }
 
     if (search) {
       const haystack = normalizeMathText(
@@ -1128,8 +1133,10 @@ export function init() {
   // New filters: checkboxes
   const unseenCb = document.getElementById("library-unseen");
   const failedCb = document.getElementById("library-failed");
+  const iaCb     = document.getElementById("library-ia-only");
   if (unseenCb) unseenCb.addEventListener("change", renderExerciseList);
   if (failedCb) failedCb.addEventListener("change", renderExerciseList);
+  if (iaCb)     iaCb.addEventListener("change", renderExerciseList);
 
   // Revision mode button
   const revBtn = document.getElementById("revision-mode-btn");

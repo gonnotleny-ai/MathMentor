@@ -4,6 +4,7 @@ import { getAllExercises } from './library.js';
 import { escapeHtml, mathTextToHtml, renderMath } from './utils.js';
 import { getStudentState, setStudentState } from './state.js';
 import { saveState, apiUpdateProgress, updateDailyActivity } from './progress.js';
+import { getTeacherResources } from './state.js';
 
 let _examState = null; // current exam session state
 let _timerInterval = null;
@@ -263,4 +264,93 @@ function updateTimerDisplay() {
   const sec = _examState.remainingSec % 60;
   el.textContent = `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   el.classList.toggle("exam-timer-urgent", _examState.remainingSec <= 60);
+}
+
+// ── Examens publiés ───────────────────────────────────────────────────────────
+
+export function openPublishedExam(examData) {
+  const modal = document.getElementById("exam-modal");
+  if (!modal) return;
+
+  // Parse exercise_ids from JSON string if needed
+  let ids = examData.exercise_ids;
+  if (typeof ids === "string") {
+    try { ids = JSON.parse(ids); } catch { ids = []; }
+  }
+  if (!Array.isArray(ids) || ids.length === 0) {
+    alert("Cet examen ne contient aucun exercice.");
+    return;
+  }
+
+  // Match IDs against library
+  const all = getAllExercises();
+  const selected = ids.map((id) => all.find((e) => e.id === id)).filter(Boolean);
+  if (!selected.length) {
+    alert("Les exercices de cet examen ne sont plus disponibles.");
+    return;
+  }
+
+  _examState = {
+    exercises: selected,
+    current: 0,
+    answers: [],
+    durationSec: (examData.duration_min || 30) * 60,
+    remainingSec: (examData.duration_min || 30) * 60,
+    startTime: Date.now(),
+  };
+
+  modal.style.display = "flex";
+  // Update modal title
+  const titleEl = modal.querySelector(".exam-modal-title");
+  if (titleEl) titleEl.textContent = `🎯 ${examData.title || "Examen"}`;
+
+  showScreen("session");
+  renderExamQuestion();
+  startTimer();
+}
+
+export function renderStudentExams() {
+  const listEl = document.getElementById("student-exams-list");
+  const emptyEl = document.getElementById("student-exams-empty");
+  if (!listEl) return;
+
+  const resources = getTeacherResources();
+  const exams = (resources && resources.exams) ? resources.exams : [];
+
+  if (!exams.length) {
+    listEl.innerHTML = "";
+    if (emptyEl) emptyEl.classList.remove("is-hidden");
+    return;
+  }
+
+  if (emptyEl) emptyEl.classList.add("is-hidden");
+
+  listEl.innerHTML = exams.map((exam) => {
+    let ids = exam.exercise_ids;
+    if (typeof ids === "string") { try { ids = JSON.parse(ids); } catch { ids = []; } }
+    const count = Array.isArray(ids) ? ids.length : 0;
+    const topicLabel = exam.topic_code ? ` — ${exam.topic_code}` : "";
+    const dur = exam.duration_min || 30;
+    return `
+      <div class="pc-card exam-student-card" data-exam-id="${exam.id}">
+        <div class="pc-card-head">
+          <span class="topic-pill">${escapeHtml(exam.class_name || "")}</span>
+          <span class="helper-text">${escapeHtml(exam.teacher_name || "")}</span>
+        </div>
+        <h3 class="pc-card-title">${escapeHtml(exam.title)}${escapeHtml(topicLabel)}</h3>
+        <p class="pc-card-meta">${count} exercice${count > 1 ? "s" : ""} · ${dur} min</p>
+        <button type="button" class="primary-button exam-start-published-btn" style="margin-top:12px">Passer l'examen →</button>
+      </div>
+    `;
+  }).join("");
+
+  // Bind start buttons
+  listEl.querySelectorAll(".exam-start-published-btn").forEach((btn) => {
+    const card = btn.closest(".exam-student-card");
+    const id = parseInt(card?.dataset.examId || "0", 10);
+    btn.addEventListener("click", () => {
+      const exam = exams.find((e) => e.id === id);
+      if (exam) openPublishedExam(exam);
+    });
+  });
 }
