@@ -744,23 +744,31 @@ function hideLoader() {
 async function bootWithLoader() {
   const hint = document.getElementById("app-loader-hint");
 
-  // 1. Ping server to wake up Render (cold start can take ~30s)
+  // 1. Ping server to wake up Render (cold start can take ~90s on free tier)
   const pingStart = Date.now();
-  const MAX_WAIT = 35_000;
+  const MAX_WAIT = 90_000;
   let serverReady = false;
   while (!serverReady && Date.now() - pingStart < MAX_WAIT) {
     try {
       const res = await fetch("/api/ping", { cache: "no-store" });
       if (res.ok) { serverReady = true; break; }
     } catch (_) {}
-    if (hint) hint.textContent = `Démarrage du serveur… (${Math.round((Date.now() - pingStart) / 1000)}s)`;
+    const elapsed = Math.round((Date.now() - pingStart) / 1000);
+    if (hint) {
+      if (elapsed < 10) hint.textContent = "Connexion au serveur…";
+      else hint.textContent = `Réveil du serveur… (${elapsed}s) — première visite, merci de patienter`;
+    }
     await new Promise(r => setTimeout(r, 2000));
   }
 
   if (hint) hint.textContent = "Chargement de l'interface…";
 
-  // 2. Init the app
-  await init();
+  // 2. Init the app (wrapped in try-catch so the loader always hides)
+  try {
+    await init();
+  } catch (err) {
+    console.error("Erreur lors de l'initialisation :", err);
+  }
 
   // 3. Hide loader
   hideLoader();
