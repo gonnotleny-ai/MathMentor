@@ -3310,8 +3310,13 @@ class AppHandler(SimpleHTTPRequestHandler):
             f"Mode: {mode}\nObjectif specifique: {goal or 'exercice de révision complet'}\n"
             f"Methode attendue: {method_expectation}\n"
             "Génère un exercice ORIGINAL (pas une copie des exemples du polycopié, mais même style et niveau). "
-            "Varie les valeurs numériques, les fonctions et les contextes par rapport aux exemples types. "
-            "La correction doit traiter chaque question avec les calculs complets, sans raccourcis ni étapes sautées."
+            "Varie les valeurs numériques, les fonctions et les contextes par rapport aux exemples types.\n\n"
+            "RAPPEL CRITIQUE sur le format :\n"
+            "- statement : chaîne contenant l'énoncé COMPLET avec les données, les équations en \\\\(...\\\\) et les questions numérotées.\n"
+            "- correction : tableau de EXACTEMENT 3 CHAÎNES de texte (pas d'objets, pas de sous-structures).\n"
+            "  Exemple correct : [\"Stratégie : on utilise...\", \"Résolution : \\\\(x = \\\\frac{1}{2}\\\\)...\", \"Vérification : ...\"]\n"
+            "  Exemple INTERDIT : [{\"step\": \"...\"}] ou [{}]\n\n"
+            "L'énoncé DOIT contenir les équations et données chiffrées, pas seulement les questions textuelles."
             + (" Inclure graphData si la visualisation aide à comprendre la solution." if needs_graph else "")
         )
         try:
@@ -3332,8 +3337,22 @@ class AppHandler(SimpleHTTPRequestHandler):
             # Normalize text fields (NFC + fix char-by-char newlines)
             generated["title"] = normalize_ai_text(generated.get("title", ""))
             generated["statement"] = normalize_ai_text(generated.get("statement", ""))
-            if isinstance(generated.get("correction"), list):
-                generated["correction"] = [normalize_ai_text(c) for c in generated["correction"]]
+            # correction: l'IA peut renvoyer un tableau de strings OU un tableau d'objets
+            raw_corr = generated.get("correction", [])
+            if isinstance(raw_corr, str):
+                raw_corr = [raw_corr]
+            if isinstance(raw_corr, list):
+                flat = []
+                for item in raw_corr:
+                    if isinstance(item, dict):
+                        # Extraire le texte de toutes les valeurs de l'objet
+                        parts = [str(v) for v in item.values() if v]
+                        flat.append(normalize_ai_text(" — ".join(parts)))
+                    else:
+                        flat.append(normalize_ai_text(str(item or "")))
+                generated["correction"] = [c for c in flat if c.strip()]
+            if not generated.get("correction"):
+                generated["correction"] = ["Correction indisponible."]
             # Validate and sanitize graphData if present
             gd = generated.get("graphData")
             if gd and isinstance(gd, dict):

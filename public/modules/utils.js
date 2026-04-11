@@ -24,7 +24,15 @@ export function setChipState(element, label, tone = "success") {
 }
 
 export function normalizeCorrection(correction) {
-  if (Array.isArray(correction)) return correction;
+  if (Array.isArray(correction)) {
+    // Aplatir les objets éventuels renvoyés par l'IA (ex: {step:"...", detail:"..."})
+    return correction.map((item) => {
+      if (item && typeof item === "object") {
+        return Object.values(item).filter(Boolean).join(" — ");
+      }
+      return String(item || "");
+    }).filter((s) => s.trim());
+  }
   if (typeof correction === "string" && correction.trim()) {
     return correction
       .split(/\n{2,}|\n- |\n\d+\./)
