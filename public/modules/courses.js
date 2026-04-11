@@ -1,7 +1,7 @@
 // ── Courses module ────────────────────────────────────────────────────────────
 
 import { getTeacherResources, getSelectedCourse, setSelectedCourse, getStudentState, userKey } from './state.js';
-import { escapeHtml, textToHtml, mathTextToHtml, renderMath, buildTagRow, formatPublicationDate } from './utils.js';
+import { escapeHtml, textToHtml, mathTextToHtml, mathTextInline, renderMath, buildTagRow, formatPublicationDate } from './utils.js';
 import { apiRequest } from './api.js';
 
 let _coursesSemesterFilter = "S2";
@@ -306,7 +306,7 @@ function renderQcmHtmlFromData(qcm, courseCode, lessonIndex) {
         ${q.choices.map((c, ci) => `
           <button type="button" class="qcm-choice" data-correct="${q.answer}" data-ci="${ci}"
             data-expl="${escapeHtml(q.explanation || '')}">
-            <span class="qcm-choice-letter">${String.fromCharCode(65 + ci)}</span>${mathTextToHtml(c)}
+            <span class="qcm-choice-letter">${String.fromCharCode(65 + ci)}</span>${mathTextInline(c)}
           </button>
         `).join("")}
       </div>
@@ -720,7 +720,7 @@ function handleQcmRetake(btn, course) {
           ${q.choices.map((c, ci) => `
             <button type="button" class="qcm-choice" data-correct="${q.answer}" data-ci="${ci}"
               data-expl="${escapeHtml(q.explanation || '')}">
-              <span class="qcm-choice-letter">${String.fromCharCode(65 + ci)}</span>${mathTextToHtml(c)}
+              <span class="qcm-choice-letter">${String.fromCharCode(65 + ci)}</span>${mathTextInline(c)}
             </button>
           `).join("")}
         </div>

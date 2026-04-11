@@ -172,14 +172,9 @@ export function mathTextToHtml(text) {
   function applyInline(str) {
     return str
       .replace(/`([^`\n]+?)`/g, '<code>$1</code>')
-      // Bold+italic : ensure a space-like boundary before **
-      // The zero-width word boundary trick : add a thin space around the tags
-      // so bold text is never visually "collé" to adjacent text
-      .replace(/\*\*\*(.+?)\*\*\*/g, ' <strong><em>$1</em></strong> ')
-      .replace(/\*\*(.+?)\*\*/g, ' <strong>$1</strong> ')
-      .replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/g, '$1<em>$2</em>')
-      // Collapse double spaces introduced above (never trim — breaks list items)
-      .replace(/  +/g, ' ');
+      .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[\s(])\*([^*\n]+?)\*(?=$|[\s),.])/g, '$1<em>$2</em>');
   }
 
   const lines = s.split('\n');

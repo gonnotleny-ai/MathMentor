@@ -18,21 +18,21 @@ window.APP_DATA = {
         qcm: [
           {
             question: "Sous quelle forme matricielle compact note-t-on un système linéaire ?",
-            choices: ["A·x = b", "A/x = b", "A·x + b = 0", "x = A⁻¹"],
+            choices: ["\\(A \\cdot x = b\\)", "\\(A / x = b\\)", "\\(A \\cdot x + b = 0\\)", "\\(x = A^{-1}\\)"],
             answer: 0,
-            explanation: "A est la matrice des coefficients, x le vecteur des inconnues et b le vecteur des seconds membres."
+            explanation: "\\(A\\) est la matrice des coefficients, \\(x\\) le vecteur des inconnues et \\(b\\) le vecteur des seconds membres."
           },
           {
-            question: "Un système carré (n = p) admet une solution unique quand :",
-            choices: ["det(A) ≠ 0 (système de Cramer)", "det(A) = 0", "A est triangulaire", "b = 0"],
+            question: "Un système carré (\\(n = p\\)) admet une solution unique quand :",
+            choices: ["\\(\\det(A) \\neq 0\\) (système de Cramer)", "\\(\\det(A) = 0\\)", "\\(A\\) est triangulaire", "\\(b = 0\\)"],
             answer: 0,
-            explanation: "Si det(A) ≠ 0 le système est de Cramer et admet exactement une solution. Si det(A) = 0 il y a soit infinité de solutions, soit aucune."
+            explanation: "Si \\(\\det(A) \\neq 0\\) le système est de Cramer et admet exactement une solution. Si \\(\\det(A) = 0\\) il y a soit infinité de solutions, soit aucune."
           },
           {
-            question: "Qu'est-ce que la matrice augmentée [A|b] ?",
-            choices: ["La matrice A complétée par le vecteur b en dernière colonne", "Le produit A × b", "La matrice inverse de A", "La transposée de A"],
+            question: "Qu'est-ce que la matrice augmentée \\([A|b]\\) ?",
+            choices: ["La matrice \\(A\\) complétée par le vecteur \\(b\\) en dernière colonne", "Le produit \\(A \\times b\\)", "La matrice inverse de \\(A\\)", "La transposée de \\(A\\)"],
             answer: 0,
-            explanation: "[A|b] ∈ M_{n,p+1}(ℝ) contient toute l'information utile pour résoudre le système par les méthodes de réduction."
+            explanation: "\\([A|b] \\in M_{n,p+1}(\\mathbb{R})\\) contient toute l'information utile pour résoudre le système par les méthodes de réduction."
           }
         ]
       },
@@ -47,14 +47,14 @@ window.APP_DATA = {
             explanation: "On choisit l'équation où une variable s'exprime le plus facilement, on l'isole, puis on substitue partout ailleurs."
           },
           {
-            question: "Pour le système 2x + y = 7 et x − y = 2, quelle est la solution ?",
-            choices: ["x = 3, y = 1", "x = 1, y = 3", "x = 2, y = 3", "x = 3, y = 2"],
+            question: "Pour le système \\(2x + y = 7\\) et \\(x - y = 2\\), quelle est la solution ?",
+            choices: ["\\(x = 3,\\; y = 1\\)", "\\(x = 1,\\; y = 3\\)", "\\(x = 2,\\; y = 3\\)", "\\(x = 3,\\; y = 2\\)"],
             answer: 0,
-            explanation: "De L2 : y = x − 2. Substitution dans L1 : 2x + x − 2 = 7 → 3x = 9 → x = 3, y = 1. Vérification : 2·3 + 1 = 7 ✓."
+            explanation: "De L2 : \\(y = x - 2\\). Substitution dans L1 : \\(2x + x - 2 = 7 \\Rightarrow 3x = 9 \\Rightarrow x = 3,\\; y = 1\\). Vérification : \\(2 \\cdot 3 + 1 = 7\\) ✓."
           },
           {
             question: "Quand la méthode par substitution est-elle la plus avantageuse ?",
-            choices: ["Systèmes 2×2 où une variable s'exprime facilement", "Systèmes 10×10 denses", "Quand le déterminant est nul", "Quand les coefficients sont tous décimaux"],
+            choices: ["Systèmes \\(2 \\times 2\\) où une variable s'exprime facilement", "Systèmes \\(10 \\times 10\\) denses", "Quand le déterminant est nul", "Quand les coefficients sont tous décimaux"],
             answer: 0,
             explanation: "La substitution est rapide et lisible pour les petits systèmes. Pour les grands systèmes, le pivot de Gauss est préférable."
           }
@@ -66,9 +66,9 @@ window.APP_DATA = {
         qcm: [
           {
             question: "Quel est l'objectif de la méthode du pivot de Gauss ?",
-            choices: ["Obtenir une forme triangulaire supérieure avec des zéros sous la diagonale", "Calculer l'inverse de A", "Diagonaliser A", "Trouver le déterminant de A"],
+            choices: ["Obtenir une forme triangulaire supérieure avec des zéros sous la diagonale", "Calculer l'inverse de \\(A\\)", "Diagonaliser \\(A\\)", "Trouver le déterminant de \\(A\\)"],
             answer: 0,
-            explanation: "Les opérations Lᵢ ← Lᵢ + k·Lⱼ éliminent les coefficients sous le pivot colonne par colonne jusqu'à obtenir un système triangulaire facile à résoudre par remontée."
+            explanation: "Les opérations \\(L_i \\leftarrow L_i + k \\cdot L_j\\) éliminent les coefficients sous le pivot colonne par colonne jusqu'à obtenir un système triangulaire facile à résoudre par remontée."
           },
           {
             question: "Quelle opération élémentaire sur les lignes est autorisée dans le pivot de Gauss ?",
@@ -191,22 +191,22 @@ window.APP_DATA = {
         summary: "Un polynôme à coefficients dans K est P(X) = Σ_{k≥0} aₖXᵏ avec aₖ ∈ K, les termes étant nuls à partir d'un certain rang. Le degré est le plus grand entier n tel que aₙ ≠ 0. Par convention, le polynôme nul a pour degré −∞. Deux polynômes A et B sont égaux si et seulement si pour tout k, aₖ = bₖ (même coefficients à chaque degré). Vocabulaire : X est l'indéterminée, aₖ est le coefficient du terme de degré k, aₖXᵏ est un monôme de degré k, et K[X] désigne l'ensemble de tous les polynômes à coefficients dans K. Exemple du cours : P(X) = 1 + 3X² + 5X⁴ est de degré 4 dans ℝ[X] ; le coefficient de degré 2 est 3 ; le coefficient de degré 3 est nul (terme absent) ; le monôme de degré 4 est 5X⁴.",
         qcm: [
           {
-            question: "Quel est le degré du polynôme P(X) = 1 + 3X² + 5X⁴ ?",
-            choices: ["4, car le coefficient de X⁴ vaut 5 ≠ 0", "2, car le terme 3X² est le plus visible", "1, car le terme de plus bas degré non nul est le terme constant", "5, car c'est le coefficient dominant"],
+            question: "Quel est le degré du polynôme \\(P(X) = 1 + 3X^2 + 5X^4\\) ?",
+            choices: ["4, car le coefficient de \\(X^4\\) vaut \\(5 \\neq 0\\)", "2, car le terme \\(3X^2\\) est le plus visible", "1, car le terme de plus bas degré non nul est le terme constant", "5, car c'est le coefficient dominant"],
             answer: 0,
-            explanation: "Le degré est le plus grand entier n tel que le coefficient aₙ ≠ 0. Ici a₄ = 5 ≠ 0 et il n'y a pas de terme de degré supérieur : deg P = 4. Le terme X³ et le terme X sont absents (coefficients nuls)."
+            explanation: "Le degré est le plus grand entier \\(n\\) tel que le coefficient \\(a_n \\neq 0\\). Ici \\(a_4 = 5 \\neq 0\\) et il n'y a pas de terme de degré supérieur : \\(\\deg P = 4\\). Le terme \\(X^3\\) et le terme \\(X\\) sont absents (coefficients nuls)."
           },
           {
-            question: "Deux polynômes A(X) et B(X) sont égaux si et seulement si :",
-            choices: ["Tous leurs coefficients sont identiques : aₖ = bₖ pour tout k ≥ 0", "Ils ont le même degré", "A(0) = B(0)", "Ils ont les mêmes racines"],
+            question: "Deux polynômes \\(A(X)\\) et \\(B(X)\\) sont égaux si et seulement si :",
+            choices: ["Tous leurs coefficients sont identiques : \\(a_k = b_k\\) pour tout \\(k \\geq 0\\)", "Ils ont le même degré", "\\(A(0) = B(0)\\)", "Ils ont les mêmes racines"],
             answer: 0,
-            explanation: "L'égalité polynomiale est une égalité terme à terme : aₖ = bₖ pour tout k. Par exemple, 2(X−1) et (X−1) ont la même racine x = 1, mais leurs coefficients diffèrent, donc ils ne sont pas égaux."
+            explanation: "L'égalité polynomiale est une égalité terme à terme : \\(a_k = b_k\\) pour tout \\(k\\). Par exemple, \\(2(X-1)\\) et \\((X-1)\\) ont la même racine \\(x = 1\\), mais leurs coefficients diffèrent."
           },
           {
-            question: "Par convention, quel est le degré d'un polynôme constant non nul, par exemple P(X) = 5 ?",
-            choices: ["0", "1", "−∞", "Indéfini"],
+            question: "Par convention, quel est le degré d'un polynôme constant non nul, par exemple \\(P(X) = 5\\) ?",
+            choices: ["\\(0\\)", "\\(1\\)", "\\(-\\infty\\)", "Indéfini"],
             answer: 0,
-            explanation: "deg(5) = 0 car 5 = 5·X⁰. En revanche deg(0) = −∞ par convention."
+            explanation: "\\(\\deg(5) = 0\\) car \\(5 = 5 \\cdot X^0\\). En revanche \\(\\deg(0) = -\\infty\\) par convention."
           }
         ]
       },
@@ -215,22 +215,22 @@ window.APP_DATA = {
         summary: "Trois opérations fondamentales s'appliquent aux polynômes. Multiplication par un scalaire λ ≠ 0 : le polynôme λA a pour coefficients bₖ = λ·aₖ, et deg(λA) = deg A. Addition : le polynôme S = A + B a pour coefficients sₖ = aₖ + bₖ, et deg(S) ≤ max(deg A, deg B) (l'inégalité stricte est possible en cas d'annulations des coefficients dominants). Multiplication : le polynôme R = A·B a pour coefficients rₖ = Σ_{i+j=k} aᵢ·bⱼ, et deg(R) = deg(A) + deg(B). Pour la division, deux variantes : la division par puissances décroissantes (on ordonne par degrés décroissants et on divise comme en primaire) donne A = B·Q + R avec deg R < deg B ; B divise A si R = 0 ; cette division n'est utile que si deg A ≥ deg B. La division par puissances croissantes à l'ordre n consiste à ordonner par puissances croissantes et à s'arrêter dès que le reste est factorisable par X^{n+1} ; le degré de Q est inférieur à n ; c'est l'utilisation voulue qui impose l'ordre d'arrêt.",
         qcm: [
           {
-            question: "Si deg(A) = 3 et deg(B) = 2, quel est deg(A·B) ?",
-            choices: ["5", "6", "3", "2"],
+            question: "Si \\(\\deg(A) = 3\\) et \\(\\deg(B) = 2\\), quel est \\(\\deg(A \\cdot B)\\) ?",
+            choices: ["\\(5\\)", "\\(6\\)", "\\(3\\)", "\\(2\\)"],
             answer: 0,
-            explanation: "deg(A·B) = deg(A) + deg(B) = 3 + 2 = 5. Le produit multiplie les degrés comme une addition."
+            explanation: "\\(\\deg(A \\cdot B) = \\deg(A) + \\deg(B) = 3 + 2 = 5\\)."
           },
           {
-            question: "Qu'énonce le théorème du reste pour la division de P par (X − a) ?",
-            choices: ["Le reste est P(a)", "Le reste est P(0)", "Le reste est toujours nul", "Le reste est le coefficient dominant de P"],
+            question: "Qu'énonce le théorème du reste pour la division de \\(P\\) par \\((X - a)\\) ?",
+            choices: ["Le reste est \\(P(a)\\)", "Le reste est \\(P(0)\\)", "Le reste est toujours nul", "Le reste est le coefficient dominant de \\(P\\)"],
             answer: 0,
-            explanation: "P = Q·(X−a) + R avec R constante. En substituant X = a : P(a) = 0 + R → R = P(a)."
+            explanation: "\\(P = Q \\cdot (X-a) + R\\) avec \\(R\\) constante. En substituant \\(X = a\\) : \\(P(a) = 0 + R \\Rightarrow R = P(a)\\)."
           },
           {
-            question: "Que signifie P(a) = 0 pour la division euclidienne de P par (X − a) ?",
-            choices: ["(X − a) divise P(X) exactement (reste nul)", "P est le polynôme nul", "a est le coefficient dominant de P", "Le quotient est nul"],
+            question: "Que signifie \\(P(a) = 0\\) pour la division euclidienne de \\(P\\) par \\((X - a)\\) ?",
+            choices: ["\\((X - a)\\) divise \\(P(X)\\) exactement (reste nul)", "\\(P\\) est le polynôme nul", "\\(a\\) est le coefficient dominant de \\(P\\)", "Le quotient est nul"],
             answer: 0,
-            explanation: "P(a) = 0 ⟺ reste = 0 ⟺ (X − a) | P(X). C'est le théorème du facteur, fondement de la factorisation."
+            explanation: "\\(P(a) = 0 \\Leftrightarrow\\) reste \\(= 0 \\Leftrightarrow (X-a) \\mid P(X)\\). C'est le théorème du facteur."
           }
         ]
       },
@@ -239,22 +239,22 @@ window.APP_DATA = {
         summary: "Factoriser un polynôme, c'est le mettre sous forme de PRODUIT de facteurs du type (X − nombre) ou (aX² + bX + c) avec Δ < 0 dans ℝ. Pour le second degré P(X) = aX² + bX + c : discriminant Δ = b² − 4ac ; si Δ > 0 deux racines réelles distinctes et P(X) = a(X − X₁)(X − X₂) ; si Δ = 0 racine double X₀ = −b/(2a) et P(X) = a(X − X₀)² ; si Δ < 0 pas de racine réelle. Par définition, X₀ est racine de P si P(X₀) = 0 ; dans ce cas, il existe un polynôme Q de degré n − 1 tel que P(X) = (X − X₀)·Q(X). L'ordre de multiplicité ν de X₀ est le plus grand entier tel que P soit divisible par (X − X₀)ν. Propriété : X₀ est d'ordre ν si et seulement si P(X₀) = P'(X₀) = … = P^{(ν−1)}(X₀) = 0. La somme des ordres de multiplicité est égale au degré du polynôme : Σνᵢ = n. Tout polynôme de degré ≥ 1 a au moins une racine complexe. Pour un polynôme à coefficients réels, les racines complexes sont conjuguées deux à deux. Factorisation dans ℂ : P(X) = aₙ·∏(X − Xᵢ)^νᵢ. Factorisation dans ℝ : les racines complexes conjuguées restent regroupées en facteurs irréductibles du second degré de la forme X² + |X₀|² − 2X·ℜ(X₀).",
         qcm: [
           {
-            question: "Pour P(X) = X² − 5X + 6, quel est le discriminant Δ ?",
-            choices: ["Δ = 1", "Δ = 4", "Δ = −1", "Δ = 25"],
+            question: "Pour \\(P(X) = X^2 - 5X + 6\\), quel est le discriminant \\(\\Delta\\) ?",
+            choices: ["\\(\\Delta = 1\\)", "\\(\\Delta = 4\\)", "\\(\\Delta = -1\\)", "\\(\\Delta = 25\\)"],
             answer: 0,
-            explanation: "Δ = b² − 4ac = 25 − 24 = 1. Racines : x = (5 ± 1)/2, soit x₁ = 3 et x₂ = 2."
+            explanation: "\\(\\Delta = b^2 - 4ac = 25 - 24 = 1\\). Racines : \\(x = \\frac{5 \\pm 1}{2}\\), soit \\(x_1 = 3\\) et \\(x_2 = 2\\)."
           },
           {
-            question: "Que se passe-t-il si Δ < 0 pour un polynôme de degré 2 à coefficients réels ?",
+            question: "Que se passe-t-il si \\(\\Delta < 0\\) pour un polynôme de degré 2 à coefficients réels ?",
             choices: ["Pas de racine réelle, deux racines complexes conjuguées", "Une seule racine réelle double", "Deux racines réelles distinctes", "Le polynôme est identiquement nul"],
             answer: 0,
-            explanation: "Δ < 0 implique √Δ imaginaire : les racines sont (−b ± i√|Δ|)/(2a), complexes conjuguées, sans partie réelle commune."
+            explanation: "\\(\\Delta < 0\\) implique \\(\\sqrt{\\Delta}\\) imaginaire : les racines sont \\(\\frac{-b \\pm i\\sqrt{|\\Delta|}}{2a}\\), complexes conjuguées."
           },
           {
-            question: "Pour chercher les racines rationnelles de P(X) = X³ − 6X² + 11X − 6, quels candidats teste-t-on ?",
-            choices: ["±1, ±2, ±3, ±6 (diviseurs du terme constant 6)", "±1 seulement", "±6 seulement", "Tous les entiers de 0 à 6"],
+            question: "Pour chercher les racines rationnelles de \\(P(X) = X^3 - 6X^2 + 11X - 6\\), quels candidats teste-t-on ?",
+            choices: ["\\(\\pm 1, \\pm 2, \\pm 3, \\pm 6\\) (diviseurs du terme constant 6)", "\\(\\pm 1\\) seulement", "\\(\\pm 6\\) seulement", "Tous les entiers de 0 à 6"],
             answer: 0,
-            explanation: "Théorème des racines rationnelles : toute racine entière divise c₀ = 6. On teste ±1, ±2, ±3, ±6. Ici P(1) = 0 ✓."
+            explanation: "Théorème des racines rationnelles : toute racine entière divise \\(c_0 = 6\\). On teste \\(\\pm 1, \\pm 2, \\pm 3, \\pm 6\\). Ici \\(P(1) = 0\\) ✓."
           }
         ]
       },
@@ -263,22 +263,22 @@ window.APP_DATA = {
         summary: "La division euclidienne par puissances décroissantes s'effectue en ordonnant le dividende A et le diviseur B par degrés décroissants, puis en divisant comme en primaire : on divise le terme de plus haut degré de A par celui de B pour obtenir le premier terme de Q, on soustrait, et on recommence. Le résultat est A = B·Q + R avec deg R < deg B. On dit que B divise A si R = 0. Cette division n'est pertinente que si deg A ≥ deg B. La division par puissances croissantes à l'ordre n s'effectue en ordonnant par puissances croissantes (de X⁰ vers Xⁿ). On s'arrête dès que le reste est factorisable par X^{n+1}, autrement dit dès que tous les termes du reste ont un degré supérieur à n. Le quotient Q obtenu vérifie deg Q < n. Contrairement à la division décroissante, cette division ne s'arrête a priori jamais : c'est l'utilisation prévue (développement limité, approximation à un certain ordre) qui impose l'ordre d'arrêt n.",
         qcm: [
           {
-            question: "Dans le schéma de Horner pour diviser P(X) par (X − a), que représente la dernière valeur du tableau ?",
-            choices: ["P(a), c'est-à-dire le reste de la division", "Le coefficient dominant du quotient", "Le degré de P", "La valeur de a²"],
+            question: "Dans le schéma de Horner pour diviser \\(P(X)\\) par \\((X - a)\\), que représente la dernière valeur du tableau ?",
+            choices: ["\\(P(a)\\), c'est-à-dire le reste de la division", "Le coefficient dominant du quotient", "Le degré de \\(P\\)", "La valeur de \\(a^2\\)"],
             answer: 0,
-            explanation: "La dernière valeur calculée est précisément P(a). Si P(a) = 0, a est une racine et la division est exacte."
+            explanation: "La dernière valeur calculée est précisément \\(P(a)\\). Si \\(P(a) = 0\\), \\(a\\) est une racine et la division est exacte."
           },
           {
-            question: "Pour P(X) = X³ − 4X² + X + 6 et a = 2, quels sont les coefficients du quotient Q(X) ?",
-            choices: ["1, −2, −3 donc Q(X) = X² − 2X − 3", "1, −4, 1 donc Q(X) = X² − 4X + 1", "1, 2, 3 donc Q(X) = X² + 2X + 3", "−4, 1, 6"],
+            question: "Pour \\(P(X) = X^3 - 4X^2 + X + 6\\) et \\(a = 2\\), quels sont les coefficients du quotient \\(Q(X)\\) ?",
+            choices: ["\\(1,\\; -2,\\; -3\\) donc \\(Q(X) = X^2 - 2X - 3\\)", "\\(1,\\; -4,\\; 1\\) donc \\(Q(X) = X^2 - 4X + 1\\)", "\\(1,\\; 2,\\; 3\\) donc \\(Q(X) = X^2 + 2X + 3\\)", "\\(-4,\\; 1,\\; 6\\)"],
             answer: 0,
-            explanation: "Horner : b₂=1 ; b₁=1×2+(−4)=−2 ; b₀=−2×2+1=−3 ; reste=−3×2+6=0. Quotient Q(X)=X²−2X−3."
+            explanation: "Horner : \\(b_2 = 1\\) ; \\(b_1 = 1 \\times 2 + (-4) = -2\\) ; \\(b_0 = -2 \\times 2 + 1 = -3\\) ; reste \\(= -3 \\times 2 + 6 = 0\\). Quotient \\(Q(X) = X^2 - 2X - 3\\)."
           },
           {
             question: "Quel est l'avantage principal de l'algorithme de Horner par rapport à l'évaluation directe ?",
-            choices: ["Il ne nécessite que n multiplications et n additions (au lieu de ~2n)", "Il évite de trouver les racines", "Il fonctionne uniquement pour les polynômes de degré 2", "Il permet d'éviter la division euclidienne"],
+            choices: ["Il ne nécessite que \\(n\\) multiplications et \\(n\\) additions", "Il évite de trouver les racines", "Il fonctionne uniquement pour les polynômes de degré 2", "Il permet d'éviter la division euclidienne"],
             answer: 0,
-            explanation: "Horner imbrique les multiplications : P(a) = (…((cₙ·a + cₙ₋₁)·a + …)·a + c₀, soit n multiplications et n additions exactement."
+            explanation: "Horner imbrique les multiplications : \\(P(a) = (\\ldots((c_n \\cdot a + c_{n-1}) \\cdot a + \\ldots) \\cdot a + c_0\\), soit \\(n\\) multiplications et \\(n\\) additions."
           }
         ]
       },
@@ -314,22 +314,22 @@ window.APP_DATA = {
         summary: "Exemple introductif : le volume V d'un gaz parfait est donné par V = nRT/P, qui est une fonction de trois variables n, T et P. On écrit formellement V : ℝ₊³ → ℝ₊, (n, T, P) ↦ nRT/P. Définition générale : une fonction de n variables est une application f : E → F dont le domaine de définition D = D₁ × D₂ × … × Dₙ est un produit cartésien. La représentation graphique d'une fonction de 2 variables est une surface dans ℝ³ : à chaque point (x ; y) du domaine on associe un point (x ; y ; z = f(x ; y)) dans l'espace tridimensionnel.",
         qcm: [
           {
-            question: "Quel est le domaine de définition de f(x, y) = ln(x + y) ?",
-            choices: ["x + y > 0 (demi-plan strictement positif)", "x > 0 et y > 0 séparément", "x + y ≥ 0", "Tous les (x, y) ∈ ℝ²"],
+            question: "Quel est le domaine de définition de \\(f(x, y) = \\ln(x + y)\\) ?",
+            choices: ["\\(x + y > 0\\) (demi-plan strictement positif)", "\\(x > 0\\) et \\(y > 0\\) séparément", "\\(x + y \\geq 0\\)", "Tous les \\((x, y) \\in \\mathbb{R}^2\\)"],
             answer: 0,
-            explanation: "Le logarithme est défini uniquement pour des valeurs strictement positives. Il faut donc x + y > 0."
+            explanation: "Le logarithme est défini uniquement pour des valeurs strictement positives. Il faut donc \\(x + y > 0\\)."
           },
           {
-            question: "Que représentent les courbes de niveau f(T, V) = c pour f = P(T, V) = nRT/V ?",
-            choices: ["Des isobares (pression constante P = c)", "Des isothermes (T constant), appelées isothermes de Boyle", "Des isochores (V constant)", "Des courbes de chaleur spécifique"],
+            question: "Que représentent les courbes de niveau \\(f(T, V) = c\\) pour \\(f = P(T, V) = \\frac{nRT}{V}\\) ?",
+            choices: ["Des isobares (pression constante \\(P = c\\))", "Des isothermes (\\(T\\) constant), appelées isothermes de Boyle", "Des isochores (\\(V\\) constant)", "Des courbes de chaleur spécifique"],
             answer: 0,
-            explanation: "Les courbes de niveau de P(T,V) = nRT/V = c signifient que P = c est constante : ce sont des isobares. Dans le plan (T,V) elles s'écrivent T = (c/nR)·V, des droites passant par l'origine. Les isothermes de Boyle (PV = const) se représentent dans le plan (P,V), pas ici."
+            explanation: "Les courbes de niveau de \\(P(T,V) = \\frac{nRT}{V} = c\\) signifient que \\(P = c\\) est constante : ce sont des isobares. Dans le plan \\((T,V)\\) elles s'écrivent \\(T = \\frac{c}{nR} \\cdot V\\), des droites passant par l'origine. Les isothermes de Boyle (\\(PV = \\text{const}\\)) se représentent dans le plan \\((P,V)\\), pas ici."
           },
           {
-            question: "En combien de dimensions vit le graphe d'une fonction f(x, y) ?",
-            choices: ["3 dimensions (surface dans ℝ³)", "2 dimensions (courbe dans ℝ²)", "4 dimensions", "1 dimension"],
+            question: "En combien de dimensions vit le graphe d'une fonction \\(f(x, y)\\) ?",
+            choices: ["3 dimensions (surface dans \\(\\mathbb{R}^3\\))", "2 dimensions (courbe dans \\(\\mathbb{R}^2\\))", "4 dimensions", "1 dimension"],
             answer: 0,
-            explanation: "f associe à chaque point (x, y) du plan ℝ² une valeur z = f(x,y) : le graphe est une surface dans ℝ³."
+            explanation: "\\(f\\) associe à chaque point \\((x, y)\\) du plan \\(\\mathbb{R}^2\\) une valeur \\(z = f(x,y)\\) : le graphe est une surface dans \\(\\mathbb{R}^3\\)."
           }
         ]
       },
@@ -338,22 +338,22 @@ window.APP_DATA = {
         summary: "La dérivée partielle ∂f/∂xᵢ est obtenue en dérivant f par rapport à xᵢ en gardant toutes les autres variables constantes. Sa définition par limite est : ∂f/∂xᵢ = lim_{h→0} [f(…, xᵢ + h, …) − f(…, xᵢ, …)] / h. La notation ∂f/∂xᵢ|_{xⱼ, j≠i} rappelle que les autres variables sont fixées. Attention : pour une fonction d'une seule variable, on écrit df/dx et non ∂f/∂x. Les dérivées d'ordre supérieur se calculent à partir des dérivées d'ordre précédent : on définit ∂²f/∂x², ∂²f/∂y², ∂²f/∂x∂y et ∂²f/∂y∂x. Résultat fondamental : ∂²f/∂y∂x = ∂²f/∂x∂y toujours (les dérivées mixtes sont égales). De même, les dérivées d'ordre n se calculent à partir des dérivées d'ordre n − 1.",
         qcm: [
           {
-            question: "Comment calcule-t-on ∂f/∂x pour f(x, y) = 3x²y + y³ ?",
-            choices: ["On dérive par rapport à x en traitant y comme une constante : ∂f/∂x = 6xy", "On dérive par rapport aux deux variables simultanément", "On pose y = 0 puis on dérive", "∂f/∂x = 3x² + 3y²"],
+            question: "Comment calcule-t-on \\(\\frac{\\partial f}{\\partial x}\\) pour \\(f(x, y) = 3x^2y + y^3\\) ?",
+            choices: ["On dérive par rapport à \\(x\\) en traitant \\(y\\) comme une constante : \\(\\frac{\\partial f}{\\partial x} = 6xy\\)", "On dérive par rapport aux deux variables simultanément", "On pose \\(y = 0\\) puis on dérive", "\\(\\frac{\\partial f}{\\partial x} = 3x^2 + 3y^2\\)"],
             answer: 0,
-            explanation: "∂f/∂x = 6xy (y est une constante). De même ∂f/∂y = 3x² + 3y²."
+            explanation: "\\(\\frac{\\partial f}{\\partial x} = 6xy\\) (\\(y\\) est une constante). De même \\(\\frac{\\partial f}{\\partial y} = 3x^2 + 3y^2\\)."
           },
           {
             question: "Qu'affirme le théorème de Schwarz sur les dérivées mixtes ?",
-            choices: ["∂²f/∂x∂y = ∂²f/∂y∂x si f est de classe C²", "∂f/∂x = ∂f/∂y en tout point", "Les dérivées partielles d'ordre 2 sont toujours nulles", "On ne peut pas dériver deux fois en variables différentes"],
+            choices: ["\\(\\frac{\\partial^2 f}{\\partial x \\partial y} = \\frac{\\partial^2 f}{\\partial y \\partial x}\\) si \\(f\\) est de classe \\(C^2\\)", "\\(\\frac{\\partial f}{\\partial x} = \\frac{\\partial f}{\\partial y}\\) en tout point", "Les dérivées partielles d'ordre 2 sont toujours nulles", "On ne peut pas dériver deux fois en variables différentes"],
             answer: 0,
-            explanation: "Si f est suffisamment régulière (C²), l'ordre de dérivation n'a pas d'importance : on peut dériver d'abord par rapport à x puis y, ou l'inverse."
+            explanation: "Si \\(f\\) est suffisamment régulière (\\(C^2\\)), l'ordre de dérivation n'a pas d'importance : on peut dériver d'abord par rapport à \\(x\\) puis \\(y\\), ou l'inverse."
           },
           {
-            question: "Que modélise l'équation aux dérivées partielles ∂u/∂t = k·∂²u/∂x² ?",
+            question: "Que modélise l'équation aux dérivées partielles \\(\\frac{\\partial u}{\\partial t} = k \\frac{\\partial^2 u}{\\partial x^2}\\) ?",
             choices: ["La diffusion thermique (équation de la chaleur)", "La propagation d'une onde sonore", "Un bilan matière en régime permanent", "La loi de Van der Waals"],
             answer: 0,
-            explanation: "L'équation de la chaleur décrit comment la température u(x,t) évolue au cours du temps par diffusion thermique dans un milieu."
+            explanation: "L'équation de la chaleur décrit comment la température \\(u(x,t)\\) évolue au cours du temps par diffusion thermique dans un milieu."
           }
         ]
       },
@@ -362,22 +362,22 @@ window.APP_DATA = {
         summary: "La différentielle d'une fonction f de n variables est df = Σᵢ (∂f/∂xᵢ) dxᵢ = (∂f/∂x₁) dx₁ + (∂f/∂x₂) dx₂ + … + (∂f/∂xₙ) dxₙ. Elle représente la variation infinitésimale de f résultant des variations infinitésimales dxᵢ de chaque variable. Autrement dit, df donne l'approximation linéaire de la variation de f lorsque chaque variable subit une petite variation dxᵢ, la contribution de chaque variable étant pondérée par la dérivée partielle correspondante.",
         qcm: [
           {
-            question: "Quelle est l'expression de la différentielle totale df de f(x, y) ?",
-            choices: ["df = (∂f/∂x) dx + (∂f/∂y) dy", "df = ∂f/∂x + ∂f/∂y", "df = f(x+dx, y+dy)", "df = (∂²f/∂x²) dx² + (∂²f/∂y²) dy²"],
+            question: "Quelle est l'expression de la différentielle totale \\(df\\) de \\(f(x, y)\\) ?",
+            choices: ["\\(df = \\frac{\\partial f}{\\partial x}\\,dx + \\frac{\\partial f}{\\partial y}\\,dy\\)", "\\(df = \\frac{\\partial f}{\\partial x} + \\frac{\\partial f}{\\partial y}\\)", "\\(df = f(x+dx, y+dy)\\)", "\\(df = \\frac{\\partial^2 f}{\\partial x^2}\\,dx^2 + \\frac{\\partial^2 f}{\\partial y^2}\\,dy^2\\)"],
             answer: 0,
-            explanation: "La différentielle totale donne la variation linéaire approchée de f pour de petits déplacements (dx, dy)."
+            explanation: "La différentielle totale donne la variation linéaire approchée de \\(f\\) pour de petits déplacements \\((dx, dy)\\)."
           },
           {
-            question: "Si x = x(t) et y = y(t), comment s'écrit df/dt (règle de la chaîne) ?",
-            choices: ["df/dt = (∂f/∂x)(dx/dt) + (∂f/∂y)(dy/dt)", "df/dt = ∂f/∂t", "df/dt = (∂f/∂x)·(∂f/∂y)", "df/dt = dx/dt + dy/dt"],
+            question: "Si \\(x = x(t)\\) et \\(y = y(t)\\), comment s'écrit \\(\\frac{df}{dt}\\) (règle de la chaîne) ?",
+            choices: ["\\(\\frac{df}{dt} = \\frac{\\partial f}{\\partial x}\\frac{dx}{dt} + \\frac{\\partial f}{\\partial y}\\frac{dy}{dt}\\)", "\\(\\frac{df}{dt} = \\frac{\\partial f}{\\partial t}\\)", "\\(\\frac{df}{dt} = \\frac{\\partial f}{\\partial x} \\cdot \\frac{\\partial f}{\\partial y}\\)", "\\(\\frac{df}{dt} = \\frac{dx}{dt} + \\frac{dy}{dt}\\)"],
             answer: 0,
             explanation: "La règle de la chaîne généralise la dérivation en chaîne : chaque variable contribue selon sa dérivée partielle fois sa vitesse de variation."
           },
           {
-            question: "Quelle est la condition d'exactitude de la différentielle M(x,y) dx + N(x,y) dy ?",
-            choices: ["∂M/∂y = ∂N/∂x", "M = N", "∂M/∂x = ∂N/∂y", "M·N = 0"],
+            question: "Quelle est la condition d'exactitude de la différentielle \\(M(x,y)\\,dx + N(x,y)\\,dy\\) ?",
+            choices: ["\\(\\frac{\\partial M}{\\partial y} = \\frac{\\partial N}{\\partial x}\\)", "\\(M = N\\)", "\\(\\frac{\\partial M}{\\partial x} = \\frac{\\partial N}{\\partial y}\\)", "\\(M \\cdot N = 0\\)"],
             answer: 0,
-            explanation: "Par le théorème de Schwarz, si ∂M/∂y = ∂N/∂x, la forme différentielle est exacte : elle dérive d'une fonction potentiel (fonction d'état en thermodynamique)."
+            explanation: "Par le théorème de Schwarz, si \\(\\frac{\\partial M}{\\partial y} = \\frac{\\partial N}{\\partial x}\\), la forme différentielle est exacte : elle dérive d'une fonction potentiel (fonction d'état en thermodynamique)."
           }
         ]
       },
@@ -389,19 +389,19 @@ window.APP_DATA = {
             question: "Qu'est-ce qui distingue une EDP d'une EDO classique ?",
             choices: ["Une EDP fait intervenir des dérivées partielles par rapport à plusieurs variables indépendantes", "Une EDP n'a pas de solution", "Une EDP est linéaire par définition", "Une EDP concerne uniquement les fonctions d'une variable"],
             answer: 0,
-            explanation: "Dans une EDO, l'inconnue dépend d'une seule variable. Dans une EDP, l'inconnue (ex. T(x,t)) dépend de plusieurs variables indépendantes et l'équation fait intervenir ses dérivées partielles."
+            explanation: "Dans une EDO, l'inconnue dépend d'une seule variable. Dans une EDP, l'inconnue (ex. \\(T(x,t)\\)) dépend de plusieurs variables indépendantes et l'équation fait intervenir ses dérivées partielles."
           },
           {
-            question: "L'équation de la chaleur ∂T/∂t = k·∂²T/∂x² modélise :",
-            choices: ["La diffusion thermique : comment la température T(x,t) évolue dans le temps par conduction", "La propagation d'une onde sonore", "L'équation d'état des gaz parfaits", "Un bilan matière en régime stationnaire"],
+            question: "L'équation de la chaleur \\(\\frac{\\partial T}{\\partial t} = k \\frac{\\partial^2 T}{\\partial x^2}\\) modélise :",
+            choices: ["La diffusion thermique : comment la température \\(T(x,t)\\) évolue dans le temps par conduction", "La propagation d'une onde sonore", "L'équation d'état des gaz parfaits", "Un bilan matière en régime stationnaire"],
             answer: 0,
             explanation: "L'équation de la chaleur est une EDP du 2ème ordre en espace et du 1er ordre en temps. Elle décrit comment une distribution de température diffuse dans un milieu au cours du temps."
           },
           {
-            question: "Pour résoudre ∂f/∂x = 2xy + y², on intègre par rapport à x en traitant y comme une constante. Le résultat est :",
-            choices: ["f(x, y) = x²y + xy² + C(y), où C(y) est une fonction arbitraire de y", "f(x, y) = x²y + xy² + C (constante)", "f(x, y) = 2y + 0 (on dérive par rapport à x uniquement)", "f(x, y) = x² + y²"],
+            question: "Pour résoudre \\(\\frac{\\partial f}{\\partial x} = 2xy + y^2\\), on intègre par rapport à \\(x\\) en traitant \\(y\\) comme une constante. Le résultat est :",
+            choices: ["\\(f(x, y) = x^2y + xy^2 + C(y)\\), où \\(C(y)\\) est une fonction arbitraire de \\(y\\)", "\\(f(x, y) = x^2y + xy^2 + C\\) (constante)", "\\(f(x, y) = 2y + 0\\) (on dérive par rapport à \\(x\\) uniquement)", "\\(f(x, y) = x^2 + y^2\\)"],
             answer: 0,
-            explanation: "En intégrant par rapport à x, y est constante : ∫(2xy + y²)dx = x²y + xy² + C(y). La constante d'intégration peut être une fonction quelconque de y, à déterminer via la deuxième condition."
+            explanation: "En intégrant par rapport à \\(x\\), \\(y\\) est constante : \\(\\int(2xy + y^2)\\,dx = x^2y + xy^2 + C(y)\\). La constante d'intégration peut être une fonction quelconque de \\(y\\), à déterminer via la deuxième condition."
           }
         ]
       },
@@ -411,21 +411,21 @@ window.APP_DATA = {
         qcm: [
           {
             question: "Quel théorème permet d'évaluer une intégrale double comme deux intégrales simples successives ?",
-            choices: ["Le théorème de Fubini : ∬_D f dA = ∫_a^b (∫_{g(x)}^{h(x)} f dy) dx", "Le théorème de Schwarz sur les dérivées mixtes", "Le théorème de Gauss-Jordan", "Le théorème des accroissements finis"],
+            choices: ["Le théorème de Fubini : \\(\\iint_D f\\,dA = \\int_a^b \\left(\\int_{g(x)}^{h(x)} f\\,dy\\right) dx\\)", "Le théorème de Schwarz sur les dérivées mixtes", "Le théorème de Gauss-Jordan", "Le théorème des accroissements finis"],
             answer: 0,
             explanation: "Fubini autorise de décomposer une intégrale double en deux intégrales simples imbriquées. On intègre d'abord par rapport à la variable intérieure en fixant l'autre, puis on intègre le résultat."
           },
           {
-            question: "Pour calculer ∫₀¹ ∫₀^π x·sin(y) dy dx, quelle est la bonne démarche ?",
-            choices: ["Intégrer d'abord par rapport à y (variable intérieure) en traitant x comme une constante, puis intégrer le résultat par rapport à x", "Intégrer simultanément par rapport aux deux variables", "Calculer ∂(x·sin y)/∂x d'abord", "Poser u = x·sin y et changer de variable"],
+            question: "Pour calculer \\(\\int_0^1 \\int_0^\\pi x \\sin(y)\\,dy\\,dx\\), quelle est la bonne démarche ?",
+            choices: ["Intégrer d'abord par rapport à \\(y\\) (variable intérieure) en traitant \\(x\\) comme une constante, puis intégrer le résultat par rapport à \\(x\\)", "Intégrer simultanément par rapport aux deux variables", "Calculer \\(\\frac{\\partial (x \\sin y)}{\\partial x}\\) d'abord", "Poser \\(u = x \\sin y\\) et changer de variable"],
             answer: 0,
-            explanation: "On applique Fubini : ∫₀¹ [∫₀^π x·sin(y) dy] dx = ∫₀¹ x·[−cos(y)]₀^π dx = ∫₀¹ 2x dx = [x²]₀¹ = 1."
+            explanation: "On applique Fubini : \\(\\int_0^1 \\left[\\int_0^\\pi x \\sin(y)\\,dy\\right] dx = \\int_0^1 x \\left[-\\cos(y)\\right]_0^\\pi dx = \\int_0^1 2x\\,dx = \\left[x^2\\right]_0^1 = 1\\)."
           },
           {
-            question: "En coordonnées polaires (r, θ), l'aire du disque de rayon R se calcule par ∬ r dr dθ. Le résultat est :",
-            choices: ["A = πR² (en intégrant r de 0 à R et θ de 0 à 2π)", "A = 2πR", "A = R²", "A = 4πR²"],
+            question: "En coordonnées polaires \\((r, \\theta)\\), l'aire du disque de rayon \\(R\\) se calcule par \\(\\iint r\\,dr\\,d\\theta\\). Le résultat est :",
+            choices: ["\\(A = \\pi R^2\\) (en intégrant \\(r\\) de 0 à \\(R\\) et \\(\\theta\\) de 0 à \\(2\\pi\\))", "\\(A = 2\\pi R\\)", "\\(A = R^2\\)", "\\(A = 4\\pi R^2\\)"],
             answer: 0,
-            explanation: "∫₀^{2π} ∫₀^R r dr dθ = 2π · [r²/2]₀^R = 2π · R²/2 = πR². Le jacobien de la transformation polaire est r, d'où le facteur r dans l'intégrale."
+            explanation: "\\(\\int_0^{2\\pi} \\int_0^R r\\,dr\\,d\\theta = 2\\pi \\cdot \\left[\\frac{r^2}{2}\\right]_0^R = 2\\pi \\cdot \\frac{R^2}{2} = \\pi R^2\\). Le jacobien de la transformation polaire est \\(r\\), d'où le facteur \\(r\\) dans l'intégrale."
           }
         ]
       },
@@ -435,149 +435,124 @@ window.APP_DATA = {
   {
     code: "FRAT",
     semester: "S2",
-    title: "Fractions Rationnelles et Transformée de Laplace",
+    title: "Fractions Rationnelles",
     focus: [
-      "Décomposition en éléments simples (DES)",
-      "Pôles simples, pôles doubles, pôles complexes conjugués",
-      "Intégration par DES",
-      "Transformée de Laplace inverse et réponse indicielle",
+      "Définition, opérations et simplification de fractions rationnelles",
+      "Partie entière, pôles et racines",
+      "Décomposition en éléments simples (DES) dans \\(\\mathbb{R}\\) et \\(\\mathbb{C}\\)",
+      "Primitives des fractions rationnelles (1ʳᵉ et 2ᵉ espèce)",
     ],
     objective:
-      "Maîtriser la décomposition en éléments simples pour intégrer des fractions rationnelles et inverser des transformées de Laplace, outils essentiels en automatique et en génie chimique.",
+      "Maîtriser les fractions rationnelles, leur décomposition en éléments simples et l'intégration des éléments simples obtenus, outils fondamentaux en calcul intégral et en modélisation de procédés.",
     prerequisites: [
-      "Calcul de racines d'un polynôme (méthode algébrique, discriminant)",
-      "Intégration de fractions simples (ln, arctan)",
-      "Notions de base en automatique (fonction de transfert)",
+      "Calcul de racines d'un polynôme (discriminant, factorisation)",
+      "Division euclidienne de polynômes",
+      "Intégration de fractions simples (\\(\\ln\\), \\(\\arctan\\))",
     ],
     applications: [
-      "Inversion de transformées de Laplace en automatique",
-      "Réponse temporelle de systèmes du 1er et 2nd ordre",
-      "Calcul d'intégrales en modélisation de procédés",
-      "Analyse de stabilité par position des pôles",
+      "Calcul de primitives en modélisation de procédés",
+      "Intégration de fonctions rationnelles dans les bilans",
+      "Simplification d'expressions dans les équations de transfert",
     ],
     lessons: [
       {
-        title: "Fractions rationnelles",
-        summary: "Une fraction rationnelle est un quotient F(X) = N(X)/D(X) où N est le numérateur et D le dénominateur (D est un polynôme non nul). Exemples : X²/(3X + 1), 1/((X − 2)(X + 3)), X³/(X⁷ + X⁴ − 1). Opérations : l'addition s'effectue en mettant au même dénominateur ; la multiplication donne N₁N₂/D₁D₂ ; la simplification est possible si N et D ont une racine commune R : on écrit N = Ñ·R et D = D̃·R pour obtenir F = Ñ/D̃ ; une fraction est irréductible s'il n'existe plus de racine commune. Partie entière E(X) et reste R(X) : on effectue la division euclidienne N = D·E + R avec deg R < deg D, ce qui donne F = E + R/D. Si deg N < deg D, alors E = 0. Si deg N = deg D, alors E est une constante égale à lim_{X→∞} F(X). Pôles : Y₀ est pôle de F irréductible si D(Y₀) = 0 et N(Y₀) ≠ 0 ; si Y₀ est racine de D d'ordre α, alors Y₀ est pôle d'ordre α.",
+        title: "Fractions rationnelles : définitions et opérations",
+        summary: "Une fraction rationnelle est un quotient \\(F(X) = \\frac{N(X)}{D(X)}\\) où \\(N\\) est le numérateur et \\(D\\) le dénominateur (polynôme non nul). Exemples : \\(\\frac{X^2}{3X+1}\\), \\(\\frac{1}{(X-2)(X+3)}\\), \\(\\frac{X^3}{X^7+X^4-1}\\). L'addition s'effectue en mettant au même dénominateur ; la multiplication donne \\(\\frac{N_1 N_2}{D_1 D_2}\\). La simplification est possible si \\(N\\) et \\(D\\) ont un facteur commun \\(R\\) : on écrit \\(N = \\tilde{N} \\cdot R\\) et \\(D = \\tilde{D} \\cdot R\\), d'où \\(F = \\frac{\\tilde{N}}{\\tilde{D}}\\). Une fraction est irréductible s'il n'y a plus de facteur commun. Partie entière : on effectue la division euclidienne \\(N = D \\cdot E + R\\) avec \\(\\deg R < \\deg D\\), d'où \\(F = E + \\frac{R}{D}\\). Si \\(\\deg N < \\deg D\\), alors \\(E = 0\\). Pôles : \\(Y_0\\) est pôle de \\(F\\) si \\(D(Y_0) = 0\\) et \\(N(Y_0) \\neq 0\\) ; l'ordre du pôle est la multiplicité de \\(Y_0\\) comme racine de \\(D\\).",
         qcm: [
           {
-            question: "F(X) = P(X)/Q(X) est dite propre quand :",
-            choices: ["deg P < deg Q", "deg P = deg Q", "deg P > deg Q", "Q est constant"],
+            question: "\\(F(X) = \\frac{P(X)}{Q(X)}\\) est dite propre (strictement) quand :",
+            choices: ["\\(\\deg P < \\deg Q\\)", "\\(\\deg P = \\deg Q\\)", "\\(\\deg P > \\deg Q\\)", "\\(Q\\) est constant"],
             answer: 0,
-            explanation: "Une fraction propre (strictement propre) vérifie deg P < deg Q. C'est la condition pour appliquer directement la DES sans division préalable."
+            explanation: "Une fraction strictement propre vérifie \\(\\deg P < \\deg Q\\). C'est la condition pour appliquer directement la DES sans division préalable."
           },
           {
-            question: "Pour F(X) = (X²+1)/(X²−1), que faut-il faire avant la DES ?",
-            choices: ["Effectuer la division euclidienne pour extraire la partie entière", "Factoriser le numérateur", "Chercher les racines de X²+1", "Rien, on peut décomposer directement"],
+            question: "Pour \\(F(X) = \\frac{X^2+1}{X^2-1}\\), que faut-il faire avant la DES ?",
+            choices: ["Effectuer la division euclidienne pour extraire la partie entière", "Factoriser le numérateur", "Chercher les racines de \\(X^2+1\\)", "Rien, on peut décomposer directement"],
             answer: 0,
-            explanation: "deg(num) = deg(dén) = 2 → fraction impropre. Division : X²+1 = 1·(X²−1) + 2, soit F = 1 + 2/(X²−1). On applique la DES à la partie propre 2/((X−1)(X+1))."
+            explanation: "\\(\\deg(N) = \\deg(D) = 2\\) → fraction impropre. Division : \\(X^2+1 = 1 \\cdot (X^2-1) + 2\\), soit \\(F = 1 + \\frac{2}{(X-1)(X+1)}\\)."
           },
           {
-            question: "Que sont les pôles d'une fraction rationnelle F(X) = P(X)/Q(X) ?",
-            choices: ["Les racines du dénominateur Q(X)", "Les racines du numérateur P(X)", "Les valeurs où F(X) = 0", "Les coefficients de Q"],
+            question: "Que sont les pôles d'une fraction rationnelle irréductible \\(F(X) = \\frac{P(X)}{Q(X)}\\) ?",
+            choices: ["Les racines du dénominateur \\(Q(X)\\)", "Les racines du numérateur \\(P(X)\\)", "Les valeurs où \\(F(X) = 0\\)", "Les coefficients de \\(Q\\)"],
             answer: 0,
-            explanation: "Les pôles sont les valeurs de X qui annulent Q(X). Un pôle d'ordre m correspond à une racine de multiplicité m de Q."
+            explanation: "Les pôles sont les valeurs \\(X_0\\) telles que \\(Q(X_0) = 0\\) et \\(P(X_0) \\neq 0\\). Un pôle d'ordre \\(m\\) correspond à une racine de multiplicité \\(m\\) de \\(Q\\)."
           }
         ]
       },
       {
-        title: "Décomposition en éléments simples des fractions rationnelles",
-        summary: "La décomposition en éléments simples (DES) suit quatre étapes. Étape 1 — déterminer la partie entière (effectuer la division euclidienne si deg N ≥ deg D). Étape 2 — factoriser le dénominateur dans ℝ ou ℂ. Étape 3 — poser la forme générale de la DES selon la nature des pôles et leurs multiplicités : à chaque facteur (X − X₀)ⁿ on associe n termes A₁/(X − X₀) + A₂/(X − X₀)² + … + Aₙ/(X − X₀)ⁿ ; à chaque facteur irréductible (X² + pX + q)ⁿ dans ℝ on associe n termes (a₁X + b₁)/(X² + pX + q) + … + (aₙX + bₙ)/(X² + pX + q)ⁿ. Étape 4 — déterminer les coefficients par trois méthodes : (a) résidus : pour un pôle simple a, le coefficient est A = (X − a)·F(X)|_{X=a} ; (b) valeurs particulières : substituer des valeurs de X qui ne sont pas des pôles ; (c) division par puissances croissantes pour les pôles multiples : poser h = X − a, développer N(a + h)/D(a + h) par puissances croissantes. Lien ℂ↔ℝ : pour les pôles complexes conjugués Z₁ et Z₂, les coefficients réels a et b des termes de 2ᵉ espèce s'obtiennent via a = A + B et b = −(AZ₁ + BZ₂) où A et B sont les résidus complexes.",
+        title: "Décomposition en éléments simples (DES)",
+        summary: "La DES suit quatre étapes. Étape 1 — extraire la partie entière si \\(\\deg N \\geq \\deg D\\). Étape 2 — factoriser le dénominateur dans \\(\\mathbb{R}\\) ou \\(\\mathbb{C}\\). Étape 3 — poser la forme générale : à chaque facteur \\((X - X_0)^n\\) on associe \\(n\\) termes \\(\\frac{A_1}{X-X_0} + \\frac{A_2}{(X-X_0)^2} + \\cdots + \\frac{A_n}{(X-X_0)^n}\\) ; à chaque facteur irréductible \\((X^2+pX+q)^n\\) dans \\(\\mathbb{R}\\) on associe \\(n\\) termes \\(\\frac{a_1 X + b_1}{X^2+pX+q} + \\cdots + \\frac{a_n X + b_n}{(X^2+pX+q)^n}\\). Étape 4 — déterminer les coefficients par : (a) méthode des résidus (pôle simple \\(a\\)) : \\(A = [(X-a) \\cdot F(X)]_{X=a}\\) ; (b) valeurs particulières de \\(X\\) ; (c) division par puissances croissantes pour les pôles multiples. Pour les pôles complexes conjugués \\(Z_1, \\overline{Z_1}\\) dans \\(\\mathbb{C}\\), les résidus sont conjugués et on retrouve les coefficients réels du terme de 2ᵉ espèce.",
         qcm: [
           {
-            question: "Quelle est la 1ère étape de la décomposition en éléments simples ?",
-            choices: ["Vérifier que F est propre (deg P < deg Q)", "Factoriser le numérateur", "Identifier les coefficients par valeurs particulières", "Calculer la dérivée de F"],
+            question: "Quelle est la première étape de la DES ?",
+            choices: ["Vérifier que \\(F\\) est propre (\\(\\deg P < \\deg Q\\)) et extraire la partie entière sinon", "Factoriser le numérateur", "Identifier les coefficients par valeurs particulières", "Calculer la dérivée de \\(F\\)"],
             answer: 0,
             explanation: "On doit d'abord s'assurer que la fraction est propre. Si elle est impropre, on effectue la division euclidienne pour extraire la partie entière."
           },
           {
-            question: "Pour une racine simple r de Q, comment calcule-t-on le résidu A par la méthode de couverture ?",
-            choices: ["A = [(X−r)·F(X)] évalué en X = r", "A = F(r)", "A = F'(r)", "A = Q'(r)"],
+            question: "Pour un pôle simple \\(r\\) de \\(Q\\), comment calcule-t-on le résidu \\(A\\) ?",
+            choices: ["\\(A = [(X-r) \\cdot F(X)]_{X=r}\\)", "\\(A = F(r)\\)", "\\(A = F'(r)\\)", "\\(A = Q'(r)\\)"],
             answer: 0,
-            explanation: "On multiplie F par (X−r) — ce qui couvre le facteur (X−r) au dénominateur — puis on évalue en X = r : A = lim_{X→r}(X−r)·F(X)."
+            explanation: "On multiplie \\(F\\) par \\((X-r)\\) puis on évalue en \\(X = r\\). C'est la méthode de couverture."
           },
           {
-            question: "Quel terme de décomposition correspond à un facteur quadratique irréductible X²+pX+q (Δ < 0) ?",
-            choices: ["(AX + B)/(X²+pX+q)", "A/(X²+pX+q)", "A/(X−r₁) + A/(X−r₂) avec r₁,r₂ complexes", "A·X + B"],
+            question: "Quel terme correspond à un facteur irréductible \\(X^2+pX+q\\) (\\(\\Delta < 0\\)) dans \\(\\mathbb{R}\\) ?",
+            choices: ["\\(\\frac{AX + B}{X^2+pX+q}\\)", "\\(\\frac{A}{X^2+pX+q}\\)", "\\(\\frac{A}{X-r_1} + \\frac{B}{X-r_2}\\)", "\\(AX + B\\)"],
             answer: 0,
-            explanation: "Un facteur irréductible du second degré donne un terme de la forme (AX+B)/(X²+pX+q). On trouve A et B par identification."
+            explanation: "Un facteur irréductible du second degré dans \\(\\mathbb{R}\\) donne un terme de la forme \\(\\frac{AX+B}{X^2+pX+q}\\). On trouve \\(A\\) et \\(B\\) par identification."
           }
         ]
       },
       {
         title: "Primitives des fractions rationnelles réelles",
-        summary: "Pour calculer la primitive d'une fraction rationnelle, on effectue toujours d'abord la DES, puis on intègre terme à terme. Éléments de 1ʳᵉ espèce A/(X − a)ⁿ : si n = 1, la primitive est A·ln|X − a| + cste ; si n > 1, la primitive est −A / ((n−1)(X − a)^{n−1}) + cste. Éléments de 2ᵉ espèce (aX + b)/(X² + pX + q) avec X² + pX + q irréductible dans ℝ (Δ < 0) : on décompose l'intégrale en I = (a/2)·I₁ + (b − ap/2)·I₂ où I₁ = ln|X² + pX + q| et I₂ = (1/δ)·arctan((X + p/2)/δ) avec δ = √(q − (p/2)²) > 0. La formule résumée est : ∫ (at + b)/(t² + pt + q) dt = (a/2) ln|X² + pX + q| + (b − ap/2)/δ · arctan((X + p/2)/δ) + cste.",
+        summary: "Pour calculer la primitive d'une fraction rationnelle, on effectue d'abord la DES, puis on intègre terme à terme. Éléments de 1ʳᵉ espèce \\(\\frac{A}{(X-a)^n}\\) : si \\(n = 1\\), \\(\\int \\frac{A}{X-a}\\,dX = A \\ln|X-a| + C\\) ; si \\(n > 1\\), \\(\\int \\frac{A}{(X-a)^n}\\,dX = \\frac{-A}{(n-1)(X-a)^{n-1}} + C\\). Éléments de 2ᵉ espèce \\(\\frac{aX+b}{X^2+pX+q}\\) avec \\(\\Delta < 0\\) : on pose \\(\\delta = \\sqrt{q - \\frac{p^2}{4}} > 0\\), et la primitive est \\(\\frac{a}{2} \\ln|X^2+pX+q| + \\frac{b - \\frac{ap}{2}}{\\delta} \\arctan\\!\\left(\\frac{X + \\frac{p}{2}}{\\delta}\\right) + C\\). La partie en \\(\\ln\\) vient du terme proportionnel à la dérivée du dénominateur, la partie en \\(\\arctan\\) gère le reste constant.",
         qcm: [
           {
-            question: "Quelle est la primitive de A/(X − r) ?",
-            choices: ["A·ln|X − r| + C", "A/(X − r)² + C", "A·e^(X−r) + C", "A·arctan(X − r) + C"],
+            question: "Quelle est la primitive de \\(\\frac{A}{X - r}\\) ?",
+            choices: ["\\(A \\ln|X - r| + C\\)", "\\(\\frac{A}{(X-r)^2} + C\\)", "\\(A e^{X-r} + C\\)", "\\(A \\arctan(X-r) + C\\)"],
             answer: 0,
-            explanation: "C'est la primitive fondamentale de 1/(X−r). Elle apparaît chaque fois qu'on intègre un terme issu d'un pôle simple."
+            explanation: "C'est la primitive fondamentale d'un élément de 1ʳᵉ espèce d'ordre 1 (pôle simple)."
           },
           {
-            question: "Quelle est la primitive de B/(X − r)² (pôle double) ?",
-            choices: ["−B/(X − r) + C", "B·ln|X − r| + C", "2B/(X − r)³ + C", "B·(X−r) + C"],
+            question: "Quelle est la primitive de \\(\\frac{B}{(X - r)^2}\\) (pôle double) ?",
+            choices: ["\\(\\frac{-B}{X - r} + C\\)", "\\(B \\ln|X - r| + C\\)", "\\(\\frac{2B}{(X-r)^3} + C\\)", "\\(B(X-r) + C\\)"],
             answer: 0,
-            explanation: "∫(X−r)^(−2) dX = (X−r)^(−1)/(−1) = −1/(X−r). Donc ∫B/(X−r)² dX = −B/(X−r) + C."
+            explanation: "\\(\\int (X-r)^{-2}\\,dX = \\frac{(X-r)^{-1}}{-1} = \\frac{-1}{X-r}\\). Donc la primitive est \\(\\frac{-B}{X-r} + C\\)."
           },
           {
-            question: "Comment intègre-t-on un élément de 2ᵉ espèce (aX + b)/(X² + pX + q) avec Δ < 0 ?",
+            question: "Comment intègre-t-on \\(\\frac{aX+b}{X^2+pX+q}\\) avec \\(\\Delta < 0\\) ?",
             choices: [
-              "On décompose en (a/2)·ln|X²+pX+q| + (b−ap/2)/δ · arctan((X+p/2)/δ) + C, avec δ = √(q−p²/4)",
-              "Directement ln|X² + pX + q| + C",
-              "On factorise X²+pX+q et on applique la formule des pôles simples",
-              "On dérive le numérateur et on intègre le quotient obtenu"
+              "\\(\\frac{a}{2}\\ln|X^2+pX+q| + \\frac{b-\\frac{ap}{2}}{\\delta}\\arctan\\!\\left(\\frac{X+\\frac{p}{2}}{\\delta}\\right) + C\\)",
+              "Directement \\(\\ln|X^2+pX+q| + C\\)",
+              "On factorise \\(X^2+pX+q\\) et on applique les pôles simples",
+              "On dérive le numérateur et on intègre le quotient"
             ],
             answer: 0,
-            explanation: "Quand Δ < 0, X²+pX+q est irréductible dans ℝ. On complète le carré : (X+p/2)²+δ². La partie en ln provient du terme proportionnel à la dérivée du dénominateur ; la partie en arctan gère le reste constant au numérateur."
+            explanation: "Quand \\(\\Delta < 0\\), on complète le carré : \\((X+\\frac{p}{2})^2 + \\delta^2\\). La partie \\(\\ln\\) provient du terme proportionnel à la dérivée du dénominateur ; la partie \\(\\arctan\\) gère le reste."
           }
         ]
       },
       {
-        title: "Transformée de Laplace — définition et propriétés",
-        summary: "La transformée de Laplace d'une fonction causale f(t) (définie pour t ≥ 0) est F(s) = L{f(t)} = ∫₀^+∞ f(t)·e^(−st) dt, où s ∈ ℂ est la variable de Laplace. Transformées usuelles à connaître : L{1(t)} = 1/s ; L{t} = 1/s² ; L{tⁿ} = n!/s^(n+1) ; L{e^(at)} = 1/(s−a) ; L{sin(ωt)} = ω/(s²+ω²) ; L{cos(ωt)} = s/(s²+ω²). Propriétés fondamentales : (1) Linéarité : L{af+bg} = aF+bG. (2) Dérivation : L{f'(t)} = s·F(s) − f(0⁺), L{f''(t)} = s²F(s) − sf(0⁺) − f'(0⁺). Cette propriété est la raison principale de l'utilisation de Laplace : elle transforme les EDO en équations algébriques. (3) Décalage en s (amortissement) : L{e^(at)·f(t)} = F(s−a). (4) Valeur initiale : lim_{t→0⁺} f(t) = lim_{s→+∞} s·F(s). (5) Valeur finale : lim_{t→+∞} f(t) = lim_{s→0} s·F(s) (si la limite existe, c.-à-d. si tous les pôles de sF(s) sont à partie réelle strictement négative). En génie des procédés, la transformée de Laplace permet de calculer la réponse temporelle d'un procédé décrit par une EDO : Laplace → algèbre → DES → Laplace inverse → f(t).",
+        title: "Méthodes de détermination des coefficients",
+        summary: "Quatre méthodes permettent de trouver les coefficients de la DES. Méthode 1 — résidus : pour un pôle simple \\(a\\), on calcule \\(A = [(X-a) \\cdot F(X)]_{X=a}\\). Cette méthode est rapide mais ne fonctionne que pour les pôles simples. Méthode 2 — valeurs particulières : on multiplie les deux membres par le dénominateur et on substitue des valeurs judicieuses de \\(X\\) (souvent les pôles et des valeurs simples comme 0, 1, −1). Méthode 3 — identification des coefficients : on développe et on identifie les coefficients de chaque puissance de \\(X\\). Méthode 4 — division par puissances croissantes : pour un pôle multiple \\(a\\) d'ordre \\(n\\), on pose \\(h = X - a\\) et on développe \\(\\frac{N(a+h)}{D(a+h)}\\) en puissances croissantes de \\(h\\) jusqu'à l'ordre \\(n-1\\). Les coefficients du développement donnent directement \\(A_1, A_2, \\ldots, A_n\\).",
         qcm: [
           {
-            question: "Quelle est la transformée de Laplace de e^(at) ?",
-            choices: ["1/(s − a) pour s > a", "1/(s + a)", "a/(s² + a²)", "s/(s² + a²)"],
+            question: "La méthode des résidus \\(A = [(X-a) \\cdot F(X)]_{X=a}\\) s'applique à :",
+            choices: ["Un pôle simple uniquement", "Tout type de pôle", "Un facteur irréductible du second degré", "La partie entière"],
             answer: 0,
-            explanation: "C'est une transformée fondamentale à connaître : L{e^(at)} = 1/(s−a). Elle est valable pour s > a (convergence de l'intégrale)."
+            explanation: "La méthode des résidus (couverture) ne fonctionne que pour les pôles simples (ordre 1). Pour les pôles multiples, on utilise les valeurs particulières ou la division par puissances croissantes."
           },
           {
-            question: "Quel est le principal avantage de la transformée de Laplace pour résoudre des EDO ?",
-            choices: ["Elle transforme les EDO en équations algébriques (plus simples à résoudre)", "Elle élimine les conditions initiales", "Elle transforme les intégrales en dérivées", "Elle s'applique seulement aux fonctions constantes"],
+            question: "Pour trouver les coefficients d'un pôle double \\((X-a)^2\\), quelle méthode est la plus adaptée ?",
+            choices: ["Division par puissances croissantes en posant \\(h = X - a\\)", "Résidus simples", "Dérivation du numérateur", "Calcul du discriminant"],
             answer: 0,
-            explanation: "La propriété de dérivation L{f'(t)} = s·F(s) − f(0⁺) transforme chaque dérivée en multiplication par s. L'EDO devient une équation algébrique en F(s)."
+            explanation: "On pose \\(h = X-a\\) et on développe \\(\\frac{N(a+h)}{D(a+h)}\\) en puissances croissantes de \\(h\\). Les coefficients de \\(h^{-2}\\) et \\(h^{-1}\\) donnent \\(A_2\\) et \\(A_1\\)."
           },
           {
-            question: "Comment calcule-t-on la valeur finale lim_{t→+∞} f(t) à partir de F(s) ?",
-            choices: ["lim_{s→0} s·F(s) (théorème de la valeur finale)", "lim_{s→+∞} s·F(s)", "lim_{s→0} F(s)", "F(0)"],
+            question: "Dans la méthode des valeurs particulières, quelles valeurs de \\(X\\) choisit-on en priorité ?",
+            choices: ["Les pôles du dénominateur, puis des valeurs simples (0, 1, −1)", "Uniquement \\(X = 0\\)", "Les racines du numérateur", "Des valeurs complexes"],
             answer: 0,
-            explanation: "Théorème de la valeur finale : lim_{t→∞} f(t) = lim_{s→0} s·F(s), applicable si tous les pôles de sF(s) sont à partie réelle négative."
-          }
-        ]
-      },
-      {
-        title: "Analyse fréquentielle et stabilité des procédés",
-        summary: "La fonction de transfert d'un système linéaire est G(s) = Y(s)/U(s), rapport de la sortie Y sur l'entrée U dans le domaine de Laplace. Pour un système du 1ᵉʳ ordre : G(s) = K/(τs+1), avec K le gain statique et τ la constante de temps. Réponse indicielle (entrée échelon U(s) = 1/s) : Y(s) = K/(s(τs+1)) → y(t) = K(1 − e^(−t/τ)). Pour un système du 2ᵉ ordre standard : G(s) = ωₙ²/(s²+2ζωₙs+ωₙ²) avec ωₙ la pulsation naturelle et ζ le facteur d'amortissement. Régimes : ζ > 1 sur-amorti (2 pôles réels négatifs, pas d'oscillation) ; ζ = 1 amortissement critique (pôle double) ; 0 < ζ < 1 sous-amorti (pôles complexes conjugués, oscillations amorties) ; ζ = 0 oscillant permanent ; ζ < 0 instable. Critère de stabilité : le système est stable si et seulement si tous les pôles de G(s) ont une partie réelle strictement négative (pôles dans le demi-plan gauche). La DES est l'outil central pour calculer la réponse temporelle : inverser Y(s) = G(s)·U(s) par décomposition en éléments simples puis inversion terme à terme.",
-        qcm: [
-          {
-            question: "Un système est stable si et seulement si :",
-            choices: ["Tous les pôles de G(s) ont une partie réelle strictement négative", "Le gain statique K > 0", "Les pôles sont réels", "La fonction de transfert est propre"],
-            answer: 0,
-            explanation: "Critère de stabilité BIBO : pôles dans le demi-plan gauche ouvert (Re(pôle) < 0). Tout pôle à partie réelle positive ou nulle rend le système instable ou marginalement stable."
-          },
-          {
-            question: "Pour un système du 2ᵉ ordre avec ζ > 1, quel est le régime de réponse ?",
-            choices: ["Sur-amorti : 2 pôles réels négatifs, pas d'oscillation", "Sous-amorti : oscillations amorties", "Amortissement critique : pôle double", "Instable : oscillations croissantes"],
-            answer: 0,
-            explanation: "ζ > 1 → discriminant positif → 2 pôles réels distincts négatifs → réponse exponentielle décroissante sans oscillation."
-          },
-          {
-            question: "Quelle est la réponse indicielle (échelon) d'un système du 1ᵉʳ ordre G(s) = K/(τs+1) ?",
-            choices: ["y(t) = K(1 − e^(−t/τ))", "y(t) = K·e^(−t/τ)", "y(t) = K·t·e^(−t/τ)", "y(t) = K·sin(t/τ)"],
-            answer: 0,
-            explanation: "Y(s) = K/(s(τs+1)) → DES → K/s − Kτ/(τs+1) → inversion → y(t) = K(1 − e^(−t/τ)). La réponse tend vers K en régime permanent."
+            explanation: "En substituant les pôles, on annule certains termes et on isole directement un coefficient. Les valeurs simples (0, 1, −1) donnent ensuite des équations faciles à résoudre."
           }
         ]
       },

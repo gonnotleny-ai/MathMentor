@@ -5758,11 +5758,11 @@ li + li {
 .detail-section strong,
 .correction-section strong,
 .qcm-question strong,
+.qcm-choice strong,
 .course-chat-bubble strong {
   font-weight: 700;
   color: var(--text);
-  /* Espace optique de 0.1em de chaque côté pour séparer visuellement du texte adjacent */
-  letter-spacing: 0.005em;
+  padding-inline: 0.08em;
 }
 
 /* ── Texte en italique ── */
